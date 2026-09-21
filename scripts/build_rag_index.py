@@ -1,7 +1,8 @@
 """Nạp giáo trình và dựng kho truy xuất.
 
     python scripts/build_rag_index.py            # chỉ BM25, chạy ngay, không tải gì
-    python scripts/build_rag_index.py --dense    # thêm embedding (tải bge-m3 ~2GB)
+    python scripts/build_rag_index.py --dense    # thêm embedding bge-m3 (qua Ollama nếu có, nhanh ~4 lần)
+    python scripts/build_rag_index.py --dense --hf   # ép dùng sentence-transformers
     python scripts/build_rag_index.py --ask "tích phân từng phần là gì"
 
 Thả tài liệu vào ``data/raw/<MÃ MÔN>/`` rồi chạy. Môn học suy ra từ tên thư mục.
@@ -19,7 +20,7 @@ from src.core.config import ROOT
 from src.core.itembank import COURSE_TAXONOMIES, course_taxonomy_paths
 from src.rag.chunking import assign_ids
 from src.rag.ingest import ingest_all, load_pitfalls
-from src.rag.store import EmbeddingCache, Encoder, RagIndex
+from src.rag.store import EmbeddingCache, Encoder, RagIndex, best_available_encoder, encoder_from_name
 
 RAW_DIR = ROOT / "data" / "raw"
 INDEX_DIR = ROOT / "data" / "rag_index"
@@ -66,8 +67,8 @@ def main() -> None:
 
     encoder = None
     if use_dense:
-        print("\nĐang nạp model embedding (lần đầu sẽ tải ~2GB)...")
-        encoder = Encoder()
+        encoder = Encoder() if "--hf" in sys.argv else best_available_encoder()
+        print(f"\nBộ mã hoá: {encoder.model_name}")
 
     cache = None
     if encoder is not None:
@@ -109,7 +110,7 @@ def _answer(question: str, use_dense: bool) -> None:
         print(f"Chưa có kho ở {INDEX_DIR}. Chạy script không kèm --ask trước.")
         return
 
-    index = RagIndex.load(INDEX_DIR, Encoder() if use_dense else None)
+    index = RagIndex.load(INDEX_DIR)  # bộ mã hoá dựng lại đúng loại đã dùng khi dựng kho
     print(f"\nHỏi: {question}\n")
     for rank, hit in enumerate(index.search(question, top_k=3), start=1):
         print(f"  {rank}. [{hit.chunk.chunk_type.value}] {hit.source_label}")

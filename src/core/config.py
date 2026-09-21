@@ -46,7 +46,9 @@ class LLMConfig:
 
     #: Ollama chạy local — lớp dự phòng bắt buộc phải có.
     ollama_url: str = field(default_factory=lambda: _env("OLLAMA_URL", "http://localhost:11434/v1"))
-    ollama_model: str = field(default_factory=lambda: _env("OLLAMA_MODEL", "qwen2.5:1.5b"))
+    #: Máy phát triển đã có sẵn qwen2.5:3b-instruct và 7b-instruct trong Ollama. Mặc định
+    #: 3b vì chạy CPU nhanh hơn đáng kể; đặt OLLAMA_MODEL=qwen2.5:7b-instruct khi cần chất lượng.
+    ollama_model: str = field(default_factory=lambda: _env("OLLAMA_MODEL", "qwen2.5:3b-instruct"))
 
     #: Bật lên thì CHỈ đọc cache, không gọi model. Dùng khi demo.
     demo_mode: bool = field(default_factory=lambda: _env_bool("DEMO_MODE"))
