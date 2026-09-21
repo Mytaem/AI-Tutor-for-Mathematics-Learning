@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Môi trường & bí mật — KHÔNG BAO GIỜ commit token Telegram / HuggingFace
+.env
+.env.*
+!.env.example
+
+# Dữ liệu nặng và có bản quyền: giáo trình, slide, đề thi của trường không
+# được đẩy lên GitHub. Chỉ commit dữ liệu do dự án tự sinh và tự gán nhãn.
+data/raw/
+data/kt/*.csv
+data/kt/*.zip
+data/sft/*.jsonl
+*.pdf
+
+# Model & index — sinh lại được, không cần lịch sử
+models/
+*.gguf
+*.safetensors
+*.bin
+.cache/
+data/rag_index/
+
+# Log thí nghiệm
+wandb/
+mlruns/
+experiments/**/runs/
+*.log
+llm_cache.sqlite
+
+# Cơ sở dữ liệu của ứng dụng: chứa bài làm và tiến độ của người dùng thật —
+# dữ liệu cá nhân của sinh viên, không bao giờ đưa lên git.
+*.sqlite
+*.sqlite-journal
+*.db
+
+# Frontend
+web/node_modules/
+web/.next/
+web/out/
+
+# Hệ điều hành / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

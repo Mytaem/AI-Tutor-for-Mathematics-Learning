@@ -1,0 +1,10 @@
+# Phụ thuộc huấn luyện — chỉ cài trên Colab/Kaggle, không cần cho API server.
+-r requirements.txt
+
+transformers>=4.40
+peft>=0.10             # LoRA / QLoRA
+bitsandbytes>=0.43     # lượng tử hoá 4-bit; KHÔNG chạy trên Windows CPU
+datasets>=2.19
+accelerate>=0.30
+trl>=0.8
+wandb>=0.17            # theo dõi learning curve để đưa vào báo cáo

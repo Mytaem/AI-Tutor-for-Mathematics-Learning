@@ -1,0 +1,132 @@
+[
+  {
+    "skill_id": "MAE.LIM.BASIC",
+    "subject": "MAE101",
+    "chapter": "Limits",
+    "name_vi": "Giới hạn cơ bản của hàm số",
+    "name_en": "Basic limits",
+    "prerequisites": [],
+    "difficulty_base": 0.2,
+    "bloom_level": "understand"
+  },
+  {
+    "skill_id": "MAE.LIM.INDET",
+    "subject": "MAE101",
+    "chapter": "Limits",
+    "name_vi": "Khử dạng vô định (0/0, ∞/∞)",
+    "name_en": "Indeterminate forms",
+    "prerequisites": ["MAE.LIM.BASIC"],
+    "difficulty_base": 0.5,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAE.DER.BASIC",
+    "subject": "MAE101",
+    "chapter": "Derivatives",
+    "name_vi": "Đạo hàm các hàm sơ cấp",
+    "name_en": "Derivatives of elementary functions",
+    "prerequisites": ["MAE.LIM.BASIC"],
+    "difficulty_base": 0.25,
+    "bloom_level": "remember"
+  },
+  {
+    "skill_id": "MAE.DER.PRODUCT",
+    "subject": "MAE101",
+    "chapter": "Derivatives",
+    "name_vi": "Quy tắc đạo hàm tích và thương",
+    "name_en": "Product and quotient rule",
+    "prerequisites": ["MAE.DER.BASIC"],
+    "difficulty_base": 0.4,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAE.DER.CHAIN",
+    "subject": "MAE101",
+    "chapter": "Derivatives",
+    "name_vi": "Quy tắc đạo hàm hàm hợp",
+    "name_en": "Chain rule",
+    "prerequisites": ["MAE.DER.BASIC"],
+    "difficulty_base": 0.45,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAE.INT.BASIC",
+    "subject": "MAE101",
+    "chapter": "Integration",
+    "name_vi": "Nguyên hàm cơ bản và quy tắc luỹ thừa",
+    "name_en": "Basic antiderivatives and power rule",
+    "prerequisites": ["MAE.DER.BASIC"],
+    "difficulty_base": 0.3,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAE.INT.TRIG",
+    "subject": "MAE101",
+    "chapter": "Integration",
+    "name_vi": "Nguyên hàm hàm lượng giác",
+    "name_en": "Trigonometric antiderivatives",
+    "prerequisites": ["MAE.INT.BASIC"],
+    "difficulty_base": 0.4,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAE.INT.EXPLOG",
+    "subject": "MAE101",
+    "chapter": "Integration",
+    "name_vi": "Nguyên hàm hàm mũ và logarit",
+    "name_en": "Exponential and logarithmic antiderivatives",
+    "prerequisites": ["MAE.INT.BASIC"],
+    "difficulty_base": 0.4,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAE.INT.SUBST",
+    "subject": "MAE101",
+    "chapter": "Integration",
+    "name_vi": "Tích phân bằng phương pháp đổi biến",
+    "name_en": "Integration by substitution",
+    "prerequisites": ["MAE.INT.BASIC", "MAE.DER.CHAIN"],
+    "difficulty_base": 0.55,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAE.INT.PARTS",
+    "subject": "MAE101",
+    "chapter": "Integration",
+    "name_vi": "Tích phân từng phần",
+    "name_en": "Integration by parts",
+    "prerequisites": ["MAE.INT.BASIC", "MAE.DER.PRODUCT"],
+    "difficulty_base": 0.65,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAE.INT.RATIONAL",
+    "subject": "MAE101",
+    "chapter": "Integration",
+    "name_vi": "Tích phân hàm phân thức hữu tỉ",
+    "name_en": "Integration of rational functions",
+    "prerequisites": ["MAE.INT.SUBST"],
+    "difficulty_base": 0.7,
+    "bloom_level": "analyze"
+  },
+  {
+    "skill_id": "MAE.INT.DEF",
+    "subject": "MAE101",
+    "chapter": "Integration",
+    "name_vi": "Tích phân xác định và công thức Newton–Leibniz",
+    "name_en": "Definite integrals",
+    "prerequisites": ["MAE.INT.BASIC"],
+    "difficulty_base": 0.45,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAE.INT.DEF.SUBST",
+    "subject": "MAE101",
+    "chapter": "Integration",
+    "name_vi": "Đổi biến trong tích phân xác định (kèm đổi cận)",
+    "name_en": "Substitution in definite integrals",
+    "prerequisites": ["MAE.INT.DEF", "MAE.INT.SUBST"],
+    "difficulty_base": 0.7,
+    "bloom_level": "apply"
+  }
+]

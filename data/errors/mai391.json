@@ -1,0 +1,209 @@
+[
+  {
+    "code": "MAI.SHAPE",
+    "tier": "E-INTERPRET",
+    "subject": "MAI391",
+    "skill_id": "MAI.MAT.BASIC",
+    "name_vi": "Sai kích thước đáp án",
+    "description_vi": "Đáp án có số hàng/cột không khớp với yêu cầu của đề.",
+    "hint_vi": "Em kiểm tra lại xem đáp án cần mấy thành phần nhé."
+  },
+  {
+    "code": "MAI.ROWOP.INVALID",
+    "tier": "E-PROCEDURE",
+    "subject": "MAI391",
+    "skill_id": "MAI.SYS.GAUSS",
+    "name_vi": "Phép biến đổi hàng không hợp lệ",
+    "description_vi": "Một bước khử Gauss làm ma trận không còn tương đương hàng với bước trước (thường do tính sai khi cộng bội hàng).",
+    "hint_vi": "Em thử làm lại phép cộng bội hàng ở bước này, chú ý dấu và hệ số nhân."
+  },
+  {
+    "code": "MAI.SYS.NOTSOLUTION",
+    "tier": "E-COMPUTE",
+    "subject": "MAI391",
+    "skill_id": "MAI.SYS.GAUSS",
+    "name_vi": "Nghiệm không thoả hệ",
+    "description_vi": "Thế ngược bộ số vào hệ thì có phương trình không thoả.",
+    "hint_vi": "Em thử thế ngược đáp án vào từng phương trình xem sao."
+  },
+  {
+    "code": "MAI.SYS.PARTIAL",
+    "tier": "E-INCOMPLETE",
+    "subject": "MAI391",
+    "skill_id": "MAI.SYS.PARAM",
+    "name_vi": "Chỉ đưa một nghiệm riêng của hệ vô số nghiệm",
+    "description_vi": "Hệ có vô số nghiệm nhưng bài làm chỉ đưa ra một (hoặc một phần) họ nghiệm, thiếu tham số tự do.",
+    "hint_vi": "Hệ này có bao nhiêu ẩn tự do? Em thử so số ẩn với hạng của ma trận hệ số."
+  },
+  {
+    "code": "MAI.SYS.INCONSISTENT",
+    "tier": "E-CONCEPT",
+    "subject": "MAI391",
+    "skill_id": "MAI.VS.RANK",
+    "name_vi": "Đưa nghiệm cho hệ vô nghiệm",
+    "description_vi": "Hệ vô nghiệm (rank A < rank A|b) nhưng bài làm vẫn đưa ra một bộ nghiệm.",
+    "hint_vi": "Em so sánh hạng của ma trận hệ số với hạng của ma trận mở rộng xem."
+  },
+  {
+    "code": "MAI.SYS.FALSENOSOL",
+    "tier": "E-COMPUTE",
+    "subject": "MAI391",
+    "skill_id": "MAI.VS.RANK",
+    "name_vi": "Kết luận vô nghiệm sai",
+    "description_vi": "Hệ có nghiệm nhưng bài làm kết luận vô nghiệm, thường do tính sai khi khử.",
+    "hint_vi": "Em kiểm tra lại bước khử làm xuất hiện dòng 0 = số khác 0 nhé."
+  },
+  {
+    "code": "MAI.DET.SIGN",
+    "tier": "E-PROCEDURE",
+    "subject": "MAI391",
+    "skill_id": "MAI.MAT.DET",
+    "name_vi": "Đổi chỗ hai hàng mà quên đổi dấu định thức",
+    "description_vi": "Kết quả đúng độ lớn nhưng ngược dấu.",
+    "hint_vi": "Khi đổi chỗ hai hàng thì định thức thay đổi thế nào?"
+  },
+  {
+    "code": "MAI.DET.SCALE",
+    "tier": "E-PROCEDURE",
+    "subject": "MAI391",
+    "skill_id": "MAI.MAT.DET",
+    "name_vi": "Nhân một hàng với k mà không bù lại",
+    "description_vi": "Kết quả lệch đúng một hệ số nguyên so với định thức thật.",
+    "hint_vi": "Nhân một hàng với k thì định thức thay đổi ra sao? Em có bù lại chưa?"
+  },
+  {
+    "code": "MAI.INV.NODET",
+    "tier": "E-PROCEDURE",
+    "subject": "MAI391",
+    "skill_id": "MAI.MAT.INV",
+    "name_vi": "Quên chia cho định thức",
+    "description_vi": "Tính đúng ma trận phụ hợp nhưng quên nhân với 1/det(A).",
+    "hint_vi": "Công thức A⁻¹ = (1/det A)·adj(A) — em còn thiếu phần nào?"
+  },
+  {
+    "code": "MAI.INV.TRANSPOSE",
+    "tier": "E-CONCEPT",
+    "subject": "MAI391",
+    "skill_id": "MAI.MAT.INV",
+    "name_vi": "Quên chuyển vị ma trận phần bù đại số",
+    "description_vi": "Ma trận phụ hợp là CHUYỂN VỊ của ma trận các phần bù đại số.",
+    "hint_vi": "Em xem lại định nghĩa ma trận phụ hợp, có bước chuyển vị không?"
+  },
+  {
+    "code": "MAI.INV.NOSIGN",
+    "tier": "E-PROCEDURE",
+    "subject": "MAI391",
+    "skill_id": "MAI.MAT.INV",
+    "name_vi": "Quên đổi dấu trong công thức nghịch đảo 2×2",
+    "description_vi": "Với ma trận 2×2, đổi chỗ hai phần tử đường chéo chính VÀ đổi dấu hai phần tử còn lại.",
+    "hint_vi": "Với ma trận 2×2, ngoài đổi chỗ đường chéo chính em còn phải làm gì với hai phần tử kia?"
+  },
+  {
+    "code": "MAI.INV.SINGULAR",
+    "tier": "E-CONDITION",
+    "subject": "MAI391",
+    "skill_id": "MAI.MAT.INV",
+    "name_vi": "Tìm nghịch đảo của ma trận suy biến",
+    "description_vi": "det(A) = 0 nên A không có nghịch đảo.",
+    "hint_vi": "Trước khi tìm nghịch đảo, em đã kiểm tra điều kiện gì chưa?"
+  },
+  {
+    "code": "MAI.INV.FALSESINGULAR",
+    "tier": "E-COMPUTE",
+    "subject": "MAI391",
+    "skill_id": "MAI.MAT.DET",
+    "name_vi": "Kết luận không khả nghịch sai",
+    "description_vi": "det(A) ≠ 0 nên A khả nghịch, thường do tính sai định thức.",
+    "hint_vi": "Em tính lại định thức giúp thầy/cô nhé."
+  },
+  {
+    "code": "MAI.EIG.ZEROVEC",
+    "tier": "E-CONCEPT",
+    "subject": "MAI391",
+    "skill_id": "MAI.EIG.VECTORS",
+    "name_vi": "Đưa vector 0 làm vector riêng",
+    "description_vi": "Theo định nghĩa, vector riêng phải khác vector 0.",
+    "hint_vi": "Định nghĩa vector riêng có điều kiện gì về vector đó?"
+  },
+  {
+    "code": "MAI.EIG.NOTEIGEN",
+    "tier": "E-COMPUTE",
+    "subject": "MAI391",
+    "skill_id": "MAI.EIG.VECTORS",
+    "name_vi": "Không phải vector riêng",
+    "description_vi": "A·v không bằng λ·v.",
+    "hint_vi": "Em thử nhân A với vector của em rồi so với λ lần vector đó."
+  },
+  {
+    "code": "MAI.EIG.WRONGVALUE",
+    "tier": "E-INTERPRET",
+    "subject": "MAI391",
+    "skill_id": "MAI.EIG.VECTORS",
+    "name_vi": "Vector riêng của trị riêng khác",
+    "description_vi": "Tìm đúng một vector riêng nhưng nó ứng với trị riêng khác trị riêng đề hỏi.",
+    "hint_vi": "Vector của em là vector riêng — nhưng ứng với trị riêng nào? Đề hỏi trị riêng nào?"
+  },
+  {
+    "code": "MAI.EIG.NOTVALUE",
+    "tier": "E-COMPUTE",
+    "subject": "MAI391",
+    "skill_id": "MAI.EIG.VALUES",
+    "name_vi": "Giá trị không phải trị riêng",
+    "description_vi": "Có giá trị không phải nghiệm của đa thức đặc trưng.",
+    "hint_vi": "Em thử thay giá trị đó vào det(A − λI) xem có bằng 0 không."
+  },
+  {
+    "code": "MAI.EIG.MISSING",
+    "tier": "E-INCOMPLETE",
+    "subject": "MAI391",
+    "skill_id": "MAI.EIG.VALUES",
+    "name_vi": "Thiếu trị riêng",
+    "description_vi": "Các giá trị đưa ra đều đúng nhưng chưa đủ.",
+    "hint_vi": "Đa thức đặc trưng có bậc bao nhiêu? Em đã tìm đủ nghiệm chưa?"
+  },
+  {
+    "code": "MAI.ODE.NOTSOLUTION",
+    "tier": "E-COMPUTE",
+    "subject": "MAI391",
+    "skill_id": "MAI.ODE.CONST2",
+    "name_vi": "Không phải nghiệm của phương trình",
+    "description_vi": "Thế hàm số vào phương trình vi phân không ra đẳng thức.",
+    "hint_vi": "Em thử lấy đạo hàm đáp án rồi thế ngược vào phương trình nhé."
+  },
+  {
+    "code": "MAI.ODE.INCOMPLETE",
+    "tier": "E-INCOMPLETE",
+    "subject": "MAI391",
+    "skill_id": "MAI.ODE.CONST2",
+    "name_vi": "Nghiệm tổng quát thiếu hằng số độc lập",
+    "description_vi": "Phương trình cấp n cần n hằng số độc lập. Hay gặp với nghiệm kép: viết C1·eʳˣ + C2·eʳˣ thay vì (C1 + C2·x)·eʳˣ.",
+    "hint_vi": "Phương trình đặc trưng có nghiệm kép không? Khi đó nghiệm tổng quát có dạng đặc biệt nào?"
+  },
+  {
+    "code": "MAI.ODE.NOHOMO",
+    "tier": "E-INCOMPLETE",
+    "subject": "MAI391",
+    "skill_id": "MAI.ODE.LINEAR1",
+    "name_vi": "Thiếu phần nghiệm thuần nhất",
+    "description_vi": "Chỉ đưa một nghiệm riêng, quên cộng nghiệm tổng quát của phương trình thuần nhất.",
+    "hint_vi": "Nghiệm tổng quát của phương trình không thuần nhất gồm những phần nào?"
+  },
+  {
+    "code": "MAI.ODE.IC",
+    "tier": "E-COMPUTE",
+    "subject": "MAI391",
+    "skill_id": "MAI.ODE.IVP",
+    "name_vi": "Không thoả điều kiện đầu",
+    "description_vi": "Hàm số thoả phương trình nhưng không thoả điều kiện ban đầu.",
+    "hint_vi": "Em thay điều kiện đầu vào nghiệm tổng quát và giải lại hằng số nhé."
+  },
+  {
+    "code": "MAI.ODE.IC.UNSOLVED",
+    "tier": "E-INCOMPLETE",
+    "subject": "MAI391",
+    "skill_id": "MAI.ODE.IVP",
+    "name_vi": "Chưa dùng điều kiện đầu",
+    "description_vi": "Đã tìm được nghiệm tổng quát nhưng chưa thế điều kiện đầu để xác định hằng số.",
+    "hint_vi": "Đề cho điều kiện đầu để làm gì? Nghiệm của em còn hằng số nào chưa xác định?"
+  }
+]

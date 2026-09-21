@@ -1,0 +1,145 @@
+[
+  {
+    "skill_id": "MAI.MAT.BASIC",
+    "subject": "MAI391",
+    "chapter": "Matrices",
+    "name_vi": "Phép toán trên ma trận",
+    "name_en": "Matrix operations",
+    "prerequisites": [],
+    "difficulty_base": 0.2,
+    "bloom_level": "remember"
+  },
+  {
+    "skill_id": "MAI.MAT.DET",
+    "subject": "MAI391",
+    "chapter": "Matrices",
+    "name_vi": "Tính định thức",
+    "name_en": "Determinants",
+    "prerequisites": [
+      "MAI.MAT.BASIC"
+    ],
+    "difficulty_base": 0.35,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAI.MAT.INV",
+    "subject": "MAI391",
+    "chapter": "Matrices",
+    "name_vi": "Ma trận nghịch đảo",
+    "name_en": "Matrix inverse",
+    "prerequisites": [
+      "MAI.MAT.DET"
+    ],
+    "difficulty_base": 0.5,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAI.SYS.GAUSS",
+    "subject": "MAI391",
+    "chapter": "Linear systems",
+    "name_vi": "Giải hệ bằng khử Gauss",
+    "name_en": "Gaussian elimination",
+    "prerequisites": [
+      "MAI.MAT.BASIC"
+    ],
+    "difficulty_base": 0.4,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAI.VS.RANK",
+    "subject": "MAI391",
+    "chapter": "Vector spaces",
+    "name_vi": "Hạng của ma trận",
+    "name_en": "Matrix rank",
+    "prerequisites": [
+      "MAI.SYS.GAUSS"
+    ],
+    "difficulty_base": 0.45,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAI.SYS.PARAM",
+    "subject": "MAI391",
+    "chapter": "Linear systems",
+    "name_vi": "Hệ vô số nghiệm và nghiệm tham số",
+    "name_en": "Parametric solutions",
+    "prerequisites": [
+      "MAI.SYS.GAUSS",
+      "MAI.VS.RANK"
+    ],
+    "difficulty_base": 0.6,
+    "bloom_level": "analyze"
+  },
+  {
+    "skill_id": "MAI.EIG.VALUES",
+    "subject": "MAI391",
+    "chapter": "Eigenvalues",
+    "name_vi": "Trị riêng và đa thức đặc trưng",
+    "name_en": "Eigenvalues",
+    "prerequisites": [
+      "MAI.MAT.DET"
+    ],
+    "difficulty_base": 0.5,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAI.EIG.VECTORS",
+    "subject": "MAI391",
+    "chapter": "Eigenvalues",
+    "name_vi": "Vector riêng",
+    "name_en": "Eigenvectors",
+    "prerequisites": [
+      "MAI.EIG.VALUES",
+      "MAI.SYS.PARAM"
+    ],
+    "difficulty_base": 0.6,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAI.ODE.SEP",
+    "subject": "MAI391",
+    "chapter": "ODE",
+    "name_vi": "Phương trình vi phân cấp 1 cơ bản (tách biến)",
+    "name_en": "Separable ODE",
+    "prerequisites": [],
+    "difficulty_base": 0.35,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAI.ODE.LINEAR1",
+    "subject": "MAI391",
+    "chapter": "ODE",
+    "name_vi": "Phương trình vi phân tuyến tính cấp 1",
+    "name_en": "First-order linear ODE",
+    "prerequisites": [
+      "MAI.ODE.SEP"
+    ],
+    "difficulty_base": 0.5,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAI.ODE.CONST2",
+    "subject": "MAI391",
+    "chapter": "ODE",
+    "name_vi": "Phương trình cấp 2 hệ số hằng thuần nhất",
+    "name_en": "Second-order constant-coefficient ODE",
+    "prerequisites": [
+      "MAI.ODE.SEP"
+    ],
+    "difficulty_base": 0.55,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAI.ODE.IVP",
+    "subject": "MAI391",
+    "chapter": "ODE",
+    "name_vi": "Bài toán giá trị đầu",
+    "name_en": "Initial value problems",
+    "prerequisites": [
+      "MAI.ODE.LINEAR1",
+      "MAI.ODE.CONST2"
+    ],
+    "difficulty_base": 0.6,
+    "bloom_level": "apply"
+  }
+]
