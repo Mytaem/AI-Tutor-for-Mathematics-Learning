@@ -109,6 +109,8 @@ class LinalgODEVerifier(Verifier):
     subject = Subject.MAI391
     name = "linalg_ode"
     domain = "positive"
+    #: Đáp án bằng lời — guardrail cần biết để chặn câu gợi ý nói thẳng kết luận.
+    verbal_answers = frozenset(NO_SOLUTION | NOT_INVERTIBLE)
 
     def verify(self, item: Item, submission: Submission) -> VerificationResult:
         result = VerificationResult(item_id=item.item_id, is_correct=False, verifier_used=self.name)

@@ -32,13 +32,8 @@ from typing import Callable
 import sympy as sp
 
 from src.core.itembank import ItemBank, load_error_codes
-from src.core.schema import AnswerType, Item
-from src.verify.equivalence import (
-    ParseError,
-    expr_equal,
-    is_antiderivative_of,
-    parse_math,
-)
+from src.core.schema import AnswerType, Item, Submission
+from src.verify.equivalence import ParseError, expr_equal, parse_math
 
 CONSTANT = sp.Symbol("C")
 
@@ -248,6 +243,26 @@ def _swap_bounds(item: Item) -> str | None:
 # Bộ sinh lỗi trên chuỗi bước
 # --------------------------------------------------------------------------
 
+StepInjector = Callable[[Item], "InjectedError | None"]
+_STEP_REGISTRY: dict[str, list[StepInjector]] = {}
+
+
+def register_step(prefix: str) -> Callable[[StepInjector], StepInjector]:
+    """Đăng ký bộ sinh lỗi trên CHUỖI BƯỚC cho một môn (theo tiền tố mã lỗi)."""
+
+    def decorator(function: StepInjector) -> StepInjector:
+        _STEP_REGISTRY.setdefault(prefix, []).append(function)
+        return function
+
+    return decorator
+
+
+def subject_prefix(item: Item) -> str:
+    """Tiền tố mã lỗi của môn: MAE101 -> "MAE", MAI391 -> "MAI"."""
+    return item.subject.value[:3]
+
+
+@register_step("MAE")
 def inject_algebra_step_error(item: Item) -> InjectedError | None:
     """Chèn một bước biến đổi đại số sai vào giữa lời giải mẫu.
 
@@ -270,8 +285,8 @@ def inject_algebra_step_error(item: Item) -> InjectedError | None:
         error_code="MAE.ALG.STEP",
         tier="E-COMPUTE",
         statement_vi=item.statement_vi,
-        correct_answer=str(item.answer),
-        wrong_final_answer=str(item.answer),
+        correct_answer=item.answer_text,
+        wrong_final_answer=item.answer_text,
         wrong_steps=wrong_steps,
         wrong_step_index=len(wrong_steps),
     )
@@ -286,31 +301,40 @@ VALUE_PRESERVING = {"MAE.INT.NOCONST"}
 
 
 def is_genuinely_wrong(item: Item, candidate: str) -> bool:
-    """Đáp án sinh ra có thực sự sai không?
+    """Đáp án sinh ra có thực sự sai không? Hỏi thẳng verifier của môn.
 
     Hàng rào bắt buộc ở tầng khung, không để từng injector tự lo. Lý do rất cụ
     thể: injector "lấy đạo hàm thay vì tích phân" gặp ∫e^(-x)dx sẽ sinh ra
     -e^(-x) — mà đó ĐÚNG là nguyên hàm. Hàm e^(λx) là hàm riêng của cả phép đạo
     hàm lẫn phép tích phân, và tại λ = -1 thì hai phép cho cùng kết quả.
 
+    Hỏi verifier thay vì tự so khớp: với MAI391, "sai" nghĩa là A·v ≠ λ·v, hoặc
+    nghiệm không thoả phương trình — không có một đáp án chuẩn duy nhất nào để
+    so. Đáp án không đọc được (verifier trả None) cũng bị loại: đó là rác, không
+    phải một mẫu lỗi.
+
     Một nhãn sai kiểu này độc hại hơn là thiếu dữ liệu: nó dạy bộ phân loại rằng
     đáp án đúng là sai.
     """
+    from src.verify.registry import verifier_for
+
     try:
-        if item.answer_type is AnswerType.ANTIDERIVATIVE and item.integrand:
-            return not is_antiderivative_of(candidate, item.integrand, item.variable).equal
-        if item.answer is not None:
-            return not expr_equal(candidate, str(item.answer)).equal
-    except (ParseError, TypeError):
+        result = verifier_for(item.subject).verify(
+            item, Submission(item_id=item.item_id, final_answer=candidate)
+        )
+    except Exception:
         return False
-    return True
+    return result.final_answer_correct is False
 
 
 def inject_all(item: Item, taxonomy: dict[str, object]) -> list[InjectedError]:
-    """Sinh mọi lỗi áp dụng được cho một bài tập."""
+    """Sinh mọi lỗi áp dụng được cho một bài tập — chỉ những mã lỗi đúng môn của bài."""
+    prefix = subject_prefix(item)
     results: list[InjectedError] = []
 
     for code, injector in _REGISTRY.items():
+        if not code.startswith(prefix + "."):
+            continue
         wrong = injector(item)
         if wrong is None:
             continue
@@ -325,14 +349,19 @@ def inject_all(item: Item, taxonomy: dict[str, object]) -> list[InjectedError]:
             # .value chứ không phải enum: bản ghi này sẽ được ghi thẳng ra JSONL.
             tier=entry.tier.value if entry is not None else "E-COMPUTE",
             statement_vi=item.statement_vi,
-            correct_answer=str(item.answer),
+            correct_answer=item.answer_text,
             wrong_final_answer=str(wrong),
             description_vi=entry.description_vi if entry is not None else "",
         ))
 
-    step_error = inject_algebra_step_error(item)
-    if step_error is not None:
-        results.append(step_error)
+    for step_injector in _STEP_REGISTRY.get(prefix, []):
+        step_error = step_injector(item)
+        if step_error is not None:
+            entry = taxonomy.get(step_error.error_code)
+            if entry is not None:
+                step_error.tier = entry.tier.value
+                step_error.description_vi = entry.description_vi
+            results.append(step_error)
 
     return results
 
@@ -352,3 +381,8 @@ def write_dataset(dataset: list[InjectedError], path: str | Path) -> None:
     with path.open("w", encoding="utf-8") as handle:
         for record in dataset:
             handle.write(json.dumps(asdict(record), ensure_ascii=False) + "\n")
+
+
+# Các bộ sinh lỗi của MAI391 nằm ở module riêng và tự đăng ký vào registry ở
+# trên khi được nhập. Nhập ở cuối file vì module đó cần ``register`` đã tồn tại.
+from src.data_gen import mai391_errors  # noqa: E402,F401

@@ -46,7 +46,7 @@ Phần huấn luyện (LoRA, knowledge tracing) cài riêng trên Colab/Kaggle:
 ## Tình trạng
 
 - [x] **Gate 0** — lõi so sánh tương đương, verifier MAE101 (tích phân, có xử lý đổi biến)
-- [x] **Sinh dữ liệu** — 18 template → 300 bài tự sinh (+21 chép tay), 13 mã lỗi → 1612 mẫu lỗi có nhãn
+- [x] **Sinh dữ liệu** — 18 template → 300 bài tự sinh (+21 chép tay); mẫu lỗi có nhãn: 1612 (MAE101), 63 (MAI391)
 - [x] **Tutor engine** — hint ladder 6 mức, chính sách leo thang, guardrail chống lộ đáp án
 - [x] **LLM client** — chuỗi dự phòng vLLM → Ollama → cache, có DEMO_MODE
 - [x] **API** — FastAPI + SQLite, BKT, bộ chọn bài theo vùng phát triển gần

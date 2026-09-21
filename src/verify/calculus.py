@@ -24,6 +24,7 @@ from src.verify.equivalence import (
     EquivalenceResult,
     ParseError,
     equal_up_to_constant,
+    number_equal,
     expr_equal,
     numeric_equal,
     parse_math,
@@ -35,6 +36,8 @@ ERR_NO_CONSTANT = "MAE.INT.NOCONST"        # quên "+ C" ở nguyên hàm
 ERR_CONST_FACTOR = "MAE.INT.CONSTFACTOR"   # sai đúng một hệ số hằng
 ERR_DEF_NOT_EVALUATED = "MAE.INT.DEF.NOEVAL"  # tích phân xác định còn chứa biến
 ERR_SIGN = "MAE.SIGN"                      # sai dấu toàn cục
+ERR_ALG_STEP = "MAE.ALG.STEP"             # một bước biến đổi không tương đương bước trước
+ERR_DEF_SWAPBOUNDS = "MAE.INT.DEF.SWAPBOUNDS"  # thế cận ngược: F(a) − F(b)
 
 
 class CalculusVerifier(Verifier):
@@ -50,10 +53,15 @@ class CalculusVerifier(Verifier):
         step_checks = self.check_steps(item, submission.steps) if submission.steps else []
         result.step_results = step_checks
         result.first_wrong_step = self.first_wrong(step_checks)
+        # Đã tìm ra bước sai thì phải NÓI ra bằng mã lỗi, không chỉ đánh dấu vị
+        # trí — thiếu mã này thì gợi ý mức 2 không có gì để cảnh báo, và số liệu
+        # "gán đúng mã" bỏ sót trọn một loại lỗi mà tầng ký hiệu vốn đã bắt được.
+        step_codes = [ERR_ALG_STEP] if result.first_wrong_step is not None else []
 
         if submission.final_answer is None:
             result.notes.append("Chưa nộp đáp án cuối, chỉ kiểm tra các bước")
             result.confidence = 0.5
+            result.candidate_error_codes = step_codes
             return result
 
         answer_check = self.check_final_answer(item, submission.final_answer)
@@ -68,7 +76,7 @@ class CalculusVerifier(Verifier):
             result.notes.append("Cần sinh viên nhập lại đáp án")
             return result
 
-        result.candidate_error_codes = self.diagnose(item, submission, answer_check)
+        result.candidate_error_codes = self.diagnose(item, submission, answer_check) + step_codes
 
         # Đáp án cuối đúng nhưng có bước sai giữa chừng vẫn là bài làm chưa đạt:
         # rất có thể sinh viên đoán ra kết quả hoặc sai bù trừ.
@@ -136,6 +144,15 @@ class CalculusVerifier(Verifier):
             return []
         if sp.Symbol(item.variable) in answer.free_symbols:
             return [ERR_DEF_NOT_EVALUATED]
+
+        # Đúng độ lớn nhưng ngược dấu: dấu hiệu của F(a) − F(b) thay vì F(b) − F(a).
+        if item.answer is not None and not answer.free_symbols:
+            try:
+                reference = parse_math(str(item.answer))
+            except ParseError:
+                return []
+            if reference != 0 and number_equal(answer, -reference).equal:
+                return [ERR_DEF_SWAPBOUNDS]
         return []
 
     @staticmethod
