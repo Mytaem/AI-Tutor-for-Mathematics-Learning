@@ -1,0 +1,211 @@
+[
+  {
+    "path": "MAD101/ebook/rosen_discrete_mathematics_7e.pdf",
+    "title": "Rosen — Discrete Mathematics and Its Applications (7th ed.)",
+    "original_name": "Rosen_Discrete_Mathematics_and_Its_Applications_7th_Edition.pdf",
+    "kind": "ebook",
+    "subject": "MAD101"
+  },
+  {
+    "path": "MAD101/reference/formula_sheet.pdf",
+    "title": "Formula sheet MAD101",
+    "original_name": "6633ff3d89d9551a086ba699_Formula_sheet_for_MAD101_12.2.2025.pdf",
+    "kind": "reference",
+    "subject": "MAD101"
+  },
+  {
+    "path": "MAD101/slides/01_logic_and_proofs.pdf",
+    "title": "Logics & Proofs",
+    "original_name": "6633ff3d89d9551a086ba699_chapter_1.pdf",
+    "kind": "slides",
+    "subject": "MAD101"
+  },
+  {
+    "path": "MAD101/slides/02_sets_functions_sequences_sums.pdf",
+    "title": "Sets, Functions, Sequences & Sums",
+    "original_name": "6633ff3d89d9551a086ba699_chapter_2.pdf",
+    "kind": "slides",
+    "subject": "MAD101"
+  },
+  {
+    "path": "MAD101/slides/03_algorithms_and_integers.pdf",
+    "title": "Algorithms & Integers",
+    "original_name": "6633ff3d89d9551a086ba699_chapter_3.pdf",
+    "kind": "slides",
+    "subject": "MAD101"
+  },
+  {
+    "path": "MAD101/slides/04_induction_and_recursion.pdf",
+    "title": "Induction & Recursion",
+    "original_name": "6633ff3d89d9551a086ba699_chapter_4.pdf",
+    "kind": "slides",
+    "subject": "MAD101"
+  },
+  {
+    "path": "MAD101/slides/05_counting.pdf",
+    "title": "Counting Techniques",
+    "original_name": "6633ff3d89d9551a086ba699_chapter_5.pdf",
+    "kind": "slides",
+    "subject": "MAD101"
+  },
+  {
+    "path": "MAD101/slides/06_graph_theory.pdf",
+    "title": "Graph Theory",
+    "original_name": "6633ff3d89d9551a086ba699_chapter_6.pdf",
+    "kind": "slides",
+    "subject": "MAD101"
+  },
+  {
+    "path": "MAD101/slides/07_trees.pdf",
+    "title": "Trees",
+    "original_name": "6633ff3d89d9551a086ba699_chapter_7.pdf",
+    "kind": "slides",
+    "subject": "MAD101"
+  },
+  {
+    "path": "MAE101/slides/01_functions_and_graphs.ppt",
+    "title": "Functions and Graphs",
+    "original_name": "Functions and Graphs.ppt",
+    "kind": "slides",
+    "subject": "MAE101",
+    "converted_pdf": "MAE101/slides/01_functions_and_graphs.pdf",
+    "note": "PDF đổi từ .ppt bằng PowerPoint; bộ đọc dùng bản PDF, file .ppt giữ làm bản gốc"
+  },
+  {
+    "path": "MAE101/slides/02_limits.ppt",
+    "title": "Limits",
+    "original_name": "Limits.ppt",
+    "kind": "slides",
+    "subject": "MAE101",
+    "converted_pdf": "MAE101/slides/02_limits.pdf",
+    "note": "PDF đổi từ .ppt bằng PowerPoint; bộ đọc dùng bản PDF, file .ppt giữ làm bản gốc"
+  },
+  {
+    "path": "MAE101/slides/03_derivatives.ppt",
+    "title": "Derivatives",
+    "original_name": "Derivatives.ppt",
+    "kind": "slides",
+    "subject": "MAE101",
+    "converted_pdf": "MAE101/slides/03_derivatives.pdf",
+    "note": "PDF đổi từ .ppt bằng PowerPoint; bộ đọc dùng bản PDF, file .ppt giữ làm bản gốc"
+  },
+  {
+    "path": "MAE101/slides/04_applications_of_derivatives.ppt",
+    "title": "Applications of Derivatives",
+    "original_name": "Applications of Derivatives.ppt",
+    "kind": "slides",
+    "subject": "MAE101",
+    "converted_pdf": "MAE101/slides/04_applications_of_derivatives.pdf",
+    "note": "PDF đổi từ .ppt bằng PowerPoint; bộ đọc dùng bản PDF, file .ppt giữ làm bản gốc"
+  },
+  {
+    "path": "MAE101/slides/05_integration.ppt",
+    "title": "Integration",
+    "original_name": "Integration.ppt",
+    "kind": "slides",
+    "subject": "MAE101",
+    "converted_pdf": "MAE101/slides/05_integration.pdf",
+    "note": "PDF đổi từ .ppt bằng PowerPoint; bộ đọc dùng bản PDF, file .ppt giữ làm bản gốc"
+  },
+  {
+    "path": "MAE101/slides/06_techniques_of_integration.ppt",
+    "title": "Techniques of Integration",
+    "original_name": "Techniques of Integration.ppt",
+    "kind": "slides",
+    "subject": "MAE101",
+    "converted_pdf": "MAE101/slides/06_techniques_of_integration.pdf",
+    "note": "PDF đổi từ .ppt bằng PowerPoint; bộ đọc dùng bản PDF, file .ppt giữ làm bản gốc"
+  },
+  {
+    "path": "MAE101/slides/07_systems_of_linear_equations.ppt",
+    "title": "Systems of Linear Equations",
+    "original_name": "Systems of Linear Equations.ppt",
+    "kind": "slides",
+    "subject": "MAE101",
+    "converted_pdf": "MAE101/slides/07_systems_of_linear_equations.pdf",
+    "note": "PDF đổi từ .ppt bằng PowerPoint; bộ đọc dùng bản PDF, file .ppt giữ làm bản gốc"
+  },
+  {
+    "path": "MAE101/slides/08_matrix_algebra.ppt",
+    "title": "Matrix Algebra",
+    "original_name": "Matrix Algebra .ppt",
+    "kind": "slides",
+    "subject": "MAE101",
+    "converted_pdf": "MAE101/slides/08_matrix_algebra.pdf",
+    "note": "PDF đổi từ .ppt bằng PowerPoint; bộ đọc dùng bản PDF, file .ppt giữ làm bản gốc"
+  },
+  {
+    "path": "MAE101/slides/09_determinants_and_diagonalization.ppt",
+    "title": "Determinants and Diagonalization",
+    "original_name": "Determinants and Diagonalization.ppt",
+    "kind": "slides",
+    "subject": "MAE101",
+    "converted_pdf": "MAE101/slides/09_determinants_and_diagonalization.pdf",
+    "note": "PDF đổi từ .ppt bằng PowerPoint; bộ đọc dùng bản PDF, file .ppt giữ làm bản gốc"
+  },
+  {
+    "path": "MAE101/slides/10_vector_spaces.ppt",
+    "title": "Vector Spaces",
+    "original_name": "Vector_Space.ppt",
+    "kind": "slides",
+    "subject": "MAE101",
+    "converted_pdf": "MAE101/slides/10_vector_spaces.pdf",
+    "note": "PDF đổi từ .ppt bằng PowerPoint; bộ đọc dùng bản PDF, file .ppt giữ làm bản gốc"
+  },
+  {
+    "path": "MAE101/reference/slot1_questions.pdf",
+    "title": "A few questions concerning the Slot sections (Dr. Đặng Võ Phúc)",
+    "original_name": "Some questions-SLOT 1.pdf",
+    "kind": "reference",
+    "subject": "MAE101"
+  },
+  {
+    "path": "MAI391/slides/00_course_introduction.pdf",
+    "title": "Course Introduction — Mathematics for Machine Learning",
+    "original_name": "09_09_2026___98027242-a2d1-4629-aebd-0732c1b75fb3.pdf",
+    "kind": "slides",
+    "subject": "MAI391"
+  },
+  {
+    "path": "MAI391/slides/04_matrix_decompositions.pdf",
+    "title": "Chapter 4: Matrix Decompositions",
+    "original_name": "14_09_2026___317b03df-1119-4f99-9fe2-8923513f6cfc.pdf",
+    "kind": "slides",
+    "subject": "MAI391"
+  },
+  {
+    "path": "MAI391/slides/05_vector_calculus.pdf",
+    "title": "Chapter 5: Vector Calculus",
+    "original_name": "14_09_2026___ad594336-c4c1-4726-bcc0-a988e03348f1.pdf",
+    "kind": "slides",
+    "subject": "MAI391"
+  },
+  {
+    "path": "MAS291/slides/00_course_introduction.pdf",
+    "title": "Course Introduction — Statistics & Probability",
+    "original_name": "10_05_2026___d807e278a2bbcbd2a50ef84687f6484c..pdf",
+    "kind": "slides",
+    "subject": "MAS291"
+  },
+  {
+    "path": "MAS291/slides/02_probability.pdf",
+    "title": "Chapter 2: Probability",
+    "original_name": "10_05_2026___e5469dd1f8229230398359fbb216d626..pdf",
+    "kind": "slides",
+    "subject": "MAS291"
+  },
+  {
+    "path": "MAS291/slides/04_continuous_random_variables.pdf",
+    "title": "Chapter 4: Continuous Random Variables",
+    "original_name": "28_05_2026___8e691b8e595c7c8a8519926ed2a2a0f1..pdf",
+    "kind": "slides",
+    "subject": "MAS291"
+  },
+  {
+    "path": "MAS291/reference/expectation_variance_properties.pdf",
+    "title": "Properties of Expectation and Variance",
+    "original_name": "28_05_2026___b1a745935a1ce3a6468c05ffc7f678b2..pdf",
+    "kind": "reference",
+    "subject": "MAS291"
+  }
+]

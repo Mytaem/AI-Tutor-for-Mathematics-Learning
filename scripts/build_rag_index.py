@@ -51,11 +51,11 @@ def main() -> None:
     print("Đang đọc tài liệu:")
     chunks = ingest_all(RAW_DIR) if RAW_DIR.exists() else []
 
-    # Bảng bẫy viết tay: nguồn chất lượng cao nhất, luôn nạp.
-    pitfall_path = ERRORS_DIR / "mae101.json"
-    if pitfall_path.exists():
-        pitfalls = load_pitfalls(pitfall_path, "MAE101")
-        print(f"  bẫy thường gặp (viết tay): {len(pitfalls)} chunk")
+    # Bảng bẫy viết tay: nguồn chất lượng cao nhất, luôn nạp — cho MỌI môn có taxonomy lỗi.
+    for pitfall_path in sorted(ERRORS_DIR.glob("*.json")):
+        subject = pitfall_path.stem.upper()
+        pitfalls = load_pitfalls(pitfall_path, subject)
+        print(f"  {subject} bẫy thường gặp (viết tay): {len(pitfalls)} chunk")
         chunks.extend(pitfalls)
 
     if not chunks:

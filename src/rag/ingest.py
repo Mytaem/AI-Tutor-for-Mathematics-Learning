@@ -13,6 +13,7 @@ so với mọi thủ thuật trích tự động.
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -121,16 +122,45 @@ def read_document(path: Path) -> list[tuple[int, str]]:
 # Nạp cả thư mục
 # --------------------------------------------------------------------------
 
-def infer_chapter(path: Path, subject_root: Path) -> str:
-    """Suy ra tên chương từ đường dẫn tương đối."""
+#: Thư mục con phân theo LOẠI tài liệu, không phải theo chương. Tên chúng
+#: không được dùng làm tên chương — nếu không, mọi slide đều thành chương "slides".
+KIND_FOLDERS = {"slides", "ebook", "reference", "exams", "exercises"}
+
+
+def load_titles(raw_root: Path) -> dict[str, str]:
+    """Tiêu đề thật của từng tài liệu, từ ``data/sources.json``.
+
+    Khoá là đường dẫn KHÔNG có đuôi file, để bản PDF đổi từ ``.ppt`` dùng chung
+    tiêu đề với file gốc.
+    """
+    manifest = raw_root.parent / "sources.json"
+    if not manifest.exists():
+        return {}
+    entries = json.loads(manifest.read_text(encoding="utf-8"))
+    return {str(Path(entry["path"]).with_suffix("")).replace("\\", "/"): entry["title"] for entry in entries}
+
+
+def _pretty_stem(stem: str) -> str:
+    """``04_matrix_decompositions`` -> ``Matrix decompositions``."""
+    cleaned = re.sub(r"^\d+[_\s-]*", "", stem).replace("_", " ").strip()
+    return cleaned[:1].upper() + cleaned[1:] if cleaned else stem
+
+
+def infer_chapter(path: Path, subject_root: Path, titles: dict[str, str] | None = None) -> str:
+    """Tên chương dùng để trích dẫn nguồn cho sinh viên."""
     relative = path.relative_to(subject_root)
-    if len(relative.parts) > 1:
+    key = f"{subject_root.name}/{relative.with_suffix('').as_posix()}"
+    if titles and key in titles:
+        return titles[key]
+    if len(relative.parts) > 1 and relative.parts[0].lower() not in KIND_FOLDERS:
         return relative.parts[0]
-    return path.stem
+    return _pretty_stem(path.stem)
 
 
-def ingest_file(path: Path, subject: str, subject_root: Path) -> list[Chunk]:
-    chapter = infer_chapter(path, subject_root)
+def ingest_file(
+    path: Path, subject: str, subject_root: Path, titles: dict[str, str] | None = None
+) -> list[Chunk]:
+    chapter = infer_chapter(path, subject_root, titles)
     chunks: list[Chunk] = []
     for page, content in read_document(path):
         chunks.extend(chunk_text(
@@ -142,11 +172,12 @@ def ingest_file(path: Path, subject: str, subject_root: Path) -> list[Chunk]:
 def ingest_subject(subject_root: Path, subject: str | None = None) -> list[Chunk]:
     """Nạp toàn bộ tài liệu của một môn."""
     subject = subject or subject_root.name
+    titles = load_titles(subject_root.parent)
     chunks: list[Chunk] = []
 
     for path in sorted(subject_root.rglob("*")):
         if path.is_file() and path.suffix.lower() in SUPPORTED_SUFFIXES:
-            chunks.extend(ingest_file(path, subject, subject_root))
+            chunks.extend(ingest_file(path, subject, subject_root, titles))
 
     return chunks
 
