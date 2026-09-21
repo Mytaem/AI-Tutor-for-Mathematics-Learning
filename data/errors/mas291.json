@@ -1,0 +1,182 @@
+[
+  {
+    "code": "MAS.PROB.UNION_NOSUB",
+    "tier": "E-PROCEDURE",
+    "subject": "MAS291",
+    "skill_id": "MAS.PROB.BASIC",
+    "name_vi": "Quên trừ phần giao khi tính P(A ∪ B)",
+    "description_vi": "P(A ∪ B) = P(A) + P(B) − P(A ∩ B); cộng thẳng là đếm phần giao hai lần.",
+    "hint_vi": "Nếu A và B có thể cùng xảy ra, phần chung đã bị đếm mấy lần khi cộng P(A) + P(B)?"
+  },
+  {
+    "code": "MAS.PROB.COND_REVERSED",
+    "tier": "E-CONCEPT",
+    "subject": "MAS291",
+    "skill_id": "MAS.PROB.COND",
+    "name_vi": "Nhầm P(A|B) với P(B|A)",
+    "description_vi": "Hai xác suất có điều kiện này khác nhau; đổi chỗ điều kiện là lỗi kinh điển nhất của Bayes.",
+    "hint_vi": "Đề hỏi xác suất của cái gì, BIẾT cái gì? Em kiểm tra lại mẫu số."
+  },
+  {
+    "code": "MAS.PROB.JOINT_INSTEAD",
+    "tier": "E-CONCEPT",
+    "subject": "MAS291",
+    "skill_id": "MAS.PROB.COND",
+    "name_vi": "Đưa xác suất đồng thời thay vì có điều kiện",
+    "description_vi": "Đưa P(A ∩ B) trong khi đề hỏi P(A|B) = P(A ∩ B)/P(B).",
+    "hint_vi": "Xác suất có điều kiện còn phải chia cho gì?"
+  },
+  {
+    "code": "MAS.PROB.BAYES_NONORM",
+    "tier": "E-PROCEDURE",
+    "subject": "MAS291",
+    "skill_id": "MAS.PROB.BAYES",
+    "name_vi": "Quên chia cho xác suất toàn phần",
+    "description_vi": "Tử số của Bayes đúng nhưng chưa chia cho P(E) = Σ P(Hᵢ)P(E|Hᵢ).",
+    "hint_vi": "Công thức Bayes có mẫu số — em đã tính xác suất toàn phần chưa?"
+  },
+  {
+    "code": "MAS.DIST.CDF_PMF",
+    "tier": "E-INTERPRET",
+    "subject": "MAS291",
+    "skill_id": "MAS.DIST.BINOM",
+    "name_vi": "Nhầm P(X = k) với P(X ≤ k)",
+    "description_vi": "Đề hỏi xác suất tại một điểm mà tính tích luỹ, hoặc ngược lại.",
+    "hint_vi": "Đề hỏi 'đúng k' hay 'nhiều nhất k'?"
+  },
+  {
+    "code": "MAS.DIST.OFFBYONE",
+    "tier": "E-INTERPRET",
+    "subject": "MAS291",
+    "skill_id": "MAS.DIST.BINOM",
+    "name_vi": "Lệch một đơn vị ở cận (≤ và <)",
+    "description_vi": "Tính P(X < k) trong khi đề hỏi P(X ≤ k), hoặc ngược lại.",
+    "hint_vi": "Với biến rời rạc, 'nhiều nhất k' có gồm cả k không?"
+  },
+  {
+    "code": "MAS.DIST.TAIL",
+    "tier": "E-INTERPRET",
+    "subject": "MAS291",
+    "skill_id": "MAS.DIST.NORMAL",
+    "name_vi": "Lấy nhầm phần bù (đuôi bên kia)",
+    "description_vi": "Kết quả bằng 1 trừ đáp án đúng — nhầm vùng cần tính.",
+    "hint_vi": "Em vẽ phân phối ra và tô vùng đề hỏi — là phía trái hay phía phải?"
+  },
+  {
+    "code": "MAS.BIN.NOCOMB",
+    "tier": "E-PROCEDURE",
+    "subject": "MAS291",
+    "skill_id": "MAS.DIST.BINOM",
+    "name_vi": "Quên hệ số tổ hợp C(n, k)",
+    "description_vi": "Tính pᵏ(1 − p)ⁿ⁻ᵏ — đó là xác suất của MỘT dãy cụ thể, chưa nhân số cách sắp xếp.",
+    "hint_vi": "Có bao nhiêu cách để k lần thành công nằm trong n lần thử?"
+  },
+  {
+    "code": "MAS.BIN.VAR_MEAN",
+    "tier": "E-CONCEPT",
+    "subject": "MAS291",
+    "skill_id": "MAS.DIST.BINOM",
+    "name_vi": "Đưa kỳ vọng np thay vì phương sai",
+    "description_vi": "Phương sai của nhị thức là np(1 − p).",
+    "hint_vi": "Công thức phương sai của phân phối nhị thức là gì?"
+  },
+  {
+    "code": "MAS.NORM.NOSTANDARDIZE",
+    "tier": "E-PROCEDURE",
+    "subject": "MAS291",
+    "skill_id": "MAS.DIST.NORMAL",
+    "name_vi": "Tra bảng mà quên chuẩn hoá z",
+    "description_vi": "Tra bảng chuẩn tắc trực tiếp bằng giá trị x thay vì z = (x − μ)/σ.",
+    "hint_vi": "Bảng tra là của phân phối chuẩn TẮC — em đã đổi x sang z chưa?"
+  },
+  {
+    "code": "MAS.NORM.VAR_AS_SD",
+    "tier": "E-PROCEDURE",
+    "subject": "MAS291",
+    "skill_id": "MAS.DIST.NORMAL",
+    "name_vi": "Dùng phương sai thay cho độ lệch chuẩn",
+    "description_vi": "Chia cho σ² thay vì σ khi chuẩn hoá.",
+    "hint_vi": "Khi chuẩn hoá, mẫu số là σ hay σ²?"
+  },
+  {
+    "code": "MAS.EXP.RATE_MEAN",
+    "tier": "E-CONCEPT",
+    "subject": "MAS291",
+    "skill_id": "MAS.DIST.EXP",
+    "name_vi": "Nhầm tham số tốc độ với trung bình",
+    "description_vi": "Với phân phối mũ, λ = 1/(trung bình). Dùng trung bình làm λ cho kết quả sai hẳn.",
+    "hint_vi": "Đề cho thời gian TRUNG BÌNH — tham số λ của phân phối mũ liên hệ với nó thế nào?"
+  },
+  {
+    "code": "MAS.DESC.VAR_N",
+    "tier": "E-PROCEDURE",
+    "subject": "MAS291",
+    "skill_id": "MAS.DESC",
+    "name_vi": "Chia cho n thay vì n − 1",
+    "description_vi": "Phương sai MẪU chia cho n − 1.",
+    "hint_vi": "Phương sai mẫu chia cho n hay n − 1?"
+  },
+  {
+    "code": "MAS.DESC.STD_INSTEAD",
+    "tier": "E-INTERPRET",
+    "subject": "MAS291",
+    "skill_id": "MAS.DESC",
+    "name_vi": "Đưa độ lệch chuẩn thay vì phương sai",
+    "description_vi": "Đề hỏi phương sai nhưng bài làm đã lấy căn.",
+    "hint_vi": "Đề hỏi phương sai hay độ lệch chuẩn?"
+  },
+  {
+    "code": "MAS.CI.Z_INSTEAD_T",
+    "tier": "E-CONDITION",
+    "subject": "MAS291",
+    "skill_id": "MAS.CI.MEAN",
+    "name_vi": "Dùng z khi σ chưa biết",
+    "description_vi": "Khi σ chưa biết và dùng s, giá trị tới hạn phải lấy từ phân phối t với n − 1 bậc tự do.",
+    "hint_vi": "Đề cho σ của tổng thể hay chỉ cho s của mẫu? Khi đó tra bảng nào?"
+  },
+  {
+    "code": "MAS.CI.NOSQRTN",
+    "tier": "E-PROCEDURE",
+    "subject": "MAS291",
+    "skill_id": "MAS.CI.MEAN",
+    "name_vi": "Quên chia cho √n",
+    "description_vi": "Sai số chuẩn của trung bình mẫu là σ/√n.",
+    "hint_vi": "Độ rộng khoảng tin cậy có phụ thuộc cỡ mẫu n không? Trong công thức của em n ở đâu?"
+  },
+  {
+    "code": "MAS.HYP.NOSQRTN",
+    "tier": "E-PROCEDURE",
+    "subject": "MAS291",
+    "skill_id": "MAS.HYP.STAT",
+    "name_vi": "Quên √n trong thống kê kiểm định",
+    "description_vi": "Thống kê kiểm định là (x̄ − μ₀)/(σ/√n).",
+    "hint_vi": "Mẫu số của thống kê kiểm định là độ lệch chuẩn của cái gì — của X hay của x̄?"
+  },
+  {
+    "code": "MAS.HYP.TAIL",
+    "tier": "E-INTERPRET",
+    "subject": "MAS291",
+    "skill_id": "MAS.HYP.PVALUE",
+    "name_vi": "Nhầm kiểm định một phía và hai phía",
+    "description_vi": "p-value hai phía gấp đôi p-value một phía.",
+    "hint_vi": "Giả thuyết đối là '≠' hay '>'/'<'? Khi đó p-value tính một đuôi hay hai đuôi?"
+  },
+  {
+    "code": "MAS.HYP.DECISION",
+    "tier": "E-CONCEPT",
+    "subject": "MAS291",
+    "skill_id": "MAS.HYP.DECISION",
+    "name_vi": "Kết luận ngược",
+    "description_vi": "Bác bỏ H₀ khi p-value < α; ngược lại thì không bác bỏ.",
+    "hint_vi": "Em so p-value với α — nhỏ hơn thì kết luận thế nào?"
+  },
+  {
+    "code": "MAS.REG.SWAPPED",
+    "tier": "E-CONCEPT",
+    "subject": "MAS291",
+    "skill_id": "MAS.REG",
+    "name_vi": "Hồi quy x theo y thay vì y theo x",
+    "description_vi": "Hệ số góc là Sxy/Sxx; dùng Sxy/Syy là hồi quy ngược.",
+    "hint_vi": "Hệ số góc chia cho tổng bình phương độ lệch của biến nào?"
+  }
+]

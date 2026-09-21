@@ -20,9 +20,9 @@ from src.data_gen.error_injector import InjectedError, build_dataset  # noqa: E4
 from src.verify.calculus import ERR_ALG_STEP, ERR_DEF_SWAPBOUNDS  # noqa: E402
 from src.verify.registry import verifier_for  # noqa: E402
 
-SUBJECTS = ["MAE101", "MAI391"]
+SUBJECTS = ["MAE101", "MAI391", "MAS291"]
 #: Mảng kiến thức có đáp án cấu trúc mà file này kiểm tra, theo tiền tố mã lỗi.
-STRUCTURED = ("LA.", "MAI.")
+STRUCTURED = ("LA.", "MAI.", "MAS.")
 
 
 @pytest.fixture(scope="module", params=SUBJECTS)
@@ -56,7 +56,7 @@ class TestShape:
 
     def test_ma_dai_so_tuyen_tinh_dung_chung(self) -> None:
         """LA.* phải xuất hiện ở CẢ HAI môn — đó là lý do đặt mã lỗi theo kiểu sai, không theo môn."""
-        for subject in SUBJECTS:
+        for subject in ("MAE101", "MAI391"):
             records = build_dataset(ItemBank.load(subject), load_course_error_codes(subject))
             assert any(r.error_code.startswith("LA.") for r in records), subject
 

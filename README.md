@@ -58,7 +58,9 @@ Phần huấn luyện (LoRA, knowledge tracing) cài riêng trên Colab/Kaggle:
   MAE101 = giải tích + đại số tuyến tính (41 bài chép tay); MAI391 = Math for ML (Deisenroth)
   + đại số tuyến tính (35 bài, 16 kỹ năng). Mã lỗi theo kiểu sai: `LA.*` dùng chung hai môn
 - [ ] Gate 3 — knowledge tracing + cá nhân hóa
-- [ ] Gate 4 — MAD101 + MAS291
+- [x] **MAS291** — xác suất, phân phối, thống kê mô tả, khoảng tin cậy, kiểm định, hồi quy; 36 bài,
+  20 mã lỗi; mọi đáp án xác suất kiểm chéo bằng Monte Carlo
+- [ ] Gate 4 — MAD101
 - [ ] Gate 5 — Telegram bot, fine-tune LoRA, thực nghiệm người dùng
 - [ ] Gate 6 — báo cáo, slide, video demo
 

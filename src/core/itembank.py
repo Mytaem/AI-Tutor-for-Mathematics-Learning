@@ -68,6 +68,7 @@ def load_error_codes(path: str | Path) -> dict[str, ErrorCode]:
 COURSE_TAXONOMIES: dict[str, list[str]] = {
     "MAE101": ["mae101.json", "linear_algebra.json"],
     "MAI391": ["mai391.json", "linear_algebra.json"],
+    "MAS291": ["mas291.json"],
 }
 
 

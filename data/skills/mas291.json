@@ -1,0 +1,180 @@
+[
+  {
+    "skill_id": "MAS.PROB.BASIC",
+    "subject": "MAS291",
+    "chapter": "Ch2 Probability",
+    "name_vi": "Quy tắc cộng, biến cố độc lập",
+    "name_en": "Addition rule, independence",
+    "prerequisites": [],
+    "difficulty_base": 0.25,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAS.PROB.COND",
+    "subject": "MAS291",
+    "chapter": "Ch2 Probability",
+    "name_vi": "Xác suất có điều kiện",
+    "name_en": "Conditional probability",
+    "prerequisites": [
+      "MAS.PROB.BASIC"
+    ],
+    "difficulty_base": 0.4,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAS.PROB.BAYES",
+    "subject": "MAS291",
+    "chapter": "Ch2 Probability",
+    "name_vi": "Xác suất toàn phần và định lý Bayes",
+    "name_en": "Total probability and Bayes",
+    "prerequisites": [
+      "MAS.PROB.COND"
+    ],
+    "difficulty_base": 0.55,
+    "bloom_level": "analyze"
+  },
+  {
+    "skill_id": "MAS.DIST.BINOM",
+    "subject": "MAS291",
+    "chapter": "Ch3 Discrete RVs",
+    "name_vi": "Phân phối nhị thức",
+    "name_en": "Binomial distribution",
+    "prerequisites": [
+      "MAS.PROB.BASIC"
+    ],
+    "difficulty_base": 0.4,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAS.DIST.POIS",
+    "subject": "MAS291",
+    "chapter": "Ch3 Discrete RVs",
+    "name_vi": "Phân phối Poisson",
+    "name_en": "Poisson distribution",
+    "prerequisites": [
+      "MAS.PROB.BASIC"
+    ],
+    "difficulty_base": 0.4,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAS.DIST.NORMAL",
+    "subject": "MAS291",
+    "chapter": "Ch4 Continuous RVs",
+    "name_vi": "Phân phối chuẩn và chuẩn hoá z",
+    "name_en": "Normal distribution",
+    "prerequisites": [
+      "MAS.PROB.BASIC"
+    ],
+    "difficulty_base": 0.45,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAS.DIST.EXP",
+    "subject": "MAS291",
+    "chapter": "Ch4 Continuous RVs",
+    "name_vi": "Phân phối mũ",
+    "name_en": "Exponential distribution",
+    "prerequisites": [
+      "MAS.PROB.BASIC"
+    ],
+    "difficulty_base": 0.45,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAS.DESC",
+    "subject": "MAS291",
+    "chapter": "Ch6 Descriptive Statistics",
+    "name_vi": "Thống kê mô tả",
+    "name_en": "Descriptive statistics",
+    "prerequisites": [],
+    "difficulty_base": 0.2,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAS.CI.MEAN",
+    "subject": "MAS291",
+    "chapter": "Ch8 Statistical Intervals",
+    "name_vi": "Khoảng tin cậy cho trung bình",
+    "name_en": "CI for the mean",
+    "prerequisites": [
+      "MAS.DIST.NORMAL",
+      "MAS.DESC"
+    ],
+    "difficulty_base": 0.55,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAS.CI.PROP",
+    "subject": "MAS291",
+    "chapter": "Ch8 Statistical Intervals",
+    "name_vi": "Khoảng tin cậy cho tỉ lệ",
+    "name_en": "CI for a proportion",
+    "prerequisites": [
+      "MAS.DIST.NORMAL"
+    ],
+    "difficulty_base": 0.55,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAS.HYP.STAT",
+    "subject": "MAS291",
+    "chapter": "Ch9 Hypothesis Tests",
+    "name_vi": "Thống kê kiểm định z và t",
+    "name_en": "Test statistics",
+    "prerequisites": [
+      "MAS.DIST.NORMAL",
+      "MAS.DESC"
+    ],
+    "difficulty_base": 0.5,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAS.HYP.PVALUE",
+    "subject": "MAS291",
+    "chapter": "Ch9 Hypothesis Tests",
+    "name_vi": "Giá trị p",
+    "name_en": "P-values",
+    "prerequisites": [
+      "MAS.HYP.STAT"
+    ],
+    "difficulty_base": 0.55,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAS.HYP.DECISION",
+    "subject": "MAS291",
+    "chapter": "Ch9 Hypothesis Tests",
+    "name_vi": "Kết luận kiểm định",
+    "name_en": "Test decisions",
+    "prerequisites": [
+      "MAS.HYP.PVALUE"
+    ],
+    "difficulty_base": 0.45,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAS.TWO",
+    "subject": "MAS291",
+    "chapter": "Ch10 Two Samples",
+    "name_vi": "Kiểm định hai mẫu",
+    "name_en": "Two-sample inference",
+    "prerequisites": [
+      "MAS.HYP.STAT"
+    ],
+    "difficulty_base": 0.6,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAS.REG",
+    "subject": "MAS291",
+    "chapter": "Ch11 Regression",
+    "name_vi": "Hồi quy tuyến tính đơn và tương quan",
+    "name_en": "Simple linear regression",
+    "prerequisites": [
+      "MAS.DESC"
+    ],
+    "difficulty_base": 0.55,
+    "bloom_level": "apply"
+  }
+]

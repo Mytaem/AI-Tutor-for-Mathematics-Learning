@@ -390,4 +390,4 @@ def write_dataset(dataset: list[InjectedError], path: str | Path) -> None:
 
 # Bộ sinh lỗi của từng mảng kiến thức nằm ở module riêng và tự đăng ký vào
 # registry ở trên khi được nhập. Nhập ở cuối file vì chúng cần ``register``.
-from src.data_gen import linear_algebra_errors, mml_errors  # noqa: E402,F401
+from src.data_gen import linear_algebra_errors, mml_errors, probstat_errors  # noqa: E402,F401
