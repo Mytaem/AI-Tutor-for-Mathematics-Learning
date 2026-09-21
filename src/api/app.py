@@ -20,7 +20,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 from src.core.config import AppConfig, load_config
-from src.core.itembank import ERRORS_DIR, ITEMS_DIR, ItemBank, load_error_codes
+from src.core.itembank import ITEMS_DIR, ItemBank, load_course_error_codes
 from src.core.schema import Item, Submission, VerificationResult
 from src.kt.bkt import BKTTracker
 from src.kt.coldstart import (
@@ -416,11 +416,9 @@ def build_service(config: AppConfig | None = None, store: Store | None = None) -
         if not (ITEMS_DIR / f"{code.lower()}.jsonl").exists():
             continue
         bank = ItemBank.load(code)
-        errors_path = ERRORS_DIR / f"{code.lower()}.json"
-        generator = HintGenerator(
-            error_codes=load_error_codes(errors_path) if errors_path.exists() else {},
-            skills=bank.skills,
-        )
+        # Bảng mã lỗi ĐẦY ĐỦ của môn — MAE101 gồm cả mã giải tích lẫn mã đại số
+        # tuyến tính LA.*, thiếu một phần thì gợi ý mức 2 không có câu cảnh báo.
+        generator = HintGenerator(error_codes=load_course_error_codes(code), skills=bank.skills)
         banks[code] = bank
         engines[code] = TutorEngine(verifier_for(code), generator)
 

@@ -59,6 +59,9 @@ class Encoder:
             from sentence_transformers import SentenceTransformer
 
             self._model = SentenceTransformer(self.model_name)
+            # Chunk dài tối đa 1200 ký tự ≈ 300–400 token, nên 512 là đủ. Mặc định
+            # của bge-m3 là 8192: một chunk hỏng dài bất thường sẽ ngốn cả giờ CPU.
+            self._model.max_seq_length = min(self._model.max_seq_length, 512)
         return self._model
 
     def encode(self, texts: list[str], batch_size: int = 16) -> np.ndarray:

@@ -31,7 +31,7 @@ from typing import Callable
 
 import sympy as sp
 
-from src.core.itembank import ItemBank, load_error_codes
+from src.core.itembank import ItemBank, load_course_error_codes, load_error_codes
 from src.core.schema import AnswerType, Item, Submission
 from src.verify.equivalence import ParseError, expr_equal, parse_math
 
@@ -244,25 +244,16 @@ def _swap_bounds(item: Item) -> str | None:
 # --------------------------------------------------------------------------
 
 StepInjector = Callable[[Item], "InjectedError | None"]
-_STEP_REGISTRY: dict[str, list[StepInjector]] = {}
+_STEP_REGISTRY: list[StepInjector] = []
 
 
-def register_step(prefix: str) -> Callable[[StepInjector], StepInjector]:
-    """Đăng ký bộ sinh lỗi trên CHUỖI BƯỚC cho một môn (theo tiền tố mã lỗi)."""
-
-    def decorator(function: StepInjector) -> StepInjector:
-        _STEP_REGISTRY.setdefault(prefix, []).append(function)
-        return function
-
-    return decorator
+def register_step(function: StepInjector) -> StepInjector:
+    """Đăng ký một bộ sinh lỗi trên CHUỖI BƯỚC. Mỗi bộ tự kiểm tra bài có hợp với nó không."""
+    _STEP_REGISTRY.append(function)
+    return function
 
 
-def subject_prefix(item: Item) -> str:
-    """Tiền tố mã lỗi của môn: MAE101 -> "MAE", MAI391 -> "MAI"."""
-    return item.subject.value[:3]
-
-
-@register_step("MAE")
+@register_step
 def inject_algebra_step_error(item: Item) -> InjectedError | None:
     """Chèn một bước biến đổi đại số sai vào giữa lời giải mẫu.
 
@@ -328,12 +319,16 @@ def is_genuinely_wrong(item: Item, candidate: str) -> bool:
 
 
 def inject_all(item: Item, taxonomy: dict[str, object]) -> list[InjectedError]:
-    """Sinh mọi lỗi áp dụng được cho một bài tập — chỉ những mã lỗi đúng môn của bài."""
-    prefix = subject_prefix(item)
+    """Sinh mọi lỗi áp dụng được cho một bài tập.
+
+    Chỉ dùng những mã lỗi có trong bảng mã lỗi của MÔN chứa bài — không lọc theo
+    tiền tố, vì mã lỗi đặt theo kiểu sai: ``LA.*`` của đại số tuyến tính dùng
+    chung cho cả MAE101 lẫn MAI391.
+    """
     results: list[InjectedError] = []
 
     for code, injector in _REGISTRY.items():
-        if not code.startswith(prefix + "."):
+        if taxonomy and code not in taxonomy:
             continue
         wrong = injector(item)
         if wrong is None:
@@ -354,9 +349,9 @@ def inject_all(item: Item, taxonomy: dict[str, object]) -> list[InjectedError]:
             description_vi=entry.description_vi if entry is not None else "",
         ))
 
-    for step_injector in _STEP_REGISTRY.get(prefix, []):
+    for step_injector in _STEP_REGISTRY:
         step_error = step_injector(item)
-        if step_error is not None:
+        if step_error is not None and (not taxonomy or step_error.error_code in taxonomy):
             entry = taxonomy.get(step_error.error_code)
             if entry is not None:
                 step_error.tier = entry.tier.value
@@ -366,9 +361,19 @@ def inject_all(item: Item, taxonomy: dict[str, object]) -> list[InjectedError]:
     return results
 
 
-def build_dataset(bank: ItemBank, taxonomy_path: str | Path | None = None) -> list[InjectedError]:
-    """Sinh toàn bộ tập lỗi cho một ngân hàng đề."""
-    codes = load_error_codes(taxonomy_path) if taxonomy_path else {}
+def build_dataset(bank: ItemBank, taxonomy: str | Path | dict | None = None) -> list[InjectedError]:
+    """Sinh toàn bộ tập lỗi cho một ngân hàng đề.
+
+    ``taxonomy``: một file bảng mã lỗi, một dict đã nạp sẵn, hoặc để trống để
+    dùng bảng mã lỗi đầy đủ của môn.
+    """
+    if isinstance(taxonomy, dict):
+        codes = taxonomy
+    elif taxonomy is not None:
+        codes = load_error_codes(taxonomy)
+    else:
+        subject = next(iter(bank.items.values())).subject if bank.items else None
+        codes = load_course_error_codes(subject) if subject else {}
     dataset: list[InjectedError] = []
     for item in bank.items.values():
         dataset.extend(inject_all(item, codes))
@@ -383,6 +388,6 @@ def write_dataset(dataset: list[InjectedError], path: str | Path) -> None:
             handle.write(json.dumps(asdict(record), ensure_ascii=False) + "\n")
 
 
-# Các bộ sinh lỗi của MAI391 nằm ở module riêng và tự đăng ký vào registry ở
-# trên khi được nhập. Nhập ở cuối file vì module đó cần ``register`` đã tồn tại.
-from src.data_gen import mai391_errors  # noqa: E402,F401
+# Bộ sinh lỗi của từng mảng kiến thức nằm ở module riêng và tự đăng ký vào
+# registry ở trên khi được nhập. Nhập ở cuối file vì chúng cần ``register``.
+from src.data_gen import linear_algebra_errors, mml_errors  # noqa: E402,F401

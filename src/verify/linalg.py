@@ -1,34 +1,26 @@
-"""Verifier cho MAI391 — đại số tuyến tính và phương trình vi phân.
+"""Bộ chấm ĐẠI SỐ TUYẾN TÍNH — dùng chung cho MAE101 (chương 7–10) và MAI391 (chương 4).
 
-Cùng triết lý với MAE101 (chấm tích phân bằng đạo hàm ngược): KHÔNG so đáp án
-của sinh viên với một dạng chuẩn duy nhất, mà kiểm tra TÍNH CHẤT toán học mà
-một đáp án đúng phải thoả. Ở môn này điều đó càng quan trọng, vì gần như mọi
-loại đáp án đều có vô số dạng đúng:
+KHÔNG so đáp án của sinh viên với một dạng chuẩn duy nhất, mà kiểm tra TÍNH
+CHẤT toán học mà một đáp án đúng phải thoả — vì gần như mọi loại đáp án ở đây
+đều có vô số dạng đúng:
 
 - Nghiệm hệ vô số nghiệm: ``[1-s-t, s, t]`` và ``[u, v, 1-u-v]`` đều đúng.
   → thế ngược ``A·x = b`` và đếm số bậc tự do, không so khớp.
 - Vector riêng: ``[1, 1]``, ``[3, 3]``, ``[-2, -2]`` đều đúng.
   → kiểm ``A·v = λ·v`` và ``v ≠ 0``, không so với một vector chuẩn.
 - Ma trận nghịch đảo: kiểm ``A·B = I``.
-- Nghiệm tổng quát ODE: ``C1·eˣ + C2·e²ˣ`` hay ``A·e²ˣ + B·eˣ`` đều đúng.
-  → thế vào phương trình, rồi đếm số hằng số ĐỘC LẬP (không chỉ đếm số ký hiệu).
 - Các bước khử Gauss: hai bước liên tiếp phải tương đương hàng — tức có cùng
   dạng bậc thang rút gọn. Đây là bất biến chính xác, không phải heuristic.
 
-Cái giá của cách làm này là chẩn đoán lỗi phải tự dựng lại: khi đáp án sai, ta
-thử xem nó có khớp với một kiểu sai kinh điển nào không (quên chia định thức,
-quên chuyển vị, vector riêng của trị riêng khác...).
+Mã lỗi mang tiền tố ``LA.`` (theo KIỂU SAI, không theo môn): "quên đổi dấu định
+thức khi đổi hai hàng" là cùng một lỗi dù xảy ra ở MAE101 hay MAI391.
 """
 
 from __future__ import annotations
 
-import random
-import re
-
-import numpy as np
 import sympy as sp
 
-from src.core.schema import AnswerType, Item, StepCheck, Subject, Submission, VerificationResult
+from src.core.schema import AnswerType, Item, StepCheck
 from src.verify.base import Verifier, parse_answer_list, parse_matrix
 from src.verify.equivalence import (
     EquivalenceResult,
@@ -39,30 +31,25 @@ from src.verify.equivalence import (
     tidy,
 )
 
-# Mã lỗi tầng 2 cho MAI391 (chi tiết trong data/errors/mai391.json).
-ERR_SHAPE = "MAI.SHAPE"
-ERR_ROWOP = "MAI.ROWOP.INVALID"
-ERR_SYS_NOTSOLUTION = "MAI.SYS.NOTSOLUTION"
-ERR_SYS_PARTIAL = "MAI.SYS.PARTIAL"
-ERR_SYS_INCONSISTENT = "MAI.SYS.INCONSISTENT"
-ERR_SYS_FALSE_NOSOL = "MAI.SYS.FALSENOSOL"
-ERR_DET_SIGN = "MAI.DET.SIGN"
-ERR_DET_SCALE = "MAI.DET.SCALE"
-ERR_INV_NODET = "MAI.INV.NODET"
-ERR_INV_TRANSPOSE = "MAI.INV.TRANSPOSE"
-ERR_INV_NOSIGN = "MAI.INV.NOSIGN"
-ERR_INV_SINGULAR = "MAI.INV.SINGULAR"
-ERR_INV_FALSE_SINGULAR = "MAI.INV.FALSESINGULAR"
-ERR_EIG_ZEROVEC = "MAI.EIG.ZEROVEC"
-ERR_EIG_NOTEIGEN = "MAI.EIG.NOTEIGEN"
-ERR_EIG_WRONGVALUE = "MAI.EIG.WRONGVALUE"
-ERR_EIG_NOTVALUE = "MAI.EIG.NOTVALUE"
-ERR_EIG_MISSING = "MAI.EIG.MISSING"
-ERR_ODE_NOTSOLUTION = "MAI.ODE.NOTSOLUTION"
-ERR_ODE_INCOMPLETE = "MAI.ODE.INCOMPLETE"
-ERR_ODE_NOHOMO = "MAI.ODE.NOHOMO"
-ERR_ODE_IC = "MAI.ODE.IC"
-ERR_ODE_IC_UNSOLVED = "MAI.ODE.IC.UNSOLVED"
+# Mã lỗi tầng 2 (chi tiết trong data/errors/linear_algebra.json).
+ERR_SHAPE = "LA.SHAPE"
+ERR_ROWOP = "LA.ROWOP.INVALID"
+ERR_SYS_NOTSOLUTION = "LA.SYS.NOTSOLUTION"
+ERR_SYS_PARTIAL = "LA.SYS.PARTIAL"
+ERR_SYS_INCONSISTENT = "LA.SYS.INCONSISTENT"
+ERR_SYS_FALSE_NOSOL = "LA.SYS.FALSENOSOL"
+ERR_DET_SIGN = "LA.DET.SIGN"
+ERR_DET_SCALE = "LA.DET.SCALE"
+ERR_INV_NODET = "LA.INV.NODET"
+ERR_INV_TRANSPOSE = "LA.INV.TRANSPOSE"
+ERR_INV_NOSIGN = "LA.INV.NOSIGN"
+ERR_INV_SINGULAR = "LA.INV.SINGULAR"
+ERR_INV_FALSE_SINGULAR = "LA.INV.FALSESINGULAR"
+ERR_EIG_ZEROVEC = "LA.EIG.ZEROVEC"
+ERR_EIG_NOTEIGEN = "LA.EIG.NOTEIGEN"
+ERR_EIG_WRONGVALUE = "LA.EIG.WRONGVALUE"
+ERR_EIG_NOTVALUE = "LA.EIG.NOTVALUE"
+ERR_EIG_MISSING = "LA.EIG.MISSING"
 
 NO_SOLUTION = {"vô nghiệm", "vo nghiem", "hệ vô nghiệm", "he vo nghiem", "no solution", "∅", "{}", "none"}
 NOT_INVERTIBLE = {
@@ -70,7 +57,6 @@ NOT_INVERTIBLE = {
     "suy biến", "suy bien", "singular", "not invertible", "none",
 }
 
-_LEADING_FUNCTION = re.compile(r"^\s*[A-Za-z]\s*(\(\s*[A-Za-z]\s*\))?\s*=\s*")
 
 
 def _words(text: str) -> str:
@@ -93,62 +79,29 @@ def _wrong(detail: str, confidence: float = 1.0) -> EquivalenceResult:
     return EquivalenceResult(False, "symbolic", confidence, detail)
 
 
-def parse_trusted(text: str, variable: sp.Symbol, function_name: str = "y") -> sp.Expr:
-    """Đọc biểu thức ODE từ NGÂN HÀNG ĐỀ.
 
-    Dùng ``sympify`` được vì đây là dữ liệu do ta viết, không phải đầu vào của
-    người dùng. Bài làm của sinh viên thì luôn đi qua ``parse_math`` có danh
-    sách trắng.
-    """
-    return sp.sympify(text, locals={function_name: sp.Function(function_name), str(variable): variable})
+LA_TASKS = {"determinant", "inverse", "rank", "eigenvalues"}
 
 
-class LinalgODEVerifier(Verifier):
-    """Chấm bài MAI391."""
+class LinearAlgebraVerifier(Verifier):
+    """Chấm các bài đại số tuyến tính, bất kể thuộc môn nào."""
 
-    subject = Subject.MAI391
-    name = "linalg_ode"
+    name = "linear_algebra"
     domain = "positive"
-    #: Đáp án bằng lời — guardrail cần biết để chặn câu gợi ý nói thẳng kết luận.
     verbal_answers = frozenset(NO_SOLUTION | NOT_INVERTIBLE)
 
-    def verify(self, item: Item, submission: Submission) -> VerificationResult:
-        result = VerificationResult(item_id=item.item_id, is_correct=False, verifier_used=self.name)
+    def handles(self, item: Item) -> bool:
+        return (
+            item.answer_type in (AnswerType.LINEAR_SYSTEM, AnswerType.EIGENVECTOR)
+            or item.meta.get("task") in LA_TASKS
+        )
 
-        checks = self.check_steps(item, submission.steps) if submission.steps else []
-        result.step_results = checks
-        result.first_wrong_step = self.first_wrong(checks)
-        if result.first_wrong_step is not None and any(c.method == "row_equivalence" for c in checks):
-            result.candidate_error_codes.append(ERR_ROWOP)
+    def step_codes(self, checks: list[StepCheck]) -> list[str]:
+        if any(c.ok is False and c.method == "row_equivalence" for c in checks):
+            return [ERR_ROWOP]
+        return []
 
-        if submission.final_answer is None:
-            result.notes.append("Chưa nộp đáp án cuối, chỉ kiểm tra các bước")
-            result.confidence = 0.5
-            return result
-
-        try:
-            check, codes = self._check(item, submission.final_answer)
-        except ParseError as exc:
-            # Lỗi nhập liệu KHÔNG phải lỗi toán học: không kết luận đúng/sai.
-            result.final_answer_correct = None
-            result.notes.extend([str(exc), "Cần sinh viên nhập lại đáp án"])
-            return result
-
-        result.final_answer_correct = check.equal
-        result.confidence = check.confidence
-        result.notes.append(check.detail)
-        result.candidate_error_codes.extend(codes)
-
-        result.is_correct = check.equal and result.first_wrong_step is None
-        if check.equal and result.first_wrong_step is not None:
-            result.notes.append(
-                f"Đáp án cuối đúng nhưng bước {result.first_wrong_step} không hợp lệ — có thể sai bù trừ"
-            )
-        return result
-
-    # ------------------------------------------------------------------
-
-    def _check(self, item: Item, answer: str) -> tuple[EquivalenceResult, list[str]]:
+    def check(self, item: Item, answer: str) -> tuple[EquivalenceResult, list[str]]:
         if not answer.strip():
             return _wrong("Chưa có đáp án"), []
 
@@ -159,8 +112,6 @@ class LinalgODEVerifier(Verifier):
             return self._check_system(item, answer)
         if kind is AnswerType.EIGENVECTOR:
             return self._check_eigenvector(item, answer)
-        if kind is AnswerType.ODE_SOLUTION:
-            return self._check_ode(item, answer)
         if task == "inverse":
             return self._check_inverse(item, answer)
 
@@ -317,89 +268,6 @@ class LinalgODEVerifier(Verifier):
             if matrix_equal(B, sp.Matrix([[d, b], [c, a]]) / determinant).equal:
                 return _wrong("Đổi chỗ đường chéo chính đúng rồi, nhưng quên đổi dấu hai phần tử còn lại"), [ERR_INV_NOSIGN]
         return _wrong("A·B ≠ I"), []
-
-    # ------------------------------------------------------------------
-    # Phương trình vi phân
-    # ------------------------------------------------------------------
-
-    def _check_ode(self, item: Item, answer: str) -> tuple[EquivalenceResult, list[str]]:
-        x = sp.Symbol(item.variable)
-        function_name = item.meta.get("func", "y")
-        y = sp.Function(function_name)
-
-        lhs = parse_trusted(item.meta["ode"], x, function_name)
-        rhs = parse_trusted(item.meta.get("rhs", "0"), x, function_name)
-
-        # Sinh viên hay viết "y = ...", đôi khi "y(x) = ...".
-        candidate = parse_math(_LEADING_FUNCTION.sub("", answer, count=1))
-
-        residual = (lhs - rhs).subs(y(x), candidate).doit()
-        if not _is_zero(residual):
-            return _wrong(f"Thế vào phương trình không ra 0 (còn dư {tidy(residual)})"), [ERR_ODE_NOTSOLUTION]
-
-        constants = sorted(candidate.free_symbols - {x}, key=str)
-        conditions = item.meta.get("ics") or []
-
-        if conditions:
-            if constants:
-                return _wrong(
-                    "Nghiệm tổng quát đúng, nhưng chưa dùng điều kiện đầu để tìm hằng số"
-                ), [ERR_ODE_IC_UNSOLVED]
-            for condition in conditions:
-                order = int(condition.get("derivative", 0))
-                at = parse_trusted(str(condition["at"]), x, function_name)
-                expected = parse_trusted(str(condition["value"]), x, function_name)
-                actual = sp.diff(candidate, x, order).subs(x, at)
-                if not expr_equal(sp.sympify(actual), expected).equal:
-                    label = function_name + "'" * order
-                    return _wrong(
-                        f"Thoả phương trình nhưng {label}({at}) = {tidy(actual)}, đề yêu cầu {expected}"
-                    ), [ERR_ODE_IC]
-            return _ok("Thoả phương trình và mọi điều kiện đầu"), []
-
-        order = int(item.meta["order"])
-        independent = self.independent_constants(candidate, constants, x)
-        if independent < order:
-            is_homogeneous = _is_zero(rhs)
-            if not is_homogeneous and independent == 0:
-                return _wrong(
-                    "Đây mới là một nghiệm riêng — còn thiếu nghiệm tổng quát của phương trình thuần nhất"
-                ), [ERR_ODE_NOHOMO]
-            return _wrong(
-                f"Phương trình cấp {order} cần {order} hằng số độc lập, bài làm mới có {independent}"
-            ), [ERR_ODE_INCOMPLETE]
-        return _ok(f"Thoả phương trình với {independent} hằng số độc lập — đúng nghiệm tổng quát"), []
-
-    @staticmethod
-    def independent_constants(candidate: sp.Expr, constants: list[sp.Symbol], x: sp.Symbol) -> int:
-        """Số hằng số ĐỘC LẬP thật sự trong nghiệm, không chỉ số ký hiệu.
-
-        Với phương trình có nghiệm kép như y'' − 2y' + y = 0, sinh viên hay viết
-        ``C1·eˣ + C2·eˣ``: có hai ký hiệu nhưng chúng gộp được thành một, nên đó
-        KHÔNG phải nghiệm tổng quát (đúng phải là ``(C1 + C2·x)·eˣ``). Đếm ký hiệu
-        sẽ chấm nhầm bài này là đúng.
-
-        Cách đếm: đạo hàm riêng của nghiệm theo từng hằng số là các hàm của x;
-        số hằng số độc lập chính là số hàm độc lập tuyến tính trong số đó. Ước
-        lượng bằng hạng của ma trận các giá trị tại nhiều điểm x ngẫu nhiên.
-        """
-        if not constants:
-            return 0
-
-        gradients = [sp.diff(candidate, c) for c in constants]
-        rng = random.Random(7)
-        rows: list[list[complex]] = []
-        for _ in range(len(constants) + 3):
-            point = {x: rng.uniform(0.2, 2.2)}
-            point.update({c: rng.uniform(0.5, 1.5) for c in constants})
-            try:
-                rows.append([complex(g.evalf(subs=point)) for g in gradients])
-            except (TypeError, ValueError):
-                continue
-
-        if not rows:
-            return 0
-        return int(np.linalg.matrix_rank(np.array(rows)))
 
     # ------------------------------------------------------------------
     # Các bước khử Gauss

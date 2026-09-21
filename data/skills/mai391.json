@@ -1,145 +1,188 @@
 [
   {
-    "skill_id": "MAI.MAT.BASIC",
+    "skill_id": "MAI.GEO.NORM",
     "subject": "MAI391",
-    "chapter": "Matrices",
-    "name_vi": "Phép toán trên ma trận",
-    "name_en": "Matrix operations",
+    "chapter": "Ch3 Analytic Geometry",
+    "name_vi": "Chuẩn và tích vô hướng",
+    "name_en": "Norms and inner products",
     "prerequisites": [],
-    "difficulty_base": 0.2,
-    "bloom_level": "remember"
+    "difficulty_base": 0.25,
+    "bloom_level": "apply"
   },
   {
-    "skill_id": "MAI.MAT.DET",
+    "skill_id": "MAI.GEO.ANGLE",
     "subject": "MAI391",
-    "chapter": "Matrices",
-    "name_vi": "Tính định thức",
-    "name_en": "Determinants",
+    "chapter": "Ch3 Analytic Geometry",
+    "name_vi": "Góc và tính trực giao",
+    "name_en": "Angles and orthogonality",
     "prerequisites": [
-      "MAI.MAT.BASIC"
+      "MAI.GEO.NORM"
     ],
     "difficulty_base": 0.35,
     "bloom_level": "apply"
   },
   {
-    "skill_id": "MAI.MAT.INV",
+    "skill_id": "MAI.GEO.PROJ",
     "subject": "MAI391",
-    "chapter": "Matrices",
-    "name_vi": "Ma trận nghịch đảo",
-    "name_en": "Matrix inverse",
+    "chapter": "Ch3 Analytic Geometry",
+    "name_vi": "Phép chiếu trực giao",
+    "name_en": "Orthogonal projections",
     "prerequisites": [
-      "MAI.MAT.DET"
+      "MAI.GEO.ANGLE"
     ],
     "difficulty_base": 0.5,
     "bloom_level": "apply"
   },
   {
-    "skill_id": "MAI.SYS.GAUSS",
+    "skill_id": "MAI.DEC.TRACE",
     "subject": "MAI391",
-    "chapter": "Linear systems",
-    "name_vi": "Giải hệ bằng khử Gauss",
-    "name_en": "Gaussian elimination",
-    "prerequisites": [
-      "MAI.MAT.BASIC"
-    ],
-    "difficulty_base": 0.4,
-    "bloom_level": "apply"
-  },
-  {
-    "skill_id": "MAI.VS.RANK",
-    "subject": "MAI391",
-    "chapter": "Vector spaces",
-    "name_vi": "Hạng của ma trận",
-    "name_en": "Matrix rank",
-    "prerequisites": [
-      "MAI.SYS.GAUSS"
-    ],
-    "difficulty_base": 0.45,
-    "bloom_level": "apply"
-  },
-  {
-    "skill_id": "MAI.SYS.PARAM",
-    "subject": "MAI391",
-    "chapter": "Linear systems",
-    "name_vi": "Hệ vô số nghiệm và nghiệm tham số",
-    "name_en": "Parametric solutions",
-    "prerequisites": [
-      "MAI.SYS.GAUSS",
-      "MAI.VS.RANK"
-    ],
-    "difficulty_base": 0.6,
-    "bloom_level": "analyze"
-  },
-  {
-    "skill_id": "MAI.EIG.VALUES",
-    "subject": "MAI391",
-    "chapter": "Eigenvalues",
-    "name_vi": "Trị riêng và đa thức đặc trưng",
-    "name_en": "Eigenvalues",
-    "prerequisites": [
-      "MAI.MAT.DET"
-    ],
-    "difficulty_base": 0.5,
-    "bloom_level": "apply"
-  },
-  {
-    "skill_id": "MAI.EIG.VECTORS",
-    "subject": "MAI391",
-    "chapter": "Eigenvalues",
-    "name_vi": "Vector riêng",
-    "name_en": "Eigenvectors",
-    "prerequisites": [
-      "MAI.EIG.VALUES",
-      "MAI.SYS.PARAM"
-    ],
-    "difficulty_base": 0.6,
-    "bloom_level": "apply"
-  },
-  {
-    "skill_id": "MAI.ODE.SEP",
-    "subject": "MAI391",
-    "chapter": "ODE",
-    "name_vi": "Phương trình vi phân cấp 1 cơ bản (tách biến)",
-    "name_en": "Separable ODE",
+    "chapter": "Ch4 Matrix Decompositions",
+    "name_vi": "Định thức và vết",
+    "name_en": "Determinant and trace",
     "prerequisites": [],
-    "difficulty_base": 0.35,
+    "difficulty_base": 0.3,
     "bloom_level": "apply"
   },
   {
-    "skill_id": "MAI.ODE.LINEAR1",
+    "skill_id": "MAI.DEC.EIGEN",
     "subject": "MAI391",
-    "chapter": "ODE",
-    "name_vi": "Phương trình vi phân tuyến tính cấp 1",
-    "name_en": "First-order linear ODE",
+    "chapter": "Ch4 Matrix Decompositions",
+    "name_vi": "Trị riêng và vector riêng",
+    "name_en": "Eigenvalues and eigenvectors",
     "prerequisites": [
-      "MAI.ODE.SEP"
+      "MAI.DEC.TRACE"
     ],
     "difficulty_base": 0.5,
     "bloom_level": "apply"
   },
   {
-    "skill_id": "MAI.ODE.CONST2",
+    "skill_id": "MAI.DEC.DIAG",
     "subject": "MAI391",
-    "chapter": "ODE",
-    "name_vi": "Phương trình cấp 2 hệ số hằng thuần nhất",
-    "name_en": "Second-order constant-coefficient ODE",
+    "chapter": "Ch4 Matrix Decompositions",
+    "name_vi": "Phân rã trị riêng và chéo hoá",
+    "name_en": "Eigendecomposition",
     "prerequisites": [
-      "MAI.ODE.SEP"
+      "MAI.DEC.EIGEN"
     ],
     "difficulty_base": 0.55,
     "bloom_level": "apply"
   },
   {
-    "skill_id": "MAI.ODE.IVP",
+    "skill_id": "MAI.DEC.SVD",
     "subject": "MAI391",
-    "chapter": "ODE",
-    "name_vi": "Bài toán giá trị đầu",
-    "name_en": "Initial value problems",
+    "chapter": "Ch4 Matrix Decompositions",
+    "name_vi": "Phân rã giá trị kỳ dị (SVD)",
+    "name_en": "Singular value decomposition",
     "prerequisites": [
-      "MAI.ODE.LINEAR1",
-      "MAI.ODE.CONST2"
+      "MAI.DEC.EIGEN"
+    ],
+    "difficulty_base": 0.65,
+    "bloom_level": "analyze"
+  },
+  {
+    "skill_id": "MAI.VC.PARTIAL",
+    "subject": "MAI391",
+    "chapter": "Ch5 Vector Calculus",
+    "name_vi": "Đạo hàm riêng và gradient",
+    "name_en": "Partial derivatives and gradients",
+    "prerequisites": [],
+    "difficulty_base": 0.35,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAI.VC.JACOBIAN",
+    "subject": "MAI391",
+    "chapter": "Ch5 Vector Calculus",
+    "name_vi": "Ma trận Jacobi",
+    "name_en": "Jacobian of vector-valued functions",
+    "prerequisites": [
+      "MAI.VC.PARTIAL"
+    ],
+    "difficulty_base": 0.5,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAI.VC.CHAIN",
+    "subject": "MAI391",
+    "chapter": "Ch5 Vector Calculus",
+    "name_vi": "Quy tắc dây chuyền nhiều biến",
+    "name_en": "Multivariate chain rule",
+    "prerequisites": [
+      "MAI.VC.PARTIAL"
+    ],
+    "difficulty_base": 0.5,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAI.PROB.MOMENTS",
+    "subject": "MAI391",
+    "chapter": "Ch6 Probability",
+    "name_vi": "Kỳ vọng và phương sai",
+    "name_en": "Expectation and variance",
+    "prerequisites": [],
+    "difficulty_base": 0.3,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAI.OPT.GD",
+    "subject": "MAI391",
+    "chapter": "Ch7 Continuous Optimization",
+    "name_vi": "Gradient descent",
+    "name_en": "Gradient descent",
+    "prerequisites": [
+      "MAI.VC.PARTIAL"
+    ],
+    "difficulty_base": 0.45,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAI.OPT.CRIT",
+    "subject": "MAI391",
+    "chapter": "Ch7 Continuous Optimization",
+    "name_vi": "Điểm dừng của hàm nhiều biến",
+    "name_en": "Stationary points",
+    "prerequisites": [
+      "MAI.VC.PARTIAL"
+    ],
+    "difficulty_base": 0.45,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAI.REG.LS",
+    "subject": "MAI391",
+    "chapter": "Ch9 Linear Regression",
+    "name_vi": "Bình phương tối thiểu",
+    "name_en": "Least squares",
+    "prerequisites": [
+      "MAI.GEO.PROJ",
+      "MAI.OPT.CRIT"
     ],
     "difficulty_base": 0.6,
+    "bloom_level": "analyze"
+  },
+  {
+    "skill_id": "MAI.PCA",
+    "subject": "MAI391",
+    "chapter": "Ch10 PCA",
+    "name_vi": "Phân tích thành phần chính",
+    "name_en": "Principal component analysis",
+    "prerequisites": [
+      "MAI.DEC.EIGEN",
+      "MAI.PROB.MOMENTS"
+    ],
+    "difficulty_base": 0.6,
+    "bloom_level": "analyze"
+  },
+  {
+    "skill_id": "MAI.SVM.MARGIN",
+    "subject": "MAI391",
+    "chapter": "Ch12 SVM",
+    "name_vi": "Lề của SVM",
+    "name_en": "SVM margin",
+    "prerequisites": [
+      "MAI.GEO.NORM"
+    ],
+    "difficulty_base": 0.45,
     "bloom_level": "apply"
   }
 ]

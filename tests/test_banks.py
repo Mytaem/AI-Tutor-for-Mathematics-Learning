@@ -15,7 +15,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.core.itembank import ERRORS_DIR, ItemBank, load_error_codes  # noqa: E402
+from src.core.itembank import ItemBank, load_course_error_codes  # noqa: E402
 from src.core.schema import Submission  # noqa: E402
 from src.verify.registry import supported_subjects, verifier_for  # noqa: E402
 
@@ -53,7 +53,7 @@ def test_ma_bai_dung_tien_to_mon(bank: ItemBank, subject: str) -> None:
 
 
 def test_taxonomy_loi_hop_le(bank: ItemBank, subject: str) -> None:
-    codes = load_error_codes(ERRORS_DIR / f"{subject.lower()}.json")
+    codes = load_course_error_codes(subject)
     assert len(codes) >= 12, "Mục tiêu trong PLAN.md: ≥ 12 mã lỗi mỗi môn"
     for code in codes.values():
         assert code.hint_vi, f"{code.code} thiếu câu gợi ý cho hint mức 2"

@@ -16,7 +16,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.core.config import ROOT
-from src.core.itembank import ERRORS_DIR
+from src.core.itembank import COURSE_TAXONOMIES, course_taxonomy_paths
 from src.rag.chunking import assign_ids
 from src.rag.ingest import ingest_all, load_pitfalls
 from src.rag.store import EmbeddingCache, Encoder, RagIndex
@@ -51,10 +51,10 @@ def main() -> None:
     print("Đang đọc tài liệu:")
     chunks = ingest_all(RAW_DIR) if RAW_DIR.exists() else []
 
-    # Bảng bẫy viết tay: nguồn chất lượng cao nhất, luôn nạp — cho MỌI môn có taxonomy lỗi.
-    for pitfall_path in sorted(ERRORS_DIR.glob("*.json")):
-        subject = pitfall_path.stem.upper()
-        pitfalls = load_pitfalls(pitfall_path, subject)
+    # Bảng bẫy viết tay: nguồn chất lượng cao nhất, luôn nạp — theo bảng mã lỗi
+    # của TỪNG MÔN, nên bẫy đại số tuyến tính có mặt ở cả MAE101 lẫn MAI391.
+    for subject in COURSE_TAXONOMIES:
+        pitfalls = [c for path in course_taxonomy_paths(subject) for c in load_pitfalls(path, subject)]
         print(f"  {subject} bẫy thường gặp (viết tay): {len(pitfalls)} chunk")
         chunks.extend(pitfalls)
 

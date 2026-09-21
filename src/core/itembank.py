@@ -63,6 +63,28 @@ def load_error_codes(path: str | Path) -> dict[str, ErrorCode]:
     return {code.code: code for code in codes}
 
 
+#: Bảng mã lỗi của từng môn, theo MẢNG KIẾN THỨC môn đó gồm — khớp với cách
+#: ghép bộ chấm trong ``src/verify/registry.py``.
+COURSE_TAXONOMIES: dict[str, list[str]] = {
+    "MAE101": ["mae101.json", "linear_algebra.json"],
+    "MAI391": ["mai391.json", "linear_algebra.json"],
+}
+
+
+def course_taxonomy_paths(subject: Subject | str) -> list[Path]:
+    code = subject.value if isinstance(subject, Subject) else subject
+    names = COURSE_TAXONOMIES.get(code, [f"{code.lower()}.json"])
+    return [ERRORS_DIR / name for name in names if (ERRORS_DIR / name).exists()]
+
+
+def load_course_error_codes(subject: Subject | str) -> dict[str, ErrorCode]:
+    """Mọi mã lỗi có thể gặp trong một môn = hợp các bảng mã lỗi của các mảng nó gồm."""
+    codes: dict[str, ErrorCode] = {}
+    for path in course_taxonomy_paths(subject):
+        codes.update(load_error_codes(path))
+    return codes
+
+
 class ItemBank:
     """Tra cứu bài tập theo mã, theo kỹ năng, theo độ khó."""
 

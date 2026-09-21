@@ -1,0 +1,47 @@
+[
+  {
+    "code": "ODE.NOTSOLUTION",
+    "tier": "E-COMPUTE",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Không phải nghiệm của phương trình",
+    "description_vi": "Thế hàm số vào phương trình vi phân không ra đẳng thức.",
+    "hint_vi": "Em thử lấy đạo hàm đáp án rồi thế ngược vào phương trình nhé."
+  },
+  {
+    "code": "ODE.INCOMPLETE",
+    "tier": "E-INCOMPLETE",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Nghiệm tổng quát thiếu hằng số độc lập",
+    "description_vi": "Phương trình cấp n cần n hằng số độc lập. Hay gặp với nghiệm kép: viết C1·eʳˣ + C2·eʳˣ thay vì (C1 + C2·x)·eʳˣ.",
+    "hint_vi": "Phương trình đặc trưng có nghiệm kép không? Khi đó nghiệm tổng quát có dạng đặc biệt nào?"
+  },
+  {
+    "code": "ODE.NOHOMO",
+    "tier": "E-INCOMPLETE",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Thiếu phần nghiệm thuần nhất",
+    "description_vi": "Chỉ đưa một nghiệm riêng, quên cộng nghiệm tổng quát của phương trình thuần nhất.",
+    "hint_vi": "Nghiệm tổng quát của phương trình không thuần nhất gồm những phần nào?"
+  },
+  {
+    "code": "ODE.IC",
+    "tier": "E-COMPUTE",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Không thoả điều kiện đầu",
+    "description_vi": "Hàm số thoả phương trình nhưng không thoả điều kiện ban đầu.",
+    "hint_vi": "Em thay điều kiện đầu vào nghiệm tổng quát và giải lại hằng số nhé."
+  },
+  {
+    "code": "ODE.IC.UNSOLVED",
+    "tier": "E-INCOMPLETE",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Chưa dùng điều kiện đầu",
+    "description_vi": "Đã tìm được nghiệm tổng quát nhưng chưa thế điều kiện đầu để xác định hằng số.",
+    "hint_vi": "Đề cho điều kiện đầu để làm gì? Nghiệm của em còn hằng số nào chưa xác định?"
+  }
+]

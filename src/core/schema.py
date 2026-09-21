@@ -62,11 +62,15 @@ class Skill(BaseModel):
 
 
 class ErrorCode(BaseModel):
-    """Một mã lỗi cụ thể ở tầng 2."""
+    """Một mã lỗi cụ thể ở tầng 2.
+
+    ``subject`` để trống với mã lỗi DÙNG CHUNG nhiều môn (``LA.*`` của đại số
+    tuyến tính): mã lỗi đặt theo kiểu sai, không theo môn.
+    """
 
     code: str
     tier: ErrorTier
-    subject: Subject
+    subject: Subject | None = None
     skill_id: str | None = None
     name_vi: str
     description_vi: str = ""

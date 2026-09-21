@@ -21,7 +21,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from src.core.itembank import ERRORS_DIR, ITEMS_DIR, SKILLS_DIR, ItemBank, load_items, load_skills
+from src.core.itembank import (
+    ERRORS_DIR, ITEMS_DIR, SKILLS_DIR, ItemBank, load_course_error_codes, load_items, load_skills,
+)
 from src.core.schema import Submission
 from src.data_gen.error_injector import VALUE_PRESERVING, build_dataset, write_dataset
 from src.verify.registry import verifier_for
@@ -42,7 +44,8 @@ def load_full_bank(subject: str) -> ItemBank:
 def main() -> None:
     subject = sys.argv[1] if len(sys.argv) > 1 else "MAE101"
     bank = load_full_bank(subject)
-    dataset = build_dataset(bank, ERRORS_DIR / f"{subject.lower()}.json")
+    # Bảng mã lỗi ĐẦY ĐỦ của môn (ví dụ MAI391 = Math for ML + đại số tuyến tính).
+    dataset = build_dataset(bank, load_course_error_codes(subject))
 
     output = ERRORS_DIR / f"{subject.lower()}_injected.jsonl"
     write_dataset(dataset, output)

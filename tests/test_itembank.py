@@ -20,7 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.core.itembank import ItemBank  # noqa: E402
 from src.core.schema import Item, Submission  # noqa: E402
-from src.verify.calculus import CalculusVerifier  # noqa: E402
+from src.verify.registry import verifier_for  # noqa: E402
 
 
 @pytest.fixture(scope="module")
@@ -55,7 +55,7 @@ class TestIntegrity:
 class TestReferenceAnswersSelfVerify:
     def test_moi_dap_an_chuan_deu_tu_verify_duoc(self, bank: ItemBank) -> None:
         """Nộp chính đáp án chuẩn vào verifier thì phải được chấm là ĐÚNG."""
-        verifier = CalculusVerifier()
+        verifier = verifier_for("MAE101")
         failures: list[str] = []
 
         for item in bank.items.values():
@@ -64,7 +64,7 @@ class TestReferenceAnswersSelfVerify:
                 continue
 
             result = verifier.verify(
-                item, Submission(item_id=item.item_id, final_answer=str(item.answer))
+                item, Submission(item_id=item.item_id, final_answer=item.answer_text)
             )
             if result.final_answer_correct is not True:
                 failures.append(f"{item.item_id}: {result.notes}")
@@ -73,7 +73,7 @@ class TestReferenceAnswersSelfVerify:
 
     def test_loi_giai_mau_khong_co_buoc_nao_bi_bao_sai(self, bank: ItemBank) -> None:
         """Các bước trong lời giải mẫu không được bị đánh dấu là sai."""
-        verifier = CalculusVerifier()
+        verifier = verifier_for("MAE101")
         failures: list[str] = []
 
         for item in bank.items.values():

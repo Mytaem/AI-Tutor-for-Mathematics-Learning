@@ -92,6 +92,29 @@ class TestChunking:
         assert chunk_text("") == []
         assert chunk_text("   \n\n  ") == []
 
+    def test_trang_pdf_khong_co_dong_trong_van_bi_cat(self) -> None:
+        """Hồi quy: PDF giáo trình chỉ xuống dòng đơn — bản cũ để lọt chunk 6568 ký tự."""
+        from src.rag.chunking import MAX_CHARS
+
+        page = "\n".join(f"Line {i} of a textbook page about integration by parts." for i in range(120))
+        pieces = chunk_text(page)
+        assert len(pieces) > 1
+        assert all(len(p.text) <= MAX_CHARS for p in pieces)
+
+    def test_cat_khong_lam_mat_chu(self) -> None:
+        from src.rag.chunking import _split_long
+
+        text = " ".join(f"word{i}" for i in range(2000))
+        pieces = _split_long(text, limit=300)
+        assert all(len(p) <= 300 for p in pieces)
+        assert " ".join(" ".join(pieces).split()) == text
+
+    def test_tu_dai_bat_thuong_van_bi_cat(self) -> None:
+        """Chữ dính liền khi trích PDF ('arealltrue,butwecanconclude...') không được làm vỡ giới hạn."""
+        from src.rag.chunking import _split_long
+
+        assert all(len(p) <= 100 for p in _split_long("x" * 450, limit=100))
+
     def test_lam_sach_van_ban_trich_tu_pdf(self) -> None:
         """Từ bị gạch nối xuống dòng phải được nối lại, nếu không token sẽ vỡ."""
         assert "nguyên" in clean_text("nguy-\nên hàm")

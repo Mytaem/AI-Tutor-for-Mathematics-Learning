@@ -1,209 +1,209 @@
 [
   {
-    "code": "MAI.SHAPE",
+    "code": "MAI.GEO.NOSQRT",
+    "tier": "E-PROCEDURE",
+    "subject": "MAI391",
+    "skill_id": "MAI.GEO.NORM",
+    "name_vi": "Quên lấy căn khi tính chuẩn L2",
+    "description_vi": "Đưa ra tổng bình phương các thành phần, tức là bình phương của chuẩn.",
+    "hint_vi": "Chuẩn Euclid là căn bậc hai của tổng bình phương — em đã lấy căn chưa?"
+  },
+  {
+    "code": "MAI.GEO.WRONGNORM",
     "tier": "E-INTERPRET",
     "subject": "MAI391",
-    "skill_id": "MAI.MAT.BASIC",
-    "name_vi": "Sai kích thước đáp án",
-    "description_vi": "Đáp án có số hàng/cột không khớp với yêu cầu của đề.",
-    "hint_vi": "Em kiểm tra lại xem đáp án cần mấy thành phần nhé."
+    "skill_id": "MAI.GEO.NORM",
+    "name_vi": "Dùng nhầm loại chuẩn",
+    "description_vi": "Đề hỏi chuẩn L1 mà tính chuẩn L2, hoặc ngược lại.",
+    "hint_vi": "Đề hỏi chuẩn nào? Chuẩn L1 và L2 khác nhau ở phép tính nào?"
   },
   {
-    "code": "MAI.ROWOP.INVALID",
+    "code": "MAI.GEO.PROJ_NONORM",
     "tier": "E-PROCEDURE",
     "subject": "MAI391",
-    "skill_id": "MAI.SYS.GAUSS",
-    "name_vi": "Phép biến đổi hàng không hợp lệ",
-    "description_vi": "Một bước khử Gauss làm ma trận không còn tương đương hàng với bước trước (thường do tính sai khi cộng bội hàng).",
-    "hint_vi": "Em thử làm lại phép cộng bội hàng ở bước này, chú ý dấu và hệ số nhân."
+    "skill_id": "MAI.GEO.PROJ",
+    "name_vi": "Quên chia cho bᵀb khi chiếu",
+    "description_vi": "Viết proj = (bᵀx)·b thay vì (bᵀx / bᵀb)·b — chỉ đúng khi b có độ dài 1.",
+    "hint_vi": "Công thức chiếu lên b có mẫu số không? Vector b của đề có phải vector đơn vị không?"
   },
   {
-    "code": "MAI.SYS.NOTSOLUTION",
+    "code": "MAI.GEO.PROJ_WRONG",
     "tier": "E-COMPUTE",
     "subject": "MAI391",
-    "skill_id": "MAI.SYS.GAUSS",
-    "name_vi": "Nghiệm không thoả hệ",
-    "description_vi": "Thế ngược bộ số vào hệ thì có phương trình không thoả.",
-    "hint_vi": "Em thử thế ngược đáp án vào từng phương trình xem sao."
+    "skill_id": "MAI.GEO.PROJ",
+    "name_vi": "Hình chiếu sai",
+    "description_vi": "Vector đưa ra không nằm trên đường thẳng span(b), hoặc phần dư không vuông góc với b.",
+    "hint_vi": "Hình chiếu phải cùng phương với b, và x trừ hình chiếu phải vuông góc với b — em kiểm tra lại nhé."
   },
   {
-    "code": "MAI.SYS.PARTIAL",
-    "tier": "E-INCOMPLETE",
-    "subject": "MAI391",
-    "skill_id": "MAI.SYS.PARAM",
-    "name_vi": "Chỉ đưa một nghiệm riêng của hệ vô số nghiệm",
-    "description_vi": "Hệ có vô số nghiệm nhưng bài làm chỉ đưa ra một (hoặc một phần) họ nghiệm, thiếu tham số tự do.",
-    "hint_vi": "Hệ này có bao nhiêu ẩn tự do? Em thử so số ẩn với hạng của ma trận hệ số."
-  },
-  {
-    "code": "MAI.SYS.INCONSISTENT",
+    "code": "MAI.DEC.TRACE_DET",
     "tier": "E-CONCEPT",
     "subject": "MAI391",
-    "skill_id": "MAI.VS.RANK",
-    "name_vi": "Đưa nghiệm cho hệ vô nghiệm",
-    "description_vi": "Hệ vô nghiệm (rank A < rank A|b) nhưng bài làm vẫn đưa ra một bộ nghiệm.",
-    "hint_vi": "Em so sánh hạng của ma trận hệ số với hạng của ma trận mở rộng xem."
+    "skill_id": "MAI.DEC.TRACE",
+    "name_vi": "Nhầm vết với định thức",
+    "description_vi": "Tính định thức thay vì vết (tổng các phần tử trên đường chéo chính).",
+    "hint_vi": "Vết của ma trận được định nghĩa thế nào? Có cần nhân chéo không?"
   },
   {
-    "code": "MAI.SYS.FALSENOSOL",
-    "tier": "E-COMPUTE",
-    "subject": "MAI391",
-    "skill_id": "MAI.VS.RANK",
-    "name_vi": "Kết luận vô nghiệm sai",
-    "description_vi": "Hệ có nghiệm nhưng bài làm kết luận vô nghiệm, thường do tính sai khi khử.",
-    "hint_vi": "Em kiểm tra lại bước khử làm xuất hiện dòng 0 = số khác 0 nhé."
-  },
-  {
-    "code": "MAI.DET.SIGN",
-    "tier": "E-PROCEDURE",
-    "subject": "MAI391",
-    "skill_id": "MAI.MAT.DET",
-    "name_vi": "Đổi chỗ hai hàng mà quên đổi dấu định thức",
-    "description_vi": "Kết quả đúng độ lớn nhưng ngược dấu.",
-    "hint_vi": "Khi đổi chỗ hai hàng thì định thức thay đổi thế nào?"
-  },
-  {
-    "code": "MAI.DET.SCALE",
-    "tier": "E-PROCEDURE",
-    "subject": "MAI391",
-    "skill_id": "MAI.MAT.DET",
-    "name_vi": "Nhân một hàng với k mà không bù lại",
-    "description_vi": "Kết quả lệch đúng một hệ số nguyên so với định thức thật.",
-    "hint_vi": "Nhân một hàng với k thì định thức thay đổi ra sao? Em có bù lại chưa?"
-  },
-  {
-    "code": "MAI.INV.NODET",
-    "tier": "E-PROCEDURE",
-    "subject": "MAI391",
-    "skill_id": "MAI.MAT.INV",
-    "name_vi": "Quên chia cho định thức",
-    "description_vi": "Tính đúng ma trận phụ hợp nhưng quên nhân với 1/det(A).",
-    "hint_vi": "Công thức A⁻¹ = (1/det A)·adj(A) — em còn thiếu phần nào?"
-  },
-  {
-    "code": "MAI.INV.TRANSPOSE",
+    "code": "MAI.DEC.TRACE_SUMALL",
     "tier": "E-CONCEPT",
     "subject": "MAI391",
-    "skill_id": "MAI.MAT.INV",
-    "name_vi": "Quên chuyển vị ma trận phần bù đại số",
-    "description_vi": "Ma trận phụ hợp là CHUYỂN VỊ của ma trận các phần bù đại số.",
-    "hint_vi": "Em xem lại định nghĩa ma trận phụ hợp, có bước chuyển vị không?"
+    "skill_id": "MAI.DEC.TRACE",
+    "name_vi": "Cộng mọi phần tử thay vì chỉ đường chéo",
+    "description_vi": "Vết chỉ là tổng các phần tử trên đường chéo chính.",
+    "hint_vi": "Vết cộng những phần tử nào của ma trận?"
   },
   {
-    "code": "MAI.INV.NOSIGN",
-    "tier": "E-PROCEDURE",
-    "subject": "MAI391",
-    "skill_id": "MAI.MAT.INV",
-    "name_vi": "Quên đổi dấu trong công thức nghịch đảo 2×2",
-    "description_vi": "Với ma trận 2×2, đổi chỗ hai phần tử đường chéo chính VÀ đổi dấu hai phần tử còn lại.",
-    "hint_vi": "Với ma trận 2×2, ngoài đổi chỗ đường chéo chính em còn phải làm gì với hai phần tử kia?"
-  },
-  {
-    "code": "MAI.INV.SINGULAR",
-    "tier": "E-CONDITION",
-    "subject": "MAI391",
-    "skill_id": "MAI.MAT.INV",
-    "name_vi": "Tìm nghịch đảo của ma trận suy biến",
-    "description_vi": "det(A) = 0 nên A không có nghịch đảo.",
-    "hint_vi": "Trước khi tìm nghịch đảo, em đã kiểm tra điều kiện gì chưa?"
-  },
-  {
-    "code": "MAI.INV.FALSESINGULAR",
-    "tier": "E-COMPUTE",
-    "subject": "MAI391",
-    "skill_id": "MAI.MAT.DET",
-    "name_vi": "Kết luận không khả nghịch sai",
-    "description_vi": "det(A) ≠ 0 nên A khả nghịch, thường do tính sai định thức.",
-    "hint_vi": "Em tính lại định thức giúp thầy/cô nhé."
-  },
-  {
-    "code": "MAI.EIG.ZEROVEC",
+    "code": "MAI.DEC.NOTDIAG",
     "tier": "E-CONCEPT",
     "subject": "MAI391",
-    "skill_id": "MAI.EIG.VECTORS",
-    "name_vi": "Đưa vector 0 làm vector riêng",
-    "description_vi": "Theo định nghĩa, vector riêng phải khác vector 0.",
-    "hint_vi": "Định nghĩa vector riêng có điều kiện gì về vector đó?"
+    "skill_id": "MAI.DEC.DIAG",
+    "name_vi": "Ma trận đưa ra không phải ma trận chéo",
+    "description_vi": "Trong phân rã A = PDP⁻¹, D phải là ma trận chéo.",
+    "hint_vi": "Ma trận D trong phân rã trị riêng có dạng đặc biệt gì?"
   },
   {
-    "code": "MAI.EIG.NOTEIGEN",
+    "code": "MAI.DEC.WRONGSPECTRUM",
     "tier": "E-COMPUTE",
     "subject": "MAI391",
-    "skill_id": "MAI.EIG.VECTORS",
-    "name_vi": "Không phải vector riêng",
-    "description_vi": "A·v không bằng λ·v.",
-    "hint_vi": "Em thử nhân A với vector của em rồi so với λ lần vector đó."
+    "skill_id": "MAI.DEC.DIAG",
+    "name_vi": "Đường chéo không phải các trị riêng",
+    "description_vi": "D là ma trận chéo nhưng các phần tử trên đường chéo không phải trị riêng của A.",
+    "hint_vi": "Các phần tử trên đường chéo của D chính là gì của A?"
   },
   {
-    "code": "MAI.EIG.WRONGVALUE",
+    "code": "MAI.SVD.EIGEN_INSTEAD",
+    "tier": "E-CONCEPT",
+    "subject": "MAI391",
+    "skill_id": "MAI.DEC.SVD",
+    "name_vi": "Nhầm giá trị kỳ dị với trị riêng",
+    "description_vi": "Đưa ra trị riêng của A. Giá trị kỳ dị là căn bậc hai trị riêng của AᵀA, luôn không âm.",
+    "hint_vi": "Giá trị kỳ dị được tính từ ma trận nào — A hay AᵀA? Giá trị kỳ dị có âm được không?"
+  },
+  {
+    "code": "MAI.SVD.NOSQRT",
+    "tier": "E-PROCEDURE",
+    "subject": "MAI391",
+    "skill_id": "MAI.DEC.SVD",
+    "name_vi": "Quên lấy căn trị riêng của AᵀA",
+    "description_vi": "Đưa ra trị riêng của AᵀA; giá trị kỳ dị là căn bậc hai của chúng.",
+    "hint_vi": "Từ trị riêng của AᵀA, em còn phải làm gì để ra giá trị kỳ dị?"
+  },
+  {
+    "code": "MAI.VC.SWAPPED",
     "tier": "E-INTERPRET",
     "subject": "MAI391",
-    "skill_id": "MAI.EIG.VECTORS",
-    "name_vi": "Vector riêng của trị riêng khác",
-    "description_vi": "Tìm đúng một vector riêng nhưng nó ứng với trị riêng khác trị riêng đề hỏi.",
-    "hint_vi": "Vector của em là vector riêng — nhưng ứng với trị riêng nào? Đề hỏi trị riêng nào?"
+    "skill_id": "MAI.VC.PARTIAL",
+    "name_vi": "Đảo thứ tự các thành phần gradient",
+    "description_vi": "Các đạo hàm riêng đúng nhưng đặt sai vị trí so với thứ tự biến.",
+    "hint_vi": "Thành phần thứ nhất của gradient là đạo hàm theo biến nào?"
   },
   {
-    "code": "MAI.EIG.NOTVALUE",
+    "code": "MAI.VC.NOCHAIN",
+    "tier": "E-PROCEDURE",
+    "subject": "MAI391",
+    "skill_id": "MAI.VC.CHAIN",
+    "name_vi": "Quên nhân đạo hàm của hàm trong",
+    "description_vi": "Với hàm hợp, chỉ lấy đạo hàm hàm ngoài mà quên nhân đạo hàm riêng của hàm trong.",
+    "hint_vi": "Hàm này là hàm hợp — quy tắc dây chuyền yêu cầu nhân thêm gì?"
+  },
+  {
+    "code": "MAI.VC.JACOBIAN_TRANSPOSE",
+    "tier": "E-CONCEPT",
+    "subject": "MAI391",
+    "skill_id": "MAI.VC.JACOBIAN",
+    "name_vi": "Jacobi bị chuyển vị",
+    "description_vi": "Hàng thứ i của Jacobi là gradient của thành phần thứ i; bài làm đặt theo cột.",
+    "hint_vi": "Trong ma trận Jacobi, mỗi HÀNG ứng với thành phần nào của hàm?"
+  },
+  {
+    "code": "MAI.PROB.NOMEAN",
+    "tier": "E-PROCEDURE",
+    "subject": "MAI391",
+    "skill_id": "MAI.PROB.MOMENTS",
+    "name_vi": "Quên trừ bình phương kỳ vọng",
+    "description_vi": "Đưa ra E[X²]; phương sai là E[X²] − (E[X])².",
+    "hint_vi": "Công thức Var(X) theo E[X²] và E[X] là gì?"
+  },
+  {
+    "code": "MAI.PROB.STD_INSTEAD",
+    "tier": "E-INTERPRET",
+    "subject": "MAI391",
+    "skill_id": "MAI.PROB.MOMENTS",
+    "name_vi": "Đưa độ lệch chuẩn thay vì phương sai",
+    "description_vi": "Đề hỏi phương sai nhưng bài làm đã lấy căn.",
+    "hint_vi": "Đề hỏi phương sai hay độ lệch chuẩn?"
+  },
+  {
+    "code": "MAI.OPT.GD_SIGN",
+    "tier": "E-CONCEPT",
+    "subject": "MAI391",
+    "skill_id": "MAI.OPT.GD",
+    "name_vi": "Đi theo chiều gradient thay vì ngược chiều",
+    "description_vi": "Viết x₁ = x₀ + η∇f(x₀); gradient descent đi NGƯỢC chiều gradient.",
+    "hint_vi": "Muốn hàm GIẢM thì phải đi theo hướng nào so với gradient?"
+  },
+  {
+    "code": "MAI.OPT.GD_NOLR",
+    "tier": "E-PROCEDURE",
+    "subject": "MAI391",
+    "skill_id": "MAI.OPT.GD",
+    "name_vi": "Quên nhân tốc độ học",
+    "description_vi": "Viết x₁ = x₀ − ∇f(x₀), bỏ qua η.",
+    "hint_vi": "Bước cập nhật có tham số nào điều chỉnh độ dài bước không?"
+  },
+  {
+    "code": "MAI.OPT.NOTSTATIONARY",
     "tier": "E-COMPUTE",
     "subject": "MAI391",
-    "skill_id": "MAI.EIG.VALUES",
-    "name_vi": "Giá trị không phải trị riêng",
-    "description_vi": "Có giá trị không phải nghiệm của đa thức đặc trưng.",
-    "hint_vi": "Em thử thay giá trị đó vào det(A − λI) xem có bằng 0 không."
+    "skill_id": "MAI.OPT.CRIT",
+    "name_vi": "Không phải điểm dừng",
+    "description_vi": "Gradient tại điểm đưa ra khác 0.",
+    "hint_vi": "Em thử thay điểm đó vào gradient xem có ra vector 0 không."
   },
   {
-    "code": "MAI.EIG.MISSING",
-    "tier": "E-INCOMPLETE",
-    "subject": "MAI391",
-    "skill_id": "MAI.EIG.VALUES",
-    "name_vi": "Thiếu trị riêng",
-    "description_vi": "Các giá trị đưa ra đều đúng nhưng chưa đủ.",
-    "hint_vi": "Đa thức đặc trưng có bậc bao nhiêu? Em đã tìm đủ nghiệm chưa?"
-  },
-  {
-    "code": "MAI.ODE.NOTSOLUTION",
+    "code": "MAI.REG.NOTLS",
     "tier": "E-COMPUTE",
     "subject": "MAI391",
-    "skill_id": "MAI.ODE.CONST2",
-    "name_vi": "Không phải nghiệm của phương trình",
-    "description_vi": "Thế hàm số vào phương trình vi phân không ra đẳng thức.",
-    "hint_vi": "Em thử lấy đạo hàm đáp án rồi thế ngược vào phương trình nhé."
+    "skill_id": "MAI.REG.LS",
+    "name_vi": "Không thoả phương trình chuẩn",
+    "description_vi": "Nghiệm bình phương tối thiểu phải thoả Xᵀ(Xθ − y) = 0.",
+    "hint_vi": "Em thử kiểm tra phương trình chuẩn XᵀXθ = Xᵀy với nghiệm của mình."
   },
   {
-    "code": "MAI.ODE.INCOMPLETE",
-    "tier": "E-INCOMPLETE",
+    "code": "MAI.PCA.SMALLEST",
+    "tier": "E-CONCEPT",
     "subject": "MAI391",
-    "skill_id": "MAI.ODE.CONST2",
-    "name_vi": "Nghiệm tổng quát thiếu hằng số độc lập",
-    "description_vi": "Phương trình cấp n cần n hằng số độc lập. Hay gặp với nghiệm kép: viết C1·eʳˣ + C2·eʳˣ thay vì (C1 + C2·x)·eʳˣ.",
-    "hint_vi": "Phương trình đặc trưng có nghiệm kép không? Khi đó nghiệm tổng quát có dạng đặc biệt nào?"
+    "skill_id": "MAI.PCA",
+    "name_vi": "Chọn vector riêng của trị riêng NHỎ nhất",
+    "description_vi": "Thành phần chính thứ nhất ứng với trị riêng LỚN nhất của ma trận hiệp phương sai.",
+    "hint_vi": "Thành phần chính thứ nhất là hướng có phương sai lớn nhất hay nhỏ nhất?"
   },
   {
-    "code": "MAI.ODE.NOHOMO",
-    "tier": "E-INCOMPLETE",
+    "code": "MAI.PCA.NORATIO",
+    "tier": "E-PROCEDURE",
     "subject": "MAI391",
-    "skill_id": "MAI.ODE.LINEAR1",
-    "name_vi": "Thiếu phần nghiệm thuần nhất",
-    "description_vi": "Chỉ đưa một nghiệm riêng, quên cộng nghiệm tổng quát của phương trình thuần nhất.",
-    "hint_vi": "Nghiệm tổng quát của phương trình không thuần nhất gồm những phần nào?"
+    "skill_id": "MAI.PCA",
+    "name_vi": "Quên chia cho tổng phương sai",
+    "description_vi": "Tỉ lệ phương sai giải thích = trị riêng / tổng các trị riêng.",
+    "hint_vi": "Đề hỏi tỉ lệ — em đã chia cho tổng các trị riêng chưa?"
   },
   {
-    "code": "MAI.ODE.IC",
-    "tier": "E-COMPUTE",
+    "code": "MAI.SVM.HALFMARGIN",
+    "tier": "E-CONCEPT",
     "subject": "MAI391",
-    "skill_id": "MAI.ODE.IVP",
-    "name_vi": "Không thoả điều kiện đầu",
-    "description_vi": "Hàm số thoả phương trình nhưng không thoả điều kiện ban đầu.",
-    "hint_vi": "Em thay điều kiện đầu vào nghiệm tổng quát và giải lại hằng số nhé."
+    "skill_id": "MAI.SVM.MARGIN",
+    "name_vi": "Chỉ tính nửa lề",
+    "description_vi": "Đưa ra 1/‖w‖ (khoảng cách tới một siêu phẳng lề); độ rộng lề là 2/‖w‖.",
+    "hint_vi": "Độ rộng lề là khoảng cách giữa HAI siêu phẳng lề — em đã tính đủ chưa?"
   },
   {
-    "code": "MAI.ODE.IC.UNSOLVED",
-    "tier": "E-INCOMPLETE",
+    "code": "MAI.SVM.SQUARED",
+    "tier": "E-PROCEDURE",
     "subject": "MAI391",
-    "skill_id": "MAI.ODE.IVP",
-    "name_vi": "Chưa dùng điều kiện đầu",
-    "description_vi": "Đã tìm được nghiệm tổng quát nhưng chưa thế điều kiện đầu để xác định hằng số.",
-    "hint_vi": "Đề cho điều kiện đầu để làm gì? Nghiệm của em còn hằng số nào chưa xác định?"
+    "skill_id": "MAI.SVM.MARGIN",
+    "name_vi": "Dùng ‖w‖² thay vì ‖w‖",
+    "description_vi": "Độ rộng lề là 2/‖w‖, không phải 2/‖w‖².",
+    "hint_vi": "Trong công thức độ rộng lề, chuẩn của w có bình phương không?"
   }
 ]

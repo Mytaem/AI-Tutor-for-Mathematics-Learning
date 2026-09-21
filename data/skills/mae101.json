@@ -15,7 +15,9 @@
     "chapter": "Limits",
     "name_vi": "Khử dạng vô định (0/0, ∞/∞)",
     "name_en": "Indeterminate forms",
-    "prerequisites": ["MAE.LIM.BASIC"],
+    "prerequisites": [
+      "MAE.LIM.BASIC"
+    ],
     "difficulty_base": 0.5,
     "bloom_level": "apply"
   },
@@ -25,7 +27,9 @@
     "chapter": "Derivatives",
     "name_vi": "Đạo hàm các hàm sơ cấp",
     "name_en": "Derivatives of elementary functions",
-    "prerequisites": ["MAE.LIM.BASIC"],
+    "prerequisites": [
+      "MAE.LIM.BASIC"
+    ],
     "difficulty_base": 0.25,
     "bloom_level": "remember"
   },
@@ -35,7 +39,9 @@
     "chapter": "Derivatives",
     "name_vi": "Quy tắc đạo hàm tích và thương",
     "name_en": "Product and quotient rule",
-    "prerequisites": ["MAE.DER.BASIC"],
+    "prerequisites": [
+      "MAE.DER.BASIC"
+    ],
     "difficulty_base": 0.4,
     "bloom_level": "apply"
   },
@@ -45,7 +51,9 @@
     "chapter": "Derivatives",
     "name_vi": "Quy tắc đạo hàm hàm hợp",
     "name_en": "Chain rule",
-    "prerequisites": ["MAE.DER.BASIC"],
+    "prerequisites": [
+      "MAE.DER.BASIC"
+    ],
     "difficulty_base": 0.45,
     "bloom_level": "apply"
   },
@@ -55,7 +63,9 @@
     "chapter": "Integration",
     "name_vi": "Nguyên hàm cơ bản và quy tắc luỹ thừa",
     "name_en": "Basic antiderivatives and power rule",
-    "prerequisites": ["MAE.DER.BASIC"],
+    "prerequisites": [
+      "MAE.DER.BASIC"
+    ],
     "difficulty_base": 0.3,
     "bloom_level": "apply"
   },
@@ -65,7 +75,9 @@
     "chapter": "Integration",
     "name_vi": "Nguyên hàm hàm lượng giác",
     "name_en": "Trigonometric antiderivatives",
-    "prerequisites": ["MAE.INT.BASIC"],
+    "prerequisites": [
+      "MAE.INT.BASIC"
+    ],
     "difficulty_base": 0.4,
     "bloom_level": "apply"
   },
@@ -75,7 +87,9 @@
     "chapter": "Integration",
     "name_vi": "Nguyên hàm hàm mũ và logarit",
     "name_en": "Exponential and logarithmic antiderivatives",
-    "prerequisites": ["MAE.INT.BASIC"],
+    "prerequisites": [
+      "MAE.INT.BASIC"
+    ],
     "difficulty_base": 0.4,
     "bloom_level": "apply"
   },
@@ -85,7 +99,10 @@
     "chapter": "Integration",
     "name_vi": "Tích phân bằng phương pháp đổi biến",
     "name_en": "Integration by substitution",
-    "prerequisites": ["MAE.INT.BASIC", "MAE.DER.CHAIN"],
+    "prerequisites": [
+      "MAE.INT.BASIC",
+      "MAE.DER.CHAIN"
+    ],
     "difficulty_base": 0.55,
     "bloom_level": "apply"
   },
@@ -95,7 +112,10 @@
     "chapter": "Integration",
     "name_vi": "Tích phân từng phần",
     "name_en": "Integration by parts",
-    "prerequisites": ["MAE.INT.BASIC", "MAE.DER.PRODUCT"],
+    "prerequisites": [
+      "MAE.INT.BASIC",
+      "MAE.DER.PRODUCT"
+    ],
     "difficulty_base": 0.65,
     "bloom_level": "apply"
   },
@@ -105,7 +125,9 @@
     "chapter": "Integration",
     "name_vi": "Tích phân hàm phân thức hữu tỉ",
     "name_en": "Integration of rational functions",
-    "prerequisites": ["MAE.INT.SUBST"],
+    "prerequisites": [
+      "MAE.INT.SUBST"
+    ],
     "difficulty_base": 0.7,
     "bloom_level": "analyze"
   },
@@ -115,7 +137,9 @@
     "chapter": "Integration",
     "name_vi": "Tích phân xác định và công thức Newton–Leibniz",
     "name_en": "Definite integrals",
-    "prerequisites": ["MAE.INT.BASIC"],
+    "prerequisites": [
+      "MAE.INT.BASIC"
+    ],
     "difficulty_base": 0.45,
     "bloom_level": "apply"
   },
@@ -125,8 +149,107 @@
     "chapter": "Integration",
     "name_vi": "Đổi biến trong tích phân xác định (kèm đổi cận)",
     "name_en": "Substitution in definite integrals",
-    "prerequisites": ["MAE.INT.DEF", "MAE.INT.SUBST"],
+    "prerequisites": [
+      "MAE.INT.DEF",
+      "MAE.INT.SUBST"
+    ],
     "difficulty_base": 0.7,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAE.LA.MAT",
+    "subject": "MAE101",
+    "chapter": "Matrix Algebra",
+    "name_vi": "Phép toán trên ma trận",
+    "name_en": "Matrix operations",
+    "prerequisites": [
+      "MAE.LA.GAUSS"
+    ],
+    "difficulty_base": 0.2,
+    "bloom_level": "remember"
+  },
+  {
+    "skill_id": "MAE.LA.DET",
+    "subject": "MAE101",
+    "chapter": "Determinants and Diagonalization",
+    "name_vi": "Tính định thức",
+    "name_en": "Determinants",
+    "prerequisites": [
+      "MAE.LA.MAT"
+    ],
+    "difficulty_base": 0.35,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAE.LA.INV",
+    "subject": "MAE101",
+    "chapter": "Matrix Algebra",
+    "name_vi": "Ma trận nghịch đảo",
+    "name_en": "Matrix inverse",
+    "prerequisites": [
+      "MAE.LA.MAT"
+    ],
+    "difficulty_base": 0.5,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAE.LA.GAUSS",
+    "subject": "MAE101",
+    "chapter": "Systems of Linear Equations",
+    "name_vi": "Giải hệ bằng khử Gauss",
+    "name_en": "Gaussian elimination",
+    "prerequisites": [],
+    "difficulty_base": 0.4,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAE.LA.RANK",
+    "subject": "MAE101",
+    "chapter": "Vector Spaces",
+    "name_vi": "Hạng của ma trận",
+    "name_en": "Matrix rank",
+    "prerequisites": [
+      "MAE.LA.GAUSS",
+      "MAE.LA.MAT"
+    ],
+    "difficulty_base": 0.45,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAE.LA.PARAM",
+    "subject": "MAE101",
+    "chapter": "Systems of Linear Equations",
+    "name_vi": "Hệ vô số nghiệm và nghiệm tham số",
+    "name_en": "Parametric solutions",
+    "prerequisites": [
+      "MAE.LA.GAUSS"
+    ],
+    "difficulty_base": 0.6,
+    "bloom_level": "analyze"
+  },
+  {
+    "skill_id": "MAE.LA.EIGVAL",
+    "subject": "MAE101",
+    "chapter": "Determinants and Diagonalization",
+    "name_vi": "Trị riêng và đa thức đặc trưng",
+    "name_en": "Eigenvalues",
+    "prerequisites": [
+      "MAE.LA.DET"
+    ],
+    "difficulty_base": 0.5,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAE.LA.EIGVEC",
+    "subject": "MAE101",
+    "chapter": "Determinants and Diagonalization",
+    "name_vi": "Vector riêng",
+    "name_en": "Eigenvectors",
+    "prerequisites": [
+      "MAE.LA.EIGVAL",
+      "MAE.LA.PARAM"
+    ],
+    "difficulty_base": 0.6,
     "bloom_level": "apply"
   }
 ]

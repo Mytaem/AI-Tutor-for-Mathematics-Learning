@@ -133,15 +133,69 @@ def parse_matrix(text: str) -> sp.Matrix:
 
 
 class Verifier(ABC):
-    """Lớp cơ sở cho verifier của một môn."""
+    """Lớp cơ sở cho một bộ chấm — của một môn, hoặc của một MẢNG KIẾN THỨC.
 
-    subject: Subject
+    Một môn học thường ghép từ nhiều mảng (MAE101 = giải tích + đại số tuyến
+    tính), nên bộ chấm được tổ chức theo mảng rồi ghép lại bằng
+    ``CompositeVerifier``. Mỗi mảng chỉ cần viết ``handles`` (mảng này có chấm
+    bài đó không) và ``check`` (kiểm tra đáp án cuối, trả kèm mã lỗi); khung
+    ``verify`` bên dưới lo phần còn lại — kiểm tra bước, lỗi nhập liệu, sai bù trừ.
+    """
+
+    subject: Subject | None = None
     name: str = "base"
     domain: Domain = "positive"
+    #: Đáp án bằng lời ("vô nghiệm"...) — guardrail cần biết để chặn gợi ý nói thẳng kết luận.
+    verbal_answers: frozenset[str] = frozenset()
 
-    @abstractmethod
+    def handles(self, item: Item) -> bool:
+        """Bộ chấm này có chấm được bài ``item`` không? Mặc định: có."""
+        return True
+
+    def check(self, item: Item, answer: str) -> tuple[EquivalenceResult, list[str]]:
+        """Kiểm tra đáp án cuối, trả ``(kết quả, mã lỗi)``. Ném ``ParseError`` nếu không đọc được."""
+        if not answer.strip():
+            return EquivalenceResult(False, "structural", 1.0, "Chưa có đáp án"), []
+        return self._dispatch_answer(item, answer), []
+
+    def step_codes(self, checks: list[StepCheck]) -> list[str]:
+        """Mã lỗi suy ra từ chuỗi bước (ví dụ: có bước biến đổi sai)."""
+        return []
+
     def verify(self, item: Item, submission: Submission) -> VerificationResult:
         """Chấm một bài làm, trả về kết quả theo hợp đồng ``VerificationResult``."""
+        result = VerificationResult(item_id=item.item_id, is_correct=False, verifier_used=self.name)
+
+        checks = self.check_steps(item, submission.steps) if submission.steps else []
+        result.step_results = checks
+        result.first_wrong_step = self.first_wrong(checks)
+        if result.first_wrong_step is not None:
+            result.candidate_error_codes.extend(self.step_codes(checks))
+
+        if submission.final_answer is None:
+            result.notes.append("Chưa nộp đáp án cuối, chỉ kiểm tra các bước")
+            result.confidence = 0.5
+            return result
+
+        try:
+            check, codes = self.check(item, submission.final_answer)
+        except ParseError as exc:
+            # Lỗi nhập liệu KHÔNG phải lỗi toán học: không kết luận đúng/sai.
+            result.final_answer_correct = None
+            result.notes.extend([str(exc), "Cần sinh viên nhập lại đáp án"])
+            return result
+
+        result.final_answer_correct = check.equal
+        result.confidence = check.confidence
+        result.notes.append(check.detail)
+        result.candidate_error_codes = codes + result.candidate_error_codes
+
+        result.is_correct = check.equal and result.first_wrong_step is None
+        if check.equal and result.first_wrong_step is not None:
+            result.notes.append(
+                f"Đáp án cuối đúng nhưng bước {result.first_wrong_step} không hợp lệ — có thể sai bù trừ"
+            )
+        return result
 
     # ------------------------------------------------------------------
     # Chấm đáp án cuối

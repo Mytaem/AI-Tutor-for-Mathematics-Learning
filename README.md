@@ -33,7 +33,8 @@ Phần huấn luyện (LoRA, knowledge tracing) cài riêng trên Colab/Kaggle:
 
 | Thư mục | Nội dung |
 |---|---|
-| `src/verify/` | Tầng kiểm chứng — **lõi kỹ thuật của đồ án** |
+| `src/verify/` | Tầng kiểm chứng — **lõi kỹ thuật của đồ án**. Một bộ chấm cho mỗi mảng
+  kiến thức (`calculus`, `linalg`, `mml`, `ode` tuỳ chọn), ghép thành môn trong `registry.py` |
 | `src/tutor/` | Chẩn đoán lỗi, hint ladder, guardrail |
 | `src/rag/` | Truy xuất kiến thức từ giáo trình |
 | `src/kt/` | Knowledge tracing (BKT, DKT, SAKT) + bộ chọn bài |
@@ -53,7 +54,9 @@ Phần huấn luyện (LoRA, knowledge tracing) cài riêng trên Colab/Kaggle:
 - [x] **RAG** — chia chunk theo cấu trúc, hybrid BM25 + embedding, lọc theo metadata
 - [x] **Cold start** — tiên nghiệm theo đồ thị tiên quyết, lan truyền ngược, bài đo đầu vào 6 câu
 - [ ] Gate 1 — còn lại: nạp giáo trình thật, web app Next.js
-- [x] **Gate 2 — MAI391** — hệ phương trình, định thức, nghịch đảo, trị riêng, vector riêng, ODE; 27 bài, 23 mã lỗi; API nhiều môn
+- [x] **Gate 2 — sắp lại theo đề cương thật** — bộ chấm theo mảng kiến thức ghép thành môn:
+  MAE101 = giải tích + đại số tuyến tính (41 bài chép tay); MAI391 = Math for ML (Deisenroth)
+  + đại số tuyến tính (35 bài, 16 kỹ năng). Mã lỗi theo kiểu sai: `LA.*` dùng chung hai môn
 - [ ] Gate 3 — knowledge tracing + cá nhân hóa
 - [ ] Gate 4 — MAD101 + MAS291
 - [ ] Gate 5 — Telegram bot, fine-tune LoRA, thực nghiệm người dùng

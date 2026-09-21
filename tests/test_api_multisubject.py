@@ -63,24 +63,35 @@ class TestMAI391Session:
 
     def test_cham_dung_bai_mai391(self, client: TestClient, service) -> None:
         session = start(client, "u", "MAI391")
-        item = service.banks["MAI391"].get("MAI391-VEC-001")
-        body = attempt(client, session, item.item_id, "[3, 3]")
+        item = service.banks["MAI391"].get("MAI391-VEC-001")  # A = [[5,4],[1,2]], λ = 6
+        body = attempt(client, session, item.item_id, "[8, 2]")  # bội của [4, 1]
         assert body["is_correct"] is True
         assert all(skill.startswith("MAI.") for skill in body["mastery_changes"])
 
+    def test_bai_dai_so_tuyen_tinh_thuoc_mae101(self, client: TestClient) -> None:
+        """Đúng đề cương: hệ phương trình, định thức... là chương 7–10 của MAE101."""
+        session = start(client, "u", "MAE101")
+        body = attempt(client, session, "MAE101-LA-SYS-003", "[u, v, 1 - u - v]")
+        assert body["is_correct"] is True
+        assert all(skill.startswith("MAE.LA.") for skill in body["mastery_changes"] if "LA" in skill)
+
     def test_chan_doan_loi_mai391_qua_api(self, client: TestClient) -> None:
+        """Nhầm giá trị kỳ dị với trị riêng — lỗi khái niệm kinh điển của chương SVD."""
         session = start(client, "u", "MAI391")
-        body = attempt(client, session, "MAI391-ODE-004", "C1*exp(x) + C2*exp(x)")
+        body = attempt(client, session, "MAI391-SVD-001", "3, -2")
         assert body["is_correct"] is False
-        assert "MAI.ODE.INCOMPLETE" in body["error_codes"]
+        assert "MAI.SVD.EIGEN_INSTEAD" in body["error_codes"]
         assert body["hint"] is not None
 
     def test_khong_lo_dap_an_mai391(self, client: TestClient, service) -> None:
         session = start(client, "u", "MAI391")
         item = service.banks["MAI391"].get(session["first_item"]["item_id"])
-        raw = json.dumps(session, ensure_ascii=False)
-        assert item.answer_text not in raw
         assert "answer" not in session["first_item"]
+    # Tìm chuỗi con chỉ có nghĩa với đáp án đủ dài: một đáp án như "5" kiểu gì
+    # cũng trùng một ký tự nào đó trong JSON (mã phiên dạng hex...). Với đáp án
+    # ngắn, bảo đảm thật nằm ở việc các trường đáp án không có mặt — đã có test riêng.
+        if len(item.answer_text) >= 4:
+            assert item.answer_text not in json.dumps(session, ensure_ascii=False)
 
     def test_tien_do_loc_theo_mon(self, client: TestClient) -> None:
         body = client.get("/progress", params={"user_id": "u", "subject": "MAI391"}).json()

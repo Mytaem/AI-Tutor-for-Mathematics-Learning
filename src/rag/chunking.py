@@ -92,27 +92,67 @@ def classify_marker(marker: str) -> ChunkType:
     return ChunkType.PROSE
 
 
+#: Ranh giới cắt, từ "tự nhiên" nhất tới thô nhất: đoạn văn -> câu -> dòng.
+_SEPARATORS = (r"\n\s*\n", r"(?<=[.!?:;])\s+", r"\n")
+
+
+def _atoms(text: str, limit: int, level: int = 0) -> list[str]:
+    """Chặt ``text`` thành các mẩu không mẩu nào dài quá ``limit``.
+
+    Thử ranh giới tự nhiên nhất trước; chỉ mẩu nào VẪN quá dài mới bị chặt tiếp
+    ở tầng thô hơn. Cuối cùng mới cắt theo từ — không bao giờ cắt giữa một từ,
+    trừ khi bản thân từ đó dài hơn giới hạn.
+    """
+    if len(text) <= limit:
+        return [text]
+    if level < len(_SEPARATORS):
+        parts = [p.strip() for p in re.split(_SEPARATORS[level], text) if p.strip()]
+        if len(parts) > 1:
+            return [atom for part in parts for atom in _atoms(part, limit, level + 1)]
+        return _atoms(text, limit, level + 1)
+
+    pieces: list[str] = []
+    current = ""
+    for word in text.split():
+        while len(word) > limit:  # "từ" dài bất thường, ví dụ chữ dính liền khi trích PDF
+            if current:
+                pieces.append(current)
+                current = ""
+            pieces.append(word[:limit])
+            word = word[limit:]
+        if current and len(current) + 1 + len(word) > limit:
+            pieces.append(current)
+            current = word
+        else:
+            current = f"{current} {word}" if current else word
+    if current:
+        pieces.append(current)
+    return pieces
+
+
 def _split_long(text: str, limit: int = MAX_CHARS) -> list[str]:
-    """Cắt một khối quá dài theo ranh giới đoạn văn, không cắt giữa câu."""
+    """Cắt một khối quá dài thành các chunk không vượt ``limit`` ký tự.
+
+    Bản trước chỉ cắt tại dòng trống giữa các đoạn văn. PDF giáo trình thường
+    chỉ xuống dòng đơn nên cả trang thành một khối không cắt được: đo trên kho
+    thật, 23% chunk vượt giới hạn, dài nhất 6568 ký tự. Chunk dài làm vector
+    embedding bị "pha loãng" nhiều chủ đề, và làm bge-m3 chậm đi theo bình
+    phương độ dài.
+    """
     if len(text) <= limit:
         return [text]
 
     pieces: list[str] = []
     current: list[str] = []
     length = 0
-
-    for paragraph in re.split(r"\n\s*\n", text):
-        paragraph = paragraph.strip()
-        if not paragraph:
-            continue
-        if length + len(paragraph) > limit and current:
-            pieces.append("\n\n".join(current))
+    for atom in _atoms(text, limit):
+        if current and length + 1 + len(atom) > limit:
+            pieces.append("\n".join(current))
             current, length = [], 0
-        current.append(paragraph)
-        length += len(paragraph)
-
+        current.append(atom)
+        length += len(atom) + (1 if length else 0)
     if current:
-        pieces.append("\n\n".join(current))
+        pieces.append("\n".join(current))
     return pieces
 
 

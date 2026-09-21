@@ -1,0 +1,164 @@
+[
+  {
+    "code": "LA.SHAPE",
+    "tier": "E-INTERPRET",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Sai kích thước đáp án",
+    "description_vi": "Đáp án có số hàng/cột không khớp với yêu cầu của đề.",
+    "hint_vi": "Em kiểm tra lại xem đáp án cần mấy thành phần nhé."
+  },
+  {
+    "code": "LA.ROWOP.INVALID",
+    "tier": "E-PROCEDURE",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Phép biến đổi hàng không hợp lệ",
+    "description_vi": "Một bước khử Gauss làm ma trận không còn tương đương hàng với bước trước (thường do tính sai khi cộng bội hàng).",
+    "hint_vi": "Em thử làm lại phép cộng bội hàng ở bước này, chú ý dấu và hệ số nhân."
+  },
+  {
+    "code": "LA.SYS.NOTSOLUTION",
+    "tier": "E-COMPUTE",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Nghiệm không thoả hệ",
+    "description_vi": "Thế ngược bộ số vào hệ thì có phương trình không thoả.",
+    "hint_vi": "Em thử thế ngược đáp án vào từng phương trình xem sao."
+  },
+  {
+    "code": "LA.SYS.PARTIAL",
+    "tier": "E-INCOMPLETE",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Chỉ đưa một nghiệm riêng của hệ vô số nghiệm",
+    "description_vi": "Hệ có vô số nghiệm nhưng bài làm chỉ đưa ra một (hoặc một phần) họ nghiệm, thiếu tham số tự do.",
+    "hint_vi": "Hệ này có bao nhiêu ẩn tự do? Em thử so số ẩn với hạng của ma trận hệ số."
+  },
+  {
+    "code": "LA.SYS.INCONSISTENT",
+    "tier": "E-CONCEPT",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Đưa nghiệm cho hệ vô nghiệm",
+    "description_vi": "Hệ vô nghiệm (rank A < rank A|b) nhưng bài làm vẫn đưa ra một bộ nghiệm.",
+    "hint_vi": "Em so sánh hạng của ma trận hệ số với hạng của ma trận mở rộng xem."
+  },
+  {
+    "code": "LA.SYS.FALSENOSOL",
+    "tier": "E-COMPUTE",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Kết luận vô nghiệm sai",
+    "description_vi": "Hệ có nghiệm nhưng bài làm kết luận vô nghiệm, thường do tính sai khi khử.",
+    "hint_vi": "Em kiểm tra lại bước khử làm xuất hiện dòng 0 = số khác 0 nhé."
+  },
+  {
+    "code": "LA.DET.SIGN",
+    "tier": "E-PROCEDURE",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Đổi chỗ hai hàng mà quên đổi dấu định thức",
+    "description_vi": "Kết quả đúng độ lớn nhưng ngược dấu.",
+    "hint_vi": "Khi đổi chỗ hai hàng thì định thức thay đổi thế nào?"
+  },
+  {
+    "code": "LA.DET.SCALE",
+    "tier": "E-PROCEDURE",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Nhân một hàng với k mà không bù lại",
+    "description_vi": "Kết quả lệch đúng một hệ số nguyên so với định thức thật.",
+    "hint_vi": "Nhân một hàng với k thì định thức thay đổi ra sao? Em có bù lại chưa?"
+  },
+  {
+    "code": "LA.INV.NODET",
+    "tier": "E-PROCEDURE",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Quên chia cho định thức",
+    "description_vi": "Tính đúng ma trận phụ hợp nhưng quên nhân với 1/det(A).",
+    "hint_vi": "Công thức A⁻¹ = (1/det A)·adj(A) — em còn thiếu phần nào?"
+  },
+  {
+    "code": "LA.INV.TRANSPOSE",
+    "tier": "E-CONCEPT",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Quên chuyển vị ma trận phần bù đại số",
+    "description_vi": "Ma trận phụ hợp là CHUYỂN VỊ của ma trận các phần bù đại số.",
+    "hint_vi": "Em xem lại định nghĩa ma trận phụ hợp, có bước chuyển vị không?"
+  },
+  {
+    "code": "LA.INV.NOSIGN",
+    "tier": "E-PROCEDURE",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Quên đổi dấu trong công thức nghịch đảo 2×2",
+    "description_vi": "Với ma trận 2×2, đổi chỗ hai phần tử đường chéo chính VÀ đổi dấu hai phần tử còn lại.",
+    "hint_vi": "Với ma trận 2×2, ngoài đổi chỗ đường chéo chính em còn phải làm gì với hai phần tử kia?"
+  },
+  {
+    "code": "LA.INV.SINGULAR",
+    "tier": "E-CONDITION",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Tìm nghịch đảo của ma trận suy biến",
+    "description_vi": "det(A) = 0 nên A không có nghịch đảo.",
+    "hint_vi": "Trước khi tìm nghịch đảo, em đã kiểm tra điều kiện gì chưa?"
+  },
+  {
+    "code": "LA.INV.FALSESINGULAR",
+    "tier": "E-COMPUTE",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Kết luận không khả nghịch sai",
+    "description_vi": "det(A) ≠ 0 nên A khả nghịch, thường do tính sai định thức.",
+    "hint_vi": "Em tính lại định thức giúp thầy/cô nhé."
+  },
+  {
+    "code": "LA.EIG.ZEROVEC",
+    "tier": "E-CONCEPT",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Đưa vector 0 làm vector riêng",
+    "description_vi": "Theo định nghĩa, vector riêng phải khác vector 0.",
+    "hint_vi": "Định nghĩa vector riêng có điều kiện gì về vector đó?"
+  },
+  {
+    "code": "LA.EIG.NOTEIGEN",
+    "tier": "E-COMPUTE",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Không phải vector riêng",
+    "description_vi": "A·v không bằng λ·v.",
+    "hint_vi": "Em thử nhân A với vector của em rồi so với λ lần vector đó."
+  },
+  {
+    "code": "LA.EIG.WRONGVALUE",
+    "tier": "E-INTERPRET",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Vector riêng của trị riêng khác",
+    "description_vi": "Tìm đúng một vector riêng nhưng nó ứng với trị riêng khác trị riêng đề hỏi.",
+    "hint_vi": "Vector của em là vector riêng — nhưng ứng với trị riêng nào? Đề hỏi trị riêng nào?"
+  },
+  {
+    "code": "LA.EIG.NOTVALUE",
+    "tier": "E-COMPUTE",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Giá trị không phải trị riêng",
+    "description_vi": "Có giá trị không phải nghiệm của đa thức đặc trưng.",
+    "hint_vi": "Em thử thay giá trị đó vào det(A − λI) xem có bằng 0 không."
+  },
+  {
+    "code": "LA.EIG.MISSING",
+    "tier": "E-INCOMPLETE",
+    "subject": null,
+    "skill_id": null,
+    "name_vi": "Thiếu trị riêng",
+    "description_vi": "Các giá trị đưa ra đều đúng nhưng chưa đủ.",
+    "hint_vi": "Đa thức đặc trưng có bậc bao nhiêu? Em đã tìm đủ nghiệm chưa?"
+  }
+]

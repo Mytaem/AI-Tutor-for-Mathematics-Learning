@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.core.itembank import ERRORS_DIR, ItemBank, load_error_codes  # noqa: E402
 from src.core.schema import AnswerType, Submission  # noqa: E402
 from src.data_gen.error_injector import InjectedError, build_dataset  # noqa: E402
-from src.verify.calculus import CalculusVerifier  # noqa: E402
+from src.verify.registry import verifier_for  # noqa: E402
 from src.verify.equivalence import expr_equal, parse_math  # noqa: E402
 
 # Mã lỗi mà tầng ký hiệu tự gán được. Các mã còn lại verifier chỉ phát hiện
@@ -132,7 +132,7 @@ class TestEigenfunctionTrap:
 class TestVerifierCatchesInjectedErrors:
     def test_phat_hien_duoc_moi_loi(self, bank: ItemBank, dataset: list[InjectedError]) -> None:
         """Mọi lỗi sinh ra phải bị verifier phát hiện. Đây là test chặt nhất cho tầng kiểm chứng."""
-        verifier = CalculusVerifier()
+        verifier = verifier_for("MAE101")
         missed: list[str] = []
 
         for record in dataset:
@@ -161,7 +161,7 @@ class TestVerifierCatchesInjectedErrors:
         self, bank: ItemBank, dataset: list[InjectedError]
     ) -> None:
         """Với các lỗi tầng ký hiệu phân biệt được, nhãn gán ra phải đúng."""
-        verifier = CalculusVerifier()
+        verifier = verifier_for("MAE101")
         mislabeled: list[str] = []
 
         for record in dataset:
@@ -188,7 +188,7 @@ class TestVerifierCatchesInjectedErrors:
         Kiểm chứng độc lập bằng ``simplify`` — nếu tỉ số đạo hàm trên biểu thức
         gốc còn chứa biến thì nhãn đó là bịa.
         """
-        verifier = CalculusVerifier()
+        verifier = verifier_for("MAE101")
         fabricated: list[str] = []
 
         for record in dataset:
@@ -220,7 +220,7 @@ class TestVerifierCatchesInjectedErrors:
         phân loại neural đọc cả lời giải để suy ra nguyên nhân. Ghi vào phần
         Limitations của báo cáo.
         """
-        verifier = CalculusVerifier()
+        verifier = verifier_for("MAE101")
         item = bank.get("MAE101-INT-006")  # ∫ e^(2x) dx
         result = verifier.verify(
             item, Submission(item_id=item.item_id, final_answer="2*exp(2*x) + C")
