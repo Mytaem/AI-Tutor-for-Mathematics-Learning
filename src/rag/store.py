@@ -16,6 +16,7 @@ chỉ dùng THỨ HẠNG nên miễn nhiễm với chuyện đó.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -60,9 +61,58 @@ class Encoder:
             self._model = SentenceTransformer(self.model_name)
         return self._model
 
-    def encode(self, texts: list[str]) -> np.ndarray:
-        vectors = self.model.encode(texts, normalize_embeddings=True, show_progress_bar=False)
+    def encode(self, texts: list[str], batch_size: int = 16) -> np.ndarray:
+        # Hiện tiến độ khi mã hoá cả kho: trên CPU, vài nghìn đoạn mất hàng chục
+        # phút, không có tiến độ thì không biết nó đang chạy hay đã treo.
+        vectors = self.model.encode(
+            texts,
+            batch_size=batch_size,
+            normalize_embeddings=True,
+            show_progress_bar=len(texts) > 100,
+        )
         return np.asarray(vectors, dtype=np.float32)
+
+
+class EmbeddingCache:
+    """Vector đã mã hoá, tra theo hash của NỘI DUNG đoạn, lưu riêng cho từng model.
+
+    Tách khỏi file vector của kho vì hai lý do:
+    - Dựng lại kho chỉ-BM25 không được làm mất cả giờ mã hoá.
+    - File vector của kho phải LUÔN khớp đúng thứ tự danh sách đoạn hiện tại —
+      một file vector cũ nằm lại cạnh danh sách đoạn mới sẽ cho kết quả tìm kiếm
+      sai mà không báo lỗi gì.
+    """
+
+    def __init__(self, path: str | Path | None) -> None:
+        self.path = Path(path) if path else None
+        self._vectors: dict[str, np.ndarray] = {}
+        if self.path is not None and self.path.exists():
+            data = np.load(self.path)
+            self._vectors = dict(zip(data["keys"].tolist(), data["vectors"]))
+
+    @staticmethod
+    def key(text: str) -> str:
+        return hashlib.sha1(text.encode("utf-8")).hexdigest()
+
+    def __len__(self) -> int:
+        return len(self._vectors)
+
+    def missing(self, texts: list[str]) -> list[str]:
+        return list(dict.fromkeys(t for t in texts if self.key(t) not in self._vectors))
+
+    def add(self, texts: list[str], vectors: np.ndarray) -> None:
+        for text, vector in zip(texts, vectors):
+            self._vectors[self.key(text)] = np.asarray(vector, dtype=np.float32)
+
+    def lookup(self, texts: list[str]) -> np.ndarray:
+        return np.stack([self._vectors[self.key(t)] for t in texts]).astype(np.float32)
+
+    def save(self) -> None:
+        if self.path is None or not self._vectors:
+            return
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        keys = np.array(list(self._vectors))
+        np.savez(self.path, keys=keys, vectors=np.stack([self._vectors[k] for k in keys]))
 
 
 class RagIndex:
@@ -93,11 +143,27 @@ class RagIndex:
         cls,
         chunks: list[Chunk],
         encoder: Encoder | None = None,
+        cache: EmbeddingCache | None = None,
     ) -> RagIndex:
-        """Dựng kho. Không truyền ``encoder`` thì chỉ có nhánh BM25."""
+        """Dựng kho. Không truyền ``encoder`` thì chỉ có nhánh BM25.
+
+        ``cache``: vector đã mã hoá từ trước, tra theo NỘI DUNG đoạn. Chỉ đoạn
+        mới mới phải mã hoá — bge-m3 trên CPU mất cỡ một giờ cho cả bộ giáo
+        trình, không thể trả giá đó mỗi lần thêm một cuốn sách.
+        """
         embeddings = None
         if encoder is not None and chunks:
-            embeddings = encoder.encode([chunk.text for chunk in chunks])
+            # KHÔNG viết `cache or ...`: EmbeddingCache có __len__, nên một bộ đệm
+            # RỖNG bị coi là False và bị thay bằng bộ đệm không có đường dẫn lưu —
+            # lần mã hoá đầu tiên (đắt nhất) sẽ không bao giờ được ghi xuống đĩa.
+            if cache is None:
+                cache = EmbeddingCache(None)
+            texts = [chunk.text for chunk in chunks]
+            missing = cache.missing(texts)
+            print(f"  embedding: dùng lại {len(texts) - len(missing)} vector, mã hoá mới {len(missing)} đoạn")
+            if missing:
+                cache.add(missing, encoder.encode(missing))
+            embeddings = cache.lookup(texts)
         return cls(chunks, embeddings, encoder)
 
     # ------------------------------------------------------------------
@@ -220,6 +286,12 @@ class RagIndex:
         if self.embeddings is not None:
             np.save(directory / "embeddings.npy", self.embeddings)
             (directory / "encoder.txt").write_text(self.encoder.model_name, encoding="utf-8")
+        else:
+            # Kho chỉ-BM25: xoá file vector của lần dựng TRƯỚC, nếu không lần nạp
+            # sau sẽ ghép vector cũ với danh sách đoạn mới. Vector không mất —
+            # chúng vẫn nằm trong EmbeddingCache.
+            for stale in ("embeddings.npy", "encoder.txt"):
+                (directory / stale).unlink(missing_ok=True)
 
     @classmethod
     def load(cls, directory: str | Path, encoder: Encoder | None = None) -> RagIndex:
@@ -248,4 +320,8 @@ class RagIndex:
             if name_path.exists():
                 encoder = Encoder(name_path.read_text(encoding="utf-8").strip())
 
+        if embeddings is not None and len(embeddings) != len(chunks):
+            raise ValueError(
+                f"Kho hỏng: {len(embeddings)} vector nhưng {len(chunks)} đoạn — dựng lại bằng build_rag_index.py"
+            )
         return cls(chunks, embeddings, encoder)

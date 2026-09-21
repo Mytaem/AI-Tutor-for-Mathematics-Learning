@@ -207,5 +207,26 @@
     "original_name": "28_05_2026___b1a745935a1ce3a6468c05ffc7f678b2..pdf",
     "kind": "reference",
     "subject": "MAS291"
+  },
+  {
+    "path": "MAE101/ebook/openstax_calculus_volume_1.pdf",
+    "title": "OpenStax — Calculus Volume 1 (Strang, Herman)",
+    "original_name": "calculus-volume-1_-_WEB.pdf",
+    "kind": "ebook",
+    "subject": "MAE101"
+  },
+  {
+    "path": "MAE101/ebook/openstax_calculus_volume_2.pdf",
+    "title": "OpenStax — Calculus Volume 2 (Strang, Herman)",
+    "original_name": "calculus-volume-2_-_WEB.pdf",
+    "kind": "ebook",
+    "subject": "MAE101"
+  },
+  {
+    "path": "MAI391/ebook/deisenroth_mathematics_for_machine_learning.pdf",
+    "title": "Deisenroth, Faisal, Ong — Mathematics for Machine Learning (2020)",
+    "original_name": "mml-book.pdf",
+    "kind": "ebook",
+    "subject": "MAI391"
   }
 ]

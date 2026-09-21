@@ -19,7 +19,7 @@ from src.core.config import ROOT
 from src.core.itembank import ERRORS_DIR
 from src.rag.chunking import assign_ids
 from src.rag.ingest import ingest_all, load_pitfalls
-from src.rag.store import Encoder, RagIndex
+from src.rag.store import EmbeddingCache, Encoder, RagIndex
 
 RAW_DIR = ROOT / "data" / "raw"
 INDEX_DIR = ROOT / "data" / "rag_index"
@@ -69,7 +69,12 @@ def main() -> None:
         print("\nĐang nạp model embedding (lần đầu sẽ tải ~2GB)...")
         encoder = Encoder()
 
-    index = RagIndex.build(chunks, encoder)
+    cache = None
+    if encoder is not None:
+        cache = EmbeddingCache(INDEX_DIR / "embedding_cache" / (encoder.model_name.replace("/", "__") + ".npz"))
+    index = RagIndex.build(chunks, encoder, cache=cache)
+    if cache is not None:
+        cache.save()
     index.save(INDEX_DIR)
 
     # ------------------------------------------------------------------

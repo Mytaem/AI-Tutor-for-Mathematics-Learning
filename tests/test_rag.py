@@ -242,3 +242,51 @@ class TestIngest:
         assert all(c.chunk_type is ChunkType.PITFALL for c in pitfalls)
         assert all(c.source.startswith("taxonomy:") for c in pitfalls)
         assert any("hằng số" in c.text for c in pitfalls)
+
+
+class TestEmbeddingCache:
+    """Vector đệm theo nội dung: dựng lại kho không phải mã hoá lại, và không bao giờ lệch thứ tự."""
+
+    class FakeEncoder:
+        model_name = "fake"
+
+        def __init__(self) -> None:
+            self.encoded: list[str] = []
+
+        def encode(self, texts):
+            import numpy as np
+
+            self.encoded.extend(texts)
+            return np.array([[len(t), 1.0] for t in texts], dtype=np.float32)
+
+    def test_chi_ma_hoa_doan_moi(self, chunks, tmp_path: Path) -> None:
+        from src.rag.store import EmbeddingCache
+
+        path = tmp_path / "cache.npz"
+        first = self.FakeEncoder()
+        RagIndex.build(chunks, first, cache=(cache := EmbeddingCache(path)))
+        cache.save()
+        assert len(first.encoded) == len({c.text for c in chunks})
+
+        extra = Chunk("Định nghĩa mới hoàn toàn về chuỗi số hội tụ tuyệt đối", ChunkType.DEFINITION, "MAE101")
+        second = self.FakeEncoder()
+        index = RagIndex.build(chunks + [extra], second, cache=EmbeddingCache(path))
+        assert second.encoded == [extra.text], "Chỉ đoạn mới được mã hoá lại"
+        assert len(index.embeddings) == len(chunks) + 1
+
+    def test_dung_kho_bm25_xoa_vector_cu_khong_de_lech(self, chunks, tmp_path: Path) -> None:
+        """Vector cũ nằm lại cạnh danh sách đoạn mới sẽ cho kết quả sai mà không báo lỗi."""
+        RagIndex.build(chunks, self.FakeEncoder()).save(tmp_path / "idx")
+        assert (tmp_path / "idx" / "embeddings.npy").exists()
+
+        RagIndex.build(chunks[:2]).save(tmp_path / "idx")
+        assert not (tmp_path / "idx" / "embeddings.npy").exists()
+        assert len(RagIndex.load(tmp_path / "idx")) == 2
+
+    def test_nap_kho_lech_so_vector_thi_bao_loi(self, chunks, tmp_path: Path) -> None:
+        import numpy as np
+
+        RagIndex.build(chunks, self.FakeEncoder()).save(tmp_path / "idx")
+        np.save(tmp_path / "idx" / "embeddings.npy", np.zeros((1, 2), dtype=np.float32))
+        with pytest.raises(ValueError, match="Kho hỏng"):
+            RagIndex.load(tmp_path / "idx")
