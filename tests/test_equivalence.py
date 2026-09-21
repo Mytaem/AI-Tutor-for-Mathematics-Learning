@@ -231,3 +231,20 @@ class TestSubscriptedSymbols:
 
     def test_e_mu_x_theo_cach_viet_cua_sinh_vien(self) -> None:
         assert parse_math("e^(2x)") == parse_math("exp(2*x)")
+
+
+class TestImplicitMultiplicationBeforeParenthesis:
+    """Hồi quy: ``n(n+1)`` từng bị hiểu là hàm n áp dụng lên n+1."""
+
+    @pytest.mark.parametrize("text, expected", [
+        ("n(n+1)/2", "n*(n+1)/2"),
+        ("x(x^2+1)^3", "x*(x**2+1)**3"),
+        ("2x(x-1)", "2*x*(x-1)"),
+        ("C1(1 + x)", "C1*(1 + x)"),
+    ])
+    def test_ten_truoc_ngoac_la_phep_nhan(self, text: str, expected: str) -> None:
+        assert parse_math(text) == parse_math(expected)
+
+    def test_ham_that_van_la_ham(self) -> None:
+        assert parse_math("sin(x)") == sp.sin(sp.Symbol("x"))
+        assert parse_math("sqrt(x+1)") == sp.sqrt(sp.Symbol("x") + 1)

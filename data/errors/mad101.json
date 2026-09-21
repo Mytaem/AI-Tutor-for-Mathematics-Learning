@@ -1,0 +1,155 @@
+[
+  {
+    "code": "MAD.LOGIC.DEMORGAN",
+    "tier": "E-PROCEDURE",
+    "subject": "MAD101",
+    "skill_id": "MAD.LOGIC.EQUIV",
+    "name_vi": "Sai luật De Morgan",
+    "description_vi": "Phủ định từng mệnh đề nhưng giữ nguyên ∧/∨; đúng phải là ¬(p ∧ q) ≡ ¬p ∨ ¬q và ¬(p ∨ q) ≡ ¬p ∧ ¬q.",
+    "hint_vi": "Khi đưa dấu ¬ vào trong ngoặc, phép ∧ và ∨ thay đổi thế nào?"
+  },
+  {
+    "code": "MAD.LOGIC.CONVERSE",
+    "tier": "E-CONCEPT",
+    "subject": "MAD101",
+    "skill_id": "MAD.LOGIC.COND",
+    "name_vi": "Nhầm phản đảo với mệnh đề đảo",
+    "description_vi": "Mệnh đề đảo q → p KHÔNG tương đương với p → q; phản đảo ¬q → ¬p mới tương đương.",
+    "hint_vi": "Mệnh đề đảo và mệnh đề phản đảo khác nhau thế nào? Cái nào tương đương với mệnh đề gốc?"
+  },
+  {
+    "code": "MAD.LOGIC.INVERSE",
+    "tier": "E-CONCEPT",
+    "subject": "MAD101",
+    "skill_id": "MAD.LOGIC.COND",
+    "name_vi": "Dùng mệnh đề nghịch ¬p → ¬q",
+    "description_vi": "¬p → ¬q không tương đương với p → q, cũng không phải phủ định của nó.",
+    "hint_vi": "Em thử lập bảng chân trị của p → q và của công thức em viết xem có khớp không."
+  },
+  {
+    "code": "MAD.COUNT.ORDER",
+    "tier": "E-CONCEPT",
+    "subject": "MAD101",
+    "skill_id": "MAD.COUNT.PERM",
+    "name_vi": "Nhầm có thứ tự với không thứ tự",
+    "description_vi": "Dùng tổ hợp khi thứ tự quan trọng (chỉnh hợp), hoặc ngược lại.",
+    "hint_vi": "Đổi chỗ hai phần tử đã chọn thì có ra một cách mới không?"
+  },
+  {
+    "code": "MAD.COUNT.REPETITION",
+    "tier": "E-CONDITION",
+    "subject": "MAD101",
+    "skill_id": "MAD.COUNT.BASIC",
+    "name_vi": "Nhầm có lặp với không lặp",
+    "description_vi": "Một phần tử được chọn lại nhiều lần hay không quyết định công thức.",
+    "hint_vi": "Một phần tử có được dùng lại nhiều lần không?"
+  },
+  {
+    "code": "MAD.COUNT.NOSUB",
+    "tier": "E-PROCEDURE",
+    "subject": "MAD101",
+    "skill_id": "MAD.COUNT.IE",
+    "name_vi": "Quên trừ phần giao (bù trừ)",
+    "description_vi": "Cộng lực lượng các tập mà không trừ phần đếm trùng.",
+    "hint_vi": "Phần tử thuộc cả hai tập đã được đếm mấy lần?"
+  },
+  {
+    "code": "MAD.INT.GCD_LCM",
+    "tier": "E-CONCEPT",
+    "subject": "MAD101",
+    "skill_id": "MAD.INT.DIV",
+    "name_vi": "Nhầm ước chung lớn nhất với bội chung nhỏ nhất",
+    "description_vi": "gcd(a, b) ≤ min(a, b) còn lcm(a, b) ≥ max(a, b).",
+    "hint_vi": "Đáp án của em lớn hơn hay nhỏ hơn cả hai số? Như vậy nó là ước chung hay bội chung?"
+  },
+  {
+    "code": "MAD.INT.BASE_REVERSED",
+    "tier": "E-PROCEDURE",
+    "subject": "MAD101",
+    "skill_id": "MAD.INT.BASE",
+    "name_vi": "Viết ngược thứ tự chữ số",
+    "description_vi": "Khi chia liên tiếp cho 2, số dư ĐẦU TIÊN là chữ số hàng đơn vị — phải đọc các số dư từ dưới lên.",
+    "hint_vi": "Số dư đầu tiên khi chia cho 2 là chữ số ở vị trí nào?"
+  },
+  {
+    "code": "MAD.SUM.OFFBYONE",
+    "tier": "E-INTERPRET",
+    "subject": "MAD101",
+    "skill_id": "MAD.SUM",
+    "name_vi": "Lệch một số hạng ở cận",
+    "description_vi": "Công thức đúng cho tổng tới n − 1 (hoặc n + 1) thay vì tới n.",
+    "hint_vi": "Em thử thay n = 1 vào công thức của mình và so với tổng tính tay."
+  },
+  {
+    "code": "MAD.REC.INITIAL",
+    "tier": "E-COMPUTE",
+    "subject": "MAD101",
+    "skill_id": "MAD.REC.LINEAR",
+    "name_vi": "Sai hằng số từ điều kiện đầu",
+    "description_vi": "Nghiệm tổng quát đúng (thoả hệ thức) nhưng tính sai hằng số khi thế điều kiện đầu.",
+    "hint_vi": "Em thử thế n = 0 và n = 1 vào công thức xem có ra đúng a₀, a₁ không."
+  },
+  {
+    "code": "MAD.GRAPH.HANDSHAKE",
+    "tier": "E-PROCEDURE",
+    "subject": "MAD101",
+    "skill_id": "MAD.GRAPH.BASIC",
+    "name_vi": "Quên chia 2 trong định lý bắt tay",
+    "description_vi": "Tổng bậc bằng HAI lần số cạnh, vì mỗi cạnh góp bậc cho cả hai đầu mút.",
+    "hint_vi": "Mỗi cạnh làm tăng tổng bậc lên bao nhiêu?"
+  },
+  {
+    "code": "MAD.GRAPH.EULER_PATH_CIRCUIT",
+    "tier": "E-CONCEPT",
+    "subject": "MAD101",
+    "skill_id": "MAD.GRAPH.EULER",
+    "name_vi": "Nhầm đường Euler với chu trình Euler",
+    "description_vi": "Có đúng 2 đỉnh bậc lẻ thì có ĐƯỜNG Euler nhưng không có CHU TRÌNH Euler.",
+    "hint_vi": "Chu trình Euler cần mọi đỉnh có bậc thế nào? Đồ thị này có bao nhiêu đỉnh bậc lẻ?"
+  },
+  {
+    "code": "MAD.GRAPH.UNWEIGHTED",
+    "tier": "E-CONCEPT",
+    "subject": "MAD101",
+    "skill_id": "MAD.GRAPH.PATH",
+    "name_vi": "Chọn đường ít cạnh nhất thay vì nhẹ nhất",
+    "description_vi": "Đường ngắn nhất trên đồ thị có trọng số là đường có TỔNG trọng số nhỏ nhất, không phải ít cạnh nhất.",
+    "hint_vi": "Đồ thị có trọng số — 'ngắn nhất' tính theo số cạnh hay theo tổng trọng số?"
+  },
+  {
+    "code": "MAD.GRAPH.CHROMATIC_BOUND",
+    "tier": "E-CONCEPT",
+    "subject": "MAD101",
+    "skill_id": "MAD.GRAPH.COLOR",
+    "name_vi": "Lấy cận trên Δ + 1 làm sắc số",
+    "description_vi": "Δ + 1 chỉ là CẬN TRÊN của sắc số; sắc số thật có thể nhỏ hơn nhiều.",
+    "hint_vi": "Δ + 1 là giá trị đúng hay chỉ là cận trên? Em thử tô với ít màu hơn xem."
+  },
+  {
+    "code": "MAD.TREE.EDGES",
+    "tier": "E-CONCEPT",
+    "subject": "MAD101",
+    "skill_id": "MAD.TREE.BASIC",
+    "name_vi": "Cây n đỉnh có n cạnh",
+    "description_vi": "Cây n đỉnh có đúng n − 1 cạnh; n cạnh thì phải có chu trình.",
+    "hint_vi": "Cây có chu trình không? Với n đỉnh thì cần tối thiểu bao nhiêu cạnh để liên thông?"
+  },
+  {
+    "code": "MAD.TREE.LEAVES",
+    "tier": "E-PROCEDURE",
+    "subject": "MAD101",
+    "skill_id": "MAD.TREE.BASIC",
+    "name_vi": "Đếm sai số lá của cây m-phân đầy đủ",
+    "description_vi": "Cây m-phân đầy đủ có i đỉnh trong thì có (m − 1)i + 1 lá, không phải mi.",
+    "hint_vi": "Tổng số đỉnh là mi + 1 — trong đó bao nhiêu là đỉnh trong?"
+  },
+  {
+    "code": "MAD.TREE.MST_CYCLE",
+    "tier": "E-PROCEDURE",
+    "subject": "MAD101",
+    "skill_id": "MAD.TREE.MST",
+    "name_vi": "Chọn các cạnh nhẹ nhất mà không kiểm tra chu trình",
+    "description_vi": "Thuật toán Kruskal chỉ nhận một cạnh nếu nó KHÔNG tạo chu trình với các cạnh đã chọn.",
+    "hint_vi": "Các cạnh em chọn có tạo thành chu trình không? Kruskal bỏ qua cạnh nào?"
+  }
+]

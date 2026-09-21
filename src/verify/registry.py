@@ -6,6 +6,7 @@ theo đúng đề cương môn:
 - MAE101 = đại số tuyến tính (ch7–10) + giải tích (ch1–6)
 - MAI391 = Math for ML + đại số tuyến tính (định thức, trị riêng của ch4)
 - MAS291 = xác suất – thống kê (kiểm chéo bằng Monte Carlo)
+- MAD101 = toán rời rạc (kiểm chéo bằng liệt kê vét cạn và tính lặp)
 
 Thêm một môn mới = chọn các mảng cần ghép rồi đăng ký ở đây. Mọi tầng phía trên
 (tutor engine, guardrail, API) chỉ gọi ``verifier_for`` nên không phải sửa gì.
@@ -19,6 +20,7 @@ from src.core.schema import Subject
 from src.verify.base import Verifier
 from src.verify.calculus import CalculusVerifier
 from src.verify.composite import CompositeVerifier
+from src.verify.discrete import DiscreteVerifier
 from src.verify.linalg import LinearAlgebraVerifier
 from src.verify.mml import MMLVerifier
 from src.verify.probstat import ProbStatVerifier
@@ -28,6 +30,7 @@ _FACTORIES: dict[Subject, Callable[[], Verifier]] = {
     Subject.MAE101: lambda: CompositeVerifier(Subject.MAE101, [LinearAlgebraVerifier(), CalculusVerifier()]),
     Subject.MAI391: lambda: CompositeVerifier(Subject.MAI391, [MMLVerifier(), LinearAlgebraVerifier()]),
     Subject.MAS291: lambda: CompositeVerifier(Subject.MAS291, [ProbStatVerifier()]),
+    Subject.MAD101: lambda: CompositeVerifier(Subject.MAD101, [DiscreteVerifier()]),
 }
 
 

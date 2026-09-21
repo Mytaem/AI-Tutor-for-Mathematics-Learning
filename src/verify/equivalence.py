@@ -95,7 +95,34 @@ def _splittable(token: str) -> bool:
     return _token_splittable(token)
 
 
-_TRANSFORMS = standard_transformations + (
+def _multiply_unknown_calls(tokens, local_dict, global_dict):
+    """``n(n+1)`` là n NHÂN (n+1), không phải hàm n áp dụng lên n+1.
+
+    SymPy coi mọi tên KHÔNG quen biết đứng trước dấu ngoặc là lời gọi hàm, nên
+    ``x(x+1)`` — cách viết cực kỳ phổ biến của sinh viên — không đọc được (hoặc
+    tệ hơn: đọc thành hàm). Bước này chạy TRƯỚC khi SymPy nhận diện hàm, chèn
+    dấu nhân vào giữa tên chưa biết và dấu ngoặc. Hàm có thật (sin, exp, sqrt...)
+    nằm trong danh sách trắng nên không bị động tới.
+    """
+    from tokenize import NAME, OP
+
+    result = []
+    for index, token in enumerate(tokens):
+        result.append(token)
+        following = tokens[index + 1] if index + 1 < len(tokens) else None
+        if (
+            token[0] == NAME
+            and token[1] not in global_dict
+            and token[1] not in local_dict
+            and following is not None
+            and following[0] == OP
+            and following[1] == "("
+        ):
+            result.append((OP, "*"))
+    return result
+
+
+_TRANSFORMS = (_multiply_unknown_calls,) + standard_transformations + (
     split_symbols_custom(_splittable),  # "xy" -> x*y, nhưng giữ nguyên "C1"
     implicit_multiplication,            # cho phép viết "2x" thay vì "2*x"
     implicit_application,

@@ -57,6 +57,12 @@ _BARE_NUMBER = re.compile(r"(?<![\w./])-?\d+(?:[./]\d+)?(?![\w./])")
 #: mỗi khi đáp án tình cờ bằng 3.
 _ORDINAL_CONTEXT = re.compile(r"(bước|hàng|dòng|cột|thứ|mức|câu|phần|R)\s*$", re.IGNORECASE)
 
+#: Vùng công thức LOGIC (MAD101). Vùng toán học ở trên chỉ nhận ký tự ASCII số
+#: học, nên "¬p ∨ ¬q" hay "~p | ~q" không bao giờ lọt vào đó — nếu không trích
+#: riêng thì gợi ý có thể nói thẳng đáp án logic mà guardrail không hay biết.
+_LOGIC_SPAN = re.compile(r"[A-Za-z0-9_¬∧∨→↔⇒⇔⊕~&|^()<>\-\s]{3,}")
+_LOGIC_OPERATOR = re.compile(r"[¬∧∨→↔⇒⇔⊕~&|^]|->")
+
 #: Số token tối đa trong một đoạn trước khi ngừng thử mọi tổ hợp con.
 _MAX_TOKENS_PER_SPAN = 14
 
@@ -168,6 +174,13 @@ def extract_candidates(text: str) -> list[str]:
         candidates.extend(t for t in _MATH_TOKEN.findall(span) if looks_like_math(t))
     candidates.extend(_bracket_groups(text))
     candidates.extend(_bare_numbers(text))
+    for span in _LOGIC_SPAN.findall(text):
+        tokens = span.split()
+        for start in range(len(tokens)):
+            for end in range(start + 1, min(len(tokens), start + _MAX_TOKENS_PER_SPAN) + 1):
+                piece = " ".join(tokens[start:end])
+                if _LOGIC_OPERATOR.search(piece):
+                    candidates.append(piece)
 
     unique: list[str] = []
     seen: set[str] = set()

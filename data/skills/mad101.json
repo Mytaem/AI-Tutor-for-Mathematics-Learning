@@ -1,0 +1,206 @@
+[
+  {
+    "skill_id": "MAD.LOGIC.EQUIV",
+    "subject": "MAD101",
+    "chapter": "Ch1 Logics & Proofs",
+    "name_vi": "Tương đương logic, luật De Morgan",
+    "name_en": "Logical equivalence",
+    "prerequisites": [],
+    "difficulty_base": 0.35,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAD.LOGIC.COND",
+    "subject": "MAD101",
+    "chapter": "Ch1 Logics & Proofs",
+    "name_vi": "Mệnh đề kéo theo, đảo, phản đảo",
+    "name_en": "Conditional statements",
+    "prerequisites": [
+      "MAD.LOGIC.EQUIV"
+    ],
+    "difficulty_base": 0.4,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAD.SET",
+    "subject": "MAD101",
+    "chapter": "Ch2 Sets, Functions, Sequences & Sums",
+    "name_vi": "Tập hợp và lực lượng",
+    "name_en": "Sets and cardinality",
+    "prerequisites": [],
+    "difficulty_base": 0.3,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAD.SUM",
+    "subject": "MAD101",
+    "chapter": "Ch2 Sets, Functions, Sequences & Sums",
+    "name_vi": "Tổng và công thức tổng",
+    "name_en": "Summations",
+    "prerequisites": [],
+    "difficulty_base": 0.4,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAD.INT.DIV",
+    "subject": "MAD101",
+    "chapter": "Ch3 Algorithms & Integers",
+    "name_vi": "Ước chung lớn nhất, bội chung nhỏ nhất",
+    "name_en": "gcd and lcm",
+    "prerequisites": [],
+    "difficulty_base": 0.3,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAD.INT.MOD",
+    "subject": "MAD101",
+    "chapter": "Ch3 Algorithms & Integers",
+    "name_vi": "Số học đồng dư",
+    "name_en": "Modular arithmetic",
+    "prerequisites": [
+      "MAD.INT.DIV"
+    ],
+    "difficulty_base": 0.5,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAD.INT.BASE",
+    "subject": "MAD101",
+    "chapter": "Ch3 Algorithms & Integers",
+    "name_vi": "Biểu diễn số theo cơ số",
+    "name_en": "Integer representations",
+    "prerequisites": [],
+    "difficulty_base": 0.25,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAD.REC.LINEAR",
+    "subject": "MAD101",
+    "chapter": "Ch4 Induction & Recursion",
+    "name_vi": "Giải hệ thức truy hồi tuyến tính",
+    "name_en": "Linear recurrences",
+    "prerequisites": [
+      "MAD.SUM"
+    ],
+    "difficulty_base": 0.6,
+    "bloom_level": "analyze"
+  },
+  {
+    "skill_id": "MAD.COUNT.BASIC",
+    "subject": "MAD101",
+    "chapter": "Ch5 Counting",
+    "name_vi": "Quy tắc nhân, chỉnh hợp lặp",
+    "name_en": "Product rule",
+    "prerequisites": [],
+    "difficulty_base": 0.3,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAD.COUNT.PERM",
+    "subject": "MAD101",
+    "chapter": "Ch5 Counting",
+    "name_vi": "Chỉnh hợp và hoán vị",
+    "name_en": "Permutations",
+    "prerequisites": [
+      "MAD.COUNT.BASIC"
+    ],
+    "difficulty_base": 0.4,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAD.COUNT.COMB",
+    "subject": "MAD101",
+    "chapter": "Ch5 Counting",
+    "name_vi": "Tổ hợp, tổ hợp lặp",
+    "name_en": "Combinations",
+    "prerequisites": [
+      "MAD.COUNT.PERM"
+    ],
+    "difficulty_base": 0.45,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAD.COUNT.IE",
+    "subject": "MAD101",
+    "chapter": "Ch5 Counting",
+    "name_vi": "Nguyên lý bù trừ",
+    "name_en": "Inclusion–exclusion",
+    "prerequisites": [
+      "MAD.SET",
+      "MAD.COUNT.BASIC"
+    ],
+    "difficulty_base": 0.5,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAD.GRAPH.BASIC",
+    "subject": "MAD101",
+    "chapter": "Ch6 Graph Theory",
+    "name_vi": "Bậc của đỉnh, định lý bắt tay",
+    "name_en": "Degrees, handshaking",
+    "prerequisites": [],
+    "difficulty_base": 0.3,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAD.GRAPH.EULER",
+    "subject": "MAD101",
+    "chapter": "Ch6 Graph Theory",
+    "name_vi": "Đường đi và chu trình Euler",
+    "name_en": "Euler paths and circuits",
+    "prerequisites": [
+      "MAD.GRAPH.BASIC"
+    ],
+    "difficulty_base": 0.45,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAD.GRAPH.COLOR",
+    "subject": "MAD101",
+    "chapter": "Ch6 Graph Theory",
+    "name_vi": "Đồ thị hai phía và tô màu",
+    "name_en": "Bipartite graphs, coloring",
+    "prerequisites": [
+      "MAD.GRAPH.BASIC"
+    ],
+    "difficulty_base": 0.55,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAD.GRAPH.PATH",
+    "subject": "MAD101",
+    "chapter": "Ch6 Graph Theory",
+    "name_vi": "Đường đi ngắn nhất",
+    "name_en": "Shortest paths",
+    "prerequisites": [
+      "MAD.GRAPH.BASIC"
+    ],
+    "difficulty_base": 0.5,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAD.TREE.BASIC",
+    "subject": "MAD101",
+    "chapter": "Ch7 Trees",
+    "name_vi": "Tính chất của cây và cây m-phân",
+    "name_en": "Tree properties",
+    "prerequisites": [
+      "MAD.GRAPH.BASIC"
+    ],
+    "difficulty_base": 0.35,
+    "bloom_level": "apply"
+  },
+  {
+    "skill_id": "MAD.TREE.MST",
+    "subject": "MAD101",
+    "chapter": "Ch7 Trees",
+    "name_vi": "Cây khung nhỏ nhất",
+    "name_en": "Minimum spanning trees",
+    "prerequisites": [
+      "MAD.TREE.BASIC",
+      "MAD.GRAPH.PATH"
+    ],
+    "difficulty_base": 0.55,
+    "bloom_level": "apply"
+  }
+]

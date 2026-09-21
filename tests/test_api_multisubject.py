@@ -50,9 +50,9 @@ class TestSubjects:
         assert body["items"] == sum(s["items"] for s in body["subjects"].values())
 
     def test_mon_chua_ho_tro_thi_404(self, client: TestClient) -> None:
-        response = client.post("/session/start", json={"user_id": "u", "subject": "MAD101"})
+        response = client.post("/session/start", json={"user_id": "u", "subject": "PHY101"})
         assert response.status_code == 404
-        assert "MAD101" in response.json()["detail"]
+        assert "PHY101" in response.json()["detail"]
 
 
 class TestMAI391Session:

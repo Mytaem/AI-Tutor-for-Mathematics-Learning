@@ -60,7 +60,8 @@ Phần huấn luyện (LoRA, knowledge tracing) cài riêng trên Colab/Kaggle:
 - [ ] Gate 3 — knowledge tracing + cá nhân hóa
 - [x] **MAS291** — xác suất, phân phối, thống kê mô tả, khoảng tin cậy, kiểm định, hồi quy; 36 bài,
   20 mã lỗi; mọi đáp án xác suất kiểm chéo bằng Monte Carlo
-- [ ] Gate 4 — MAD101
+- [x] **MAD101** — logic, tập hợp và tổng, số học đồng dư, truy hồi, đếm, đồ thị, cây; 43 bài,
+  17 mã lỗi; bài đếm kiểm chéo bằng liệt kê vét cạn, truy hồi bằng tính lặp — **đủ 4/4 môn**
 - [ ] Gate 5 — Telegram bot, fine-tune LoRA, thực nghiệm người dùng
 - [ ] Gate 6 — báo cáo, slide, video demo
 

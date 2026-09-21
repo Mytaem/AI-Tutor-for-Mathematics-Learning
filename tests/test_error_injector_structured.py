@@ -20,9 +20,9 @@ from src.data_gen.error_injector import InjectedError, build_dataset  # noqa: E4
 from src.verify.calculus import ERR_ALG_STEP, ERR_DEF_SWAPBOUNDS  # noqa: E402
 from src.verify.registry import verifier_for  # noqa: E402
 
-SUBJECTS = ["MAE101", "MAI391", "MAS291"]
+SUBJECTS = ["MAE101", "MAI391", "MAS291", "MAD101"]
 #: Mảng kiến thức có đáp án cấu trúc mà file này kiểm tra, theo tiền tố mã lỗi.
-STRUCTURED = ("LA.", "MAI.", "MAS.")
+STRUCTURED = ("LA.", "MAI.", "MAS.", "MAD.")
 
 
 @pytest.fixture(scope="module", params=SUBJECTS)
