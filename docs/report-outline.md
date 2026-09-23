@@ -14,9 +14,13 @@ Ba đóng góp, mỗi đóng góp có bằng chứng định lượng:
 
 | Đóng góp | Bằng chứng | Nằm ở |
 |---|---|---|
-| Kiểm chứng neuro-symbolic, có kiểm chéo độc lập | phát hiện 100% bài làm sai trên 5.990 mẫu; Monte Carlo và liệt kê vét cạn đồng thuận | `src/verify/`, EXP-2 |
+| Kiểm chứng neuro-symbolic, có kiểm chéo độc lập | chấm đúng 100% trên 160 cặp, trong khi để LLM tự chấm chỉ đúng 50% và nhận nhầm 35% bài sai | `src/verify/`, EXP-2, EXP-7a |
 | Thang gợi ý chống lộ đáp án, đo được | model tự lộ 6,2% số lượt; có guardrail còn 0% | `src/tutor/`, EXP-8 |
-| Mô hình năng lực + chọn bài thích ứng | DKT AUC 0,852 so với BKT 0,639; bốn chiến lược chọn bài | `src/kt/`, EXP-5, EXP-6 |
+| Mô hình năng lực + chọn bài thích ứng | DKT AUC 0,852 so với BKT 0,639; năm chiến lược chọn bài | `src/kt/`, EXP-5, EXP-6 |
+
+Con số trả lời thẳng câu "khác gì một chatbot bọc API": Qwen 2.5 3b **tự giải đúng
+22,9%** số bài (41,7% nếu cho suy luận từng bước) và **tự chấm đúng 50%**. Phần tính
+toán và phán xét vì thế không thể giao cho mô hình ngôn ngữ.
 
 ## Chương 2 — Cơ sở lý thuyết
 
@@ -68,16 +72,20 @@ Hướng dẫn chạy: `docs/running.md`.
 
 | Thí nghiệm | Trạng thái | Lệnh |
 |---|---|---|
-| EXP-1 độ chính xác giải toán | **chưa chạy** | — |
-| EXP-2 chất lượng bộ chấm | xong (tổng hợp), thiếu tập lỗi thật | `scripts/build_error_dataset.py` |
-| EXP-3 phân loại mã lỗi | có baseline prompting; LoRA **chưa chạy** (cần GPU) | `scripts/exp3_error_classification.py` |
-| EXP-4 truy xuất | có bản đo tự động; thiếu 100 cặp gán nhãn tay | `scripts/exp4_retrieval.py` |
-| EXP-5 knowledge tracing | xong trên dữ liệu mô phỏng; **chưa chạy trên ASSISTments** | `scripts/exp5_kt.py` |
+| EXP-1 độ chính xác giải toán | xong (22,9% / 41,7%) | `scripts/exp1_solving.py` |
+| EXP-2 chất lượng bộ chấm | xong trên lỗi tổng hợp; **thiếu tập lỗi thật** | `scripts/build_error_dataset.py` |
+| EXP-3 phân loại mã lỗi | prompting xong (3b 0,358 / 7b 0,415); LoRA đang train trên Kaggle | `scripts/exp3_error_classification.py`, `scripts/kaggle_push.py` |
+| EXP-4 truy xuất | xong; còn thiếu 100 cặp gán nhãn tay | `scripts/exp4_retrieval.py` |
+| EXP-5 knowledge tracing | xong trên mô phỏng; **chưa chạy trên ASSISTments** | `scripts/exp5_kt.py` |
 | EXP-6 chọn bài | xong | `scripts/exp6_selection.py` |
-| EXP-7 ablation toàn hệ | **chưa chạy** | — |
+| EXP-7a bỏ kiểm chứng ký hiệu | xong | `scripts/exp7_llm_judge.py` |
+| EXP-7b ablation −RAG, −thang gợi ý | **chưa chạy** (cần người chấm) | — |
 | EXP-8 chống lộ đáp án | xong | `scripts/exp8_leakage.py` |
+| L2 rubric chất lượng gợi ý | phiếu chấm đã xuất, **chờ 3 người chấm** | `scripts/build_hint_rating_sheet.py` |
 
-Số liệu chi tiết: `docs/evaluation-protocol.md`; kết quả thô: `experiments/`.
+Bảng sinh tự động: `docs/results.md` (chạy `python scripts/make_report_tables.py`).
+Diễn giải và hạn chế từng thí nghiệm: `docs/evaluation-protocol.md`; dữ liệu thô:
+`experiments/`.
 
 ## Chương 8 — Kết luận và hạn chế
 
