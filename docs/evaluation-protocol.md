@@ -80,8 +80,32 @@ Parts*. Khi câu tiếng Việt KHÔNG có gì để BM25 bám vào thì bge-m3 
 Hệ quả thiết kế: gợi ý truy xuất bằng `skill.name_en` của kỹ năng gắn với đề, không
 bằng câu hỏi tiếng Việt của sinh viên (`src/rag/hint_retriever.py`).
 
-Việc còn phải làm: bộ 100 cặp (câu hỏi, đoạn đúng) để đo Recall@k và MRR cho ba cấu
-hình dense / BM25 / hybrid.
+### Kết quả — 70 câu hỏi sinh từ taxonomy kỹ năng, k = 5
+
+```
+python scripts/exp4_retrieval.py --k 5            # hỏi bằng tiếng Việt
+python scripts/exp4_retrieval.py --k 5 --english  # hỏi bằng thuật ngữ tiếng Anh
+```
+
+| Ngôn ngữ câu hỏi | BM25 | dense (bge-m3) | hybrid (RRF) |
+|---|---|---|---|
+| Tiếng Việt | 0,167 | **0,595** | 0,310 |
+| Tiếng Anh | 0,929 | 0,833 | **0,976** |
+
+*(Recall@5; MRR theo thứ tự: 0,130 / 0,385 / 0,159 và 0,883 / 0,712 / 0,865.)*
+
+**Kết quả ngược với giả định ban đầu:** hybrid KHÔNG phải lúc nào cũng tốt nhất. Với
+câu hỏi tiếng Việt trên kho tiếng Anh, hybrid (0,310) kém hẳn dense đơn thuần (0,595)
+— RRF trộn kết quả rác của BM25 vào và làm loãng thứ hạng tốt của bge-m3. Ngược lại,
+khi hỏi bằng đúng ngôn ngữ của kho thì BM25 rất mạnh và hybrid nhỉnh hơn cả hai.
+
+Hệ quả đã cài vào hệ thống (`RagIndex._fusion_mode`): câu hỏi tiếng Việt → chỉ dùng
+nhánh dense; câu hỏi tiếng Anh (gồm cả truy vấn nội bộ bằng `skill.name_en`) → hợp
+nhất hai nhánh.
+
+Nhãn ở đây dựa trên khớp thuật ngữ tiếng Anh nên là **chặn dưới**: một đoạn giải
+thích đúng khái niệm nhưng dùng từ khác ("u-substitution" thay vì "integration by
+substitution") bị tính là sai. Bộ 100 cặp gán nhãn tay vẫn còn phải làm.
 
 ---
 

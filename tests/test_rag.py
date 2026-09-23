@@ -17,7 +17,7 @@ from src.core.itembank import ERRORS_DIR  # noqa: E402
 from src.rag.bm25 import BM25, tokenize  # noqa: E402
 from src.rag.chunking import Chunk, ChunkType, assign_ids, chunk_text  # noqa: E402
 from src.rag.ingest import clean_text, ingest_all, load_pitfalls  # noqa: E402
-from src.rag.store import RagIndex  # noqa: E402
+from src.rag.store import looks_vietnamese, RagIndex  # noqa: E402
 
 GIAO_TRINH = """
 Chương 3. Nguyên hàm và tích phân
@@ -327,3 +327,40 @@ class TestEmbeddingCache:
         np.save(tmp_path / "idx" / "embeddings.npy", np.zeros((1, 2), dtype=np.float32))
         with pytest.raises(ValueError, match="Kho hỏng"):
             RagIndex.load(tmp_path / "idx")
+
+class TestFusionRouting:
+    """Chọn nhánh tìm kiếm theo ngôn ngữ câu hỏi — số liệu ở EXP-4.
+
+    Câu hỏi tiếng Việt trên kho tiếng Anh: dense 0.595 còn hybrid chỉ 0.310, vì
+    RRF trộn kết quả rác của BM25 vào. Câu hỏi tiếng Anh thì hybrid tốt nhất.
+    """
+
+    def test_nhan_ra_tieng_viet_co_dau(self) -> None:
+        assert looks_vietnamese("tích phân từng phần")
+
+    def test_nhan_ra_tieng_viet_khong_dau(self) -> None:
+        assert looks_vietnamese("tinh tich phan cua ham so nay")
+
+    def test_khong_nham_tieng_anh_la_tieng_viet(self) -> None:
+        assert not looks_vietnamese("integration by parts")
+        assert not looks_vietnamese("eigenvalues and eigenvectors")
+
+    def test_cau_hoi_tieng_viet_chi_dung_nhanh_dense(self) -> None:
+        index = RagIndex([Chunk(text="Integration by substitution replaces the variable.",
+                                chunk_type=ChunkType.DEFINITION, subject="MAE101")])
+        assert index._fusion_mode("auto", "tích phân đổi biến") == "hybrid",             "kho chưa có embedding thì vẫn phải dùng BM25, không được trả về rỗng"
+
+    def test_ep_nhanh_bang_tay_van_duoc(self) -> None:
+        index = RagIndex([Chunk(text="Chain rule", chunk_type=ChunkType.DEFINITION, subject="MAE101")])
+        assert index._fusion_mode("bm25", "bất kỳ câu nào") == "bm25"
+        assert index._fusion_mode("dense", "any query") == "dense"
+
+    def test_khong_co_dense_thi_van_tra_ve_ket_qua(self) -> None:
+        """Kho chỉ có BM25 mà bị định tuyến sang dense thì tìm kiếm trắng tay.
+
+        Câu hỏi và kho cùng tiếng Việt nên BM25 phải tìm ra; nếu định tuyến chỉ
+        nhìn ngôn ngữ mà không nhìn kho có embedding hay không thì test này đỏ.
+        """
+        index = RagIndex([Chunk(text="Công thức tích phân từng phần: ∫u dv = uv − ∫v du",
+                                chunk_type=ChunkType.FORMULA, subject="MAE101")])
+        assert index.search("tích phân từng phần", subject="MAE101") != []

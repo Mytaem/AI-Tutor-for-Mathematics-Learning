@@ -1,0 +1,984 @@
+{
+ "model": "qwen2.5:3b-instruct",
+ "shots": 0,
+ "n": 150,
+ "macro_f1": 0.3576536955108383,
+ "accuracy": 0.38,
+ "tier_accuracy": 0.4866666666666667,
+ "invalid_rate": 0.013333333333333334,
+ "seconds_per_sample": 4.677953409999997,
+ "per_class_f1": {
+  "MAE.INT.NOCONST": 0.0,
+  "MAD.INT.GCD_LCM": 1.0,
+  "MAS.PROB.JOINT_INSTEAD": 1.0,
+  "MAS.PROB.COND_REVERSED": 0.0,
+  "MAS.PROB.UNION_NOSUB": 1.0,
+  "LA.SYS.FALSENOSOL": 0.8333333333333333,
+  "LA.DET.SIGN": 0.0,
+  "MAS.HYP.NOSQRTN": 0.7499999999999999,
+  "MAI.DEC.TRACE_DET": 0.5714285714285715,
+  "MAI.OPT.GD_NOLR": 0.0,
+  "LA.SYS.INCONSISTENT": 0.0,
+  "MAE.SIGN": 0.0,
+  "MAS.CI.NOSQRTN": 0.6666666666666666,
+  "MAE.INT.POWER.NODIV": 0.0,
+  "MAI.SVD.EIGEN_INSTEAD": 0.0,
+  "MAE.INT.DERIV_INSTEAD": 0.0,
+  "MAI.DEC.WRONGSPECTRUM": 0.0,
+  "LA.INV.SINGULAR": 0.0,
+  "LA.INV.NOSIGN": 0.6666666666666666,
+  "MAD.COUNT.NOSUB": 1.0,
+  "MAI.OPT.GD_SIGN": 0.8571428571428571,
+  "MAI.VC.SWAPPED": 0.0,
+  "LA.SHAPE": 0.0,
+  "MAI.VC.NOCHAIN": 0.0,
+  "LA.DET.SCALE": 0.0,
+  "LA.SYS.PARTIAL": 0.0,
+  "MAI.DEC.TRACE_SUMALL": 0.0,
+  "MAD.LOGIC.INVERSE": 0.0,
+  "MAD.GRAPH.UNWEIGHTED": 0.6666666666666666,
+  "LA.EIG.NOTVALUE": 0.0,
+  "MAD.LOGIC.CONVERSE": 0.0,
+  "MAS.NORM.NOSTANDARDIZE": 0.8,
+  "LA.EIG.ZEROVEC": 0.0,
+  "MAS.HYP.TAIL": 0.0,
+  "MAD.TREE.LEAVES": 1.0,
+  "LA.SYS.NOTSOLUTION": 0.15384615384615385,
+  "MAS.PROB.BAYES_NONORM": 0.0,
+  "MAE.INT.SUBST.NOFACTOR": 0.2222222222222222,
+  "MAS.EXP.RATE_MEAN": 0.0,
+  "MAI.PCA.SMALLEST": 1.0,
+  "MAD.INT.BASE_REVERSED": 1.0,
+  "MAD.TREE.MST_CYCLE": 1.0,
+  "MAS.DIST.OFFBYONE": 0.0,
+  "MAS.DIST.TAIL": 0.4,
+  "MAI.PCA.NORATIO": 1.0,
+  "MAS.DIST.CDF_PMF": 0.7272727272727273,
+  "MAD.TREE.EDGES": 1.0,
+  "MAE.INT.DEF.NOEVAL": 0.0,
+  "LA.INV.NODET": 0.0,
+  "MAI.PROB.STD_INSTEAD": 1.0,
+  "MAE.INT.LINEARITY": 0.0,
+  "MAS.HYP.DECISION": 1.0,
+  "MAS.DESC.VAR_N": 0.0,
+  "MAD.COUNT.ORDER": 0.0,
+  "MAI.SVD.NOSQRT": 0.0,
+  "LA.EIG.NOTEIGEN": 0.0,
+  "MAI.SVM.HALFMARGIN": 1.0,
+  "MAE.INT.CONSTFACTOR": 0.0,
+  "MAI.GEO.WRONGNORM": 0.0,
+  "MAE.ALG.STEP": 0.0,
+  "MAD.REC.INITIAL": 0.0,
+  "MAS.NORM.VAR_AS_SD": 0.15384615384615385,
+  "MAS.DESC.STD_INSTEAD": 0.4,
+  "MAI.GEO.PROJ_WRONG": 1.0,
+  "MAI.REG.NOTLS": 1.0,
+  "MAD.COUNT.REPETITION": 0.6666666666666666,
+  "MAD.GRAPH.CHROMATIC_BOUND": 0.0,
+  "MAS.BIN.NOCOMB": 0.0,
+  "LA.INV.FALSESINGULAR": 0.5,
+  "MAS.BIN.VAR_MEAN": 1.0
+ },
+ "records": [
+  {
+   "item_id": "MAE101-GEN-exp_linear-0022",
+   "truth": "MAE.INT.NOCONST",
+   "guess": "MAE.INT.POWER.WRONGEXP",
+   "raw": "MAE.INT.POWER.WRONGEXP"
+  },
+  {
+   "item_id": "MAD101-GEN-lcm-1092",
+   "truth": "MAD.INT.GCD_LCM",
+   "guess": "MAD.INT.GCD_LCM",
+   "raw": "MAD.INT.GCD_LCM"
+  },
+  {
+   "item_id": "MAS291-GEN-conditional-0362",
+   "truth": "MAS.PROB.JOINT_INSTEAD",
+   "guess": "MAS.PROB.JOINT_INSTEAD",
+   "raw": "MAS.PROB.JOINT_INSTEAD"
+  },
+  {
+   "item_id": "MAS291-GEN-bayes-0987",
+   "truth": "MAS.PROB.COND_REVERSED",
+   "guess": "MAS.NORM.VAR_AS_SD",
+   "raw": "MAS.NORM.VAR_AS_SD"
+  },
+  {
+   "item_id": "MAS291-GEN-union-0638",
+   "truth": "MAS.PROB.UNION_NOSUB",
+   "guess": "MAS.PROB.UNION_NOSUB",
+   "raw": "MAS.PROB.UNION_NOSUB"
+  },
+  {
+   "item_id": "MAI391-GEN-system_underdetermined-1055",
+   "truth": "LA.SYS.FALSENOSOL",
+   "guess": "LA.SYS.FALSENOSOL",
+   "raw": "LA.SYS.FALSENOSOL"
+  },
+  {
+   "item_id": "MAI391-GEN-determinant-0484",
+   "truth": "LA.DET.SIGN",
+   "guess": "LA.INV.SINGULAR",
+   "raw": "LA.INV.SINGULAR"
+  },
+  {
+   "item_id": "MAS291-GEN-test_stat-0107",
+   "truth": "MAS.HYP.NOSQRTN",
+   "guess": "MAS.HYP.NOSQRTN",
+   "raw": "MAS.HYP.NOSQRTN"
+  },
+  {
+   "item_id": "MAI391-GEN-trace-0793",
+   "truth": "MAI.DEC.TRACE_DET",
+   "guess": "MAI.DEC.TRACE_DET",
+   "raw": "MAI.DEC.TRACE_DET"
+  },
+  {
+   "item_id": "MAI391-GEN-gd_step-0697",
+   "truth": "MAI.OPT.GD_NOLR",
+   "guess": "MAI.OPT.GD_SIGN",
+   "raw": "MAI.OPT.GD_SIGN"
+  },
+  {
+   "item_id": "MAI391-GEN-system_inconsistent-1006",
+   "truth": "LA.SYS.INCONSISTENT",
+   "guess": "LA.SYS.FALSENOSOL",
+   "raw": "LA.SYS.FALSENOSOL"
+  },
+  {
+   "item_id": "MAE101-GEN-reciprocal_linear-0262",
+   "truth": "MAE.SIGN",
+   "guess": "MAE.INT.POWER.WRONGEXP",
+   "raw": "MAE.INT.POWER.WRONGEXP"
+  },
+  {
+   "item_id": "MAS291-GEN-ci_mean-0371",
+   "truth": "MAS.CI.NOSQRTN",
+   "guess": "MAS.DESC.STD_INSTEAD",
+   "raw": "MAS.DESC.STD_INSTEAD"
+  },
+  {
+   "item_id": "MAE101-GEN-negative_power-0231",
+   "truth": "MAE.INT.POWER.NODIV",
+   "guess": "MAE.INT.POWER.WRONGEXP",
+   "raw": "MAE.INT.POWER.WRONGEXP"
+  },
+  {
+   "item_id": "MAE101-GEN-negative_power-0231",
+   "truth": "MAE.INT.NOCONST",
+   "guess": "MAE.INT.POWER.WRONGEXP",
+   "raw": "MAE.INT.POWER.WRONGEXP"
+  },
+  {
+   "item_id": "MAI391-GEN-singular_values-0115",
+   "truth": "MAI.SVD.EIGEN_INSTEAD",
+   "guess": "LA.SHAPE",
+   "raw": "LA.SHAPE"
+  },
+  {
+   "item_id": "MAE101-GEN-parts_trig-0063",
+   "truth": "MAE.INT.DERIV_INSTEAD",
+   "guess": "MAE.INT.POWER.WRONGEXP",
+   "raw": "MAE.INT.POWER.WRONGEXP"
+  },
+  {
+   "item_id": "MAI391-GEN-diagonal_form-0795",
+   "truth": "MAI.DEC.WRONGSPECTRUM",
+   "guess": "MAI.DEC.NOTDIAG",
+   "raw": "MAI.DEC.NOTDIAG"
+  },
+  {
+   "item_id": "MAI391-GEN-inverse_singular-0973",
+   "truth": "LA.INV.SINGULAR",
+   "guess": "LA.INV.FALSESINGULAR",
+   "raw": "LA.INV.FALSESINGULAR"
+  },
+  {
+   "item_id": "MAI391-GEN-inverse-0571",
+   "truth": "LA.INV.NOSIGN",
+   "guess": "LA.INV.NOSIGN",
+   "raw": "LA.INV.NOSIGN"
+  },
+  {
+   "item_id": "MAE101-GEN-parts_exp-0044",
+   "truth": "MAE.SIGN",
+   "guess": "MAE.INT.POWER.WRONGEXP",
+   "raw": "MAE.INT.POWER.WRONGEXP"
+  },
+  {
+   "item_id": "MAD101-GEN-count_divisible-0592",
+   "truth": "MAD.COUNT.NOSUB",
+   "guess": "MAD.COUNT.NOSUB",
+   "raw": "MAD.COUNT.NOSUB"
+  },
+  {
+   "item_id": "MAS291-GEN-bayes-0581",
+   "truth": "MAS.PROB.COND_REVERSED",
+   "guess": "MAS.NORM.VAR_AS_SD",
+   "raw": "MAS.NORM.VAR_AS_SD"
+  },
+  {
+   "item_id": "MAI391-GEN-gd_step-0770",
+   "truth": "MAI.OPT.GD_SIGN",
+   "guess": "MAI.OPT.GD_SIGN",
+   "raw": "MAI.OPT.GD_SIGN"
+  },
+  {
+   "item_id": "MAI391-GEN-determinant-1067",
+   "truth": "LA.DET.SIGN",
+   "guess": "LA.DET.SCALE",
+   "raw": "LA.DET.SCALE"
+  },
+  {
+   "item_id": "MAI391-GEN-gradient-0577",
+   "truth": "MAI.VC.SWAPPED",
+   "guess": "LA.INV.SINGULAR",
+   "raw": "LA.INV.SINGULAR"
+  },
+  {
+   "item_id": "MAI391-GEN-system_underdetermined-0630",
+   "truth": "LA.SHAPE",
+   "guess": "LA.SYS.NOTSOLUTION",
+   "raw": "LA.SYS.NOTSOLUTION"
+  },
+  {
+   "item_id": "MAI391-GEN-system_underdetermined-0316",
+   "truth": "LA.SYS.FALSENOSOL",
+   "guess": "LA.SYS.FALSENOSOL",
+   "raw": "LA.SYS.FALSENOSOL"
+  },
+  {
+   "item_id": "MAI391-GEN-gradient_chain-0473",
+   "truth": "MAI.VC.NOCHAIN",
+   "guess": null,
+   "raw": "LA.SYS.WRONGVALUE"
+  },
+  {
+   "item_id": "MAI391-GEN-determinant-0643",
+   "truth": "LA.DET.SCALE",
+   "guess": "LA.SHAPE",
+   "raw": "LA.SHAPE"
+  },
+  {
+   "item_id": "MAI391-GEN-system_underdetermined-0630",
+   "truth": "LA.SYS.PARTIAL",
+   "guess": "LA.SYS.NOTSOLUTION",
+   "raw": "LA.SYS.NOTSOLUTION"
+  },
+  {
+   "item_id": "MAI391-GEN-system_underdetermined-0673",
+   "truth": "LA.SHAPE",
+   "guess": "LA.SYS.NOTSOLUTION",
+   "raw": "LA.SYS.NOTSOLUTION"
+  },
+  {
+   "item_id": "MAI391-GEN-trace-0483",
+   "truth": "MAI.DEC.TRACE_SUMALL",
+   "guess": "MAI.DEC.TRACE_DET",
+   "raw": "MAI.DEC.TRACE_DET"
+  },
+  {
+   "item_id": "MAD101-GEN-logic_negate-0794",
+   "truth": "MAD.LOGIC.INVERSE",
+   "guess": "MAD.LOGIC.DEMORGAN",
+   "raw": "MAD.LOGIC.DEMORGAN"
+  },
+  {
+   "item_id": "MAD101-GEN-shortest_path-0601",
+   "truth": "MAD.GRAPH.UNWEIGHTED",
+   "guess": "MAD.GRAPH.UNWEIGHTED",
+   "raw": "MAD.GRAPH.UNWEIGHTED"
+  },
+  {
+   "item_id": "MAS291-GEN-conditional-0879",
+   "truth": "MAS.PROB.JOINT_INSTEAD",
+   "guess": "MAS.PROB.JOINT_INSTEAD",
+   "raw": "MAS.PROB.JOINT_INSTEAD"
+  },
+  {
+   "item_id": "MAI391-GEN-eigenvalues-0265",
+   "truth": "LA.EIG.NOTVALUE",
+   "guess": "MAI.SVD.NOSQRT",
+   "raw": "MAI.SVD.NOSQRT"
+  },
+  {
+   "item_id": "MAD101-GEN-logic_contrapositive-0026",
+   "truth": "MAD.LOGIC.CONVERSE",
+   "guess": "MAD.LOGIC.DEMORGAN",
+   "raw": "MAD.LOGIC.DEMORGAN"
+  },
+  {
+   "item_id": "MAS291-NORM-001",
+   "truth": "MAS.NORM.NOSTANDARDIZE",
+   "guess": "MAS.NORM.NOSTANDARDIZE",
+   "raw": "MAS.NORM.NOSTANDARDIZE"
+  },
+  {
+   "item_id": "MAI391-GEN-eigenvalues-0777",
+   "truth": "LA.EIG.NOTVALUE",
+   "guess": "MAI.DEC.WRONGSPECTRUM",
+   "raw": "MAI.DEC.WRONGSPECTRUM"
+  },
+  {
+   "item_id": "MAI391-GEN-inverse_singular-0575",
+   "truth": "LA.INV.SINGULAR",
+   "guess": "LA.INV.FALSESINGULAR",
+   "raw": "LA.INV.FALSESINGULAR"
+  },
+  {
+   "item_id": "MAS291-GEN-ci_mean-0421",
+   "truth": "MAS.CI.NOSQRTN",
+   "guess": "MAS.DESC.STD_INSTEAD",
+   "raw": "MAS.DESC.STD_INSTEAD"
+  },
+  {
+   "item_id": "MAS291-GEN-bayes-1015",
+   "truth": "MAS.PROB.COND_REVERSED",
+   "guess": "MAS.NORM.VAR_AS_SD",
+   "raw": "MAS.NORM.VAR_AS_SD"
+  },
+  {
+   "item_id": "MAI391-GEN-eigenvector-0968",
+   "truth": "LA.EIG.ZEROVEC",
+   "guess": "LA.SHAPE",
+   "raw": "LA.SHAPE"
+  },
+  {
+   "item_id": "MAE101-GEN-root-0122",
+   "truth": "MAE.SIGN",
+   "guess": "MAE.INT.POWER.WRONGEXP",
+   "raw": "MAE.INT.POWER.WRONGEXP"
+  },
+  {
+   "item_id": "MAS291-GEN-p_value-0788",
+   "truth": "MAS.HYP.TAIL",
+   "guess": "MAS.HYP.NOSQRTN",
+   "raw": "MAS.HYP.NOSQRTN"
+  },
+  {
+   "item_id": "MAD101-GEN-mary_leaves-0781",
+   "truth": "MAD.TREE.LEAVES",
+   "guess": "MAD.TREE.LEAVES",
+   "raw": "MAD.TREE.LEAVES"
+  },
+  {
+   "item_id": "MAI391-GEN-linear_system-1009",
+   "truth": "LA.SHAPE",
+   "guess": "LA.SYS.NOTSOLUTION",
+   "raw": "LA.SYS.NOTSOLUTION"
+  },
+  {
+   "item_id": "MAI391-GEN-linear_system-0632",
+   "truth": "LA.SYS.NOTSOLUTION",
+   "guess": "LA.SYS.NOTSOLUTION",
+   "raw": "LA.SYS.NOTSOLUTION"
+  },
+  {
+   "item_id": "MAS291-GEN-bayes-0467",
+   "truth": "MAS.PROB.BAYES_NONORM",
+   "guess": "MAS.NORM.VAR_AS_SD",
+   "raw": "MAS.NORM.VAR_AS_SD"
+  },
+  {
+   "item_id": "MAI391-GEN-gradient-0199",
+   "truth": "MAI.VC.SWAPPED",
+   "guess": "LA.INV.SINGULAR",
+   "raw": "LA.INV.SINGULAR"
+  },
+  {
+   "item_id": "MAI391-GEN-gd_step-0697",
+   "truth": "MAI.OPT.GD_SIGN",
+   "guess": "MAI.OPT.GD_SIGN",
+   "raw": "MAI.OPT.GD_SIGN"
+  },
+  {
+   "item_id": "MAE101-GEN-reciprocal_linear-0187",
+   "truth": "MAE.INT.SUBST.NOFACTOR",
+   "guess": "MAE.INT.SUBST.NOFACTOR",
+   "raw": "MAE.INT.SUBST.NOFACTOR"
+  },
+  {
+   "item_id": "MAS291-GEN-exp_prob-0319",
+   "truth": "MAS.EXP.RATE_MEAN",
+   "guess": "MAS.NORM.VAR_AS_SD",
+   "raw": "MAS.NORM.VAR_AS_SD"
+  },
+  {
+   "item_id": "MAI391-GEN-trace-0872",
+   "truth": "MAI.DEC.TRACE_SUMALL",
+   "guess": "MAI.DEC.TRACE_DET",
+   "raw": "MAI.DEC.TRACE_DET"
+  },
+  {
+   "item_id": "MAI391-GEN-pca_first-0391",
+   "truth": "MAI.PCA.SMALLEST",
+   "guess": "MAI.PCA.SMALLEST",
+   "raw": "MAI.PCA.SMALLEST"
+  },
+  {
+   "item_id": "MAI391-GEN-gd_step-0615",
+   "truth": "MAI.OPT.GD_SIGN",
+   "guess": "MAI.OPT.GD_SIGN",
+   "raw": "MAI.OPT.GD_SIGN"
+  },
+  {
+   "item_id": "MAI391-GEN-determinant-0309",
+   "truth": "LA.DET.SCALE",
+   "guess": "MAI.DEC.TRACE_DET",
+   "raw": "MAI.DEC.TRACE_DET"
+  },
+  {
+   "item_id": "MAD101-GEN-to_binary-0888",
+   "truth": "MAD.INT.BASE_REVERSED",
+   "guess": "MAD.INT.BASE_REVERSED",
+   "raw": "MAD.INT.BASE_REVERSED"
+  },
+  {
+   "item_id": "MAS291-GEN-bayes-0024",
+   "truth": "MAS.PROB.BAYES_NONORM",
+   "guess": "MAS.NORM.VAR_AS_SD",
+   "raw": "MAS.NORM.VAR_AS_SD"
+  },
+  {
+   "item_id": "MAD101-GEN-mst_weight-0793",
+   "truth": "MAD.TREE.MST_CYCLE",
+   "guess": "MAD.TREE.MST_CYCLE",
+   "raw": "MAD.TREE.MST_CYCLE"
+  },
+  {
+   "item_id": "MAS291-GEN-bayes-1002",
+   "truth": "MAS.PROB.COND_REVERSED",
+   "guess": "MAS.NORM.VAR_AS_SD",
+   "raw": "MAS.NORM.VAR_AS_SD"
+  },
+  {
+   "item_id": "MAI391-GEN-system_underdetermined-1094",
+   "truth": "LA.SHAPE",
+   "guess": "LA.SYS.NOTSOLUTION",
+   "raw": "LA.SYS.NOTSOLUTION"
+  },
+  {
+   "item_id": "MAI391-GEN-system_inconsistent-1181",
+   "truth": "LA.SYS.INCONSISTENT",
+   "guess": "LA.SYS.FALSENOSOL",
+   "raw": "LA.SYS.FALSENOSOL"
+  },
+  {
+   "item_id": "MAI391-GEN-system_underdetermined-0673",
+   "truth": "LA.SYS.PARTIAL",
+   "guess": "LA.SYS.NOTSOLUTION",
+   "raw": "LA.SYS.NOTSOLUTION"
+  },
+  {
+   "item_id": "MAS291-GEN-binom_cdf-0298",
+   "truth": "MAS.DIST.OFFBYONE",
+   "guess": "MAS.DIST.CDF_PMF",
+   "raw": "MAS.DIST.CDF_PMF"
+  },
+  {
+   "item_id": "MAI391-GEN-linear_system-0937",
+   "truth": "LA.SHAPE",
+   "guess": "LA.INV.SINGULAR",
+   "raw": "LA.INV.SINGULAR"
+  },
+  {
+   "item_id": "MAE101-GEN-subst_exp-0128",
+   "truth": "MAE.INT.NOCONST",
+   "guess": "MAE.INT.SUBST.NOFACTOR",
+   "raw": "MAE.INT.SUBST.NOFACTOR"
+  },
+  {
+   "item_id": "MAE101-INT-016",
+   "truth": "MAE.INT.DERIV_INSTEAD",
+   "guess": "MAE.INT.SUBST.NOFACTOR",
+   "raw": "MAE.INT.SUBST.NOFACTOR"
+  },
+  {
+   "item_id": "MAD101-GEN-mary_leaves-0588",
+   "truth": "MAD.TREE.LEAVES",
+   "guess": "MAD.TREE.LEAVES",
+   "raw": "MAD.TREE.LEAVES"
+  },
+  {
+   "item_id": "MAE101-LA-VEC-003",
+   "truth": "LA.EIG.ZEROVEC",
+   "guess": "LA.SHAPE",
+   "raw": "LA.SHAPE"
+  },
+  {
+   "item_id": "MAS291-GEN-normal_prob-0140",
+   "truth": "MAS.DIST.TAIL",
+   "guess": "MAS.DIST.TAIL",
+   "raw": "MAS.DIST.TAIL"
+  },
+  {
+   "item_id": "MAI391-GEN-pca_ratio-0053",
+   "truth": "MAI.PCA.NORATIO",
+   "guess": "MAI.PCA.NORATIO",
+   "raw": "MAI.PCA.NORATIO"
+  },
+  {
+   "item_id": "MAS291-GEN-binom_pmf-0262",
+   "truth": "MAS.DIST.CDF_PMF",
+   "guess": "MAS.DIST.CDF_PMF",
+   "raw": "MAS.DIST.CDF_PMF"
+  },
+  {
+   "item_id": "MAI391-GEN-linear_system-0991",
+   "truth": "LA.SYS.FALSENOSOL",
+   "guess": "LA.SYS.FALSENOSOL",
+   "raw": "LA.SYS.FALSENOSOL"
+  },
+  {
+   "item_id": "MAS291-GEN-ci_prop-0372",
+   "truth": "MAS.CI.NOSQRTN",
+   "guess": "MAS.CI.NOSQRTN",
+   "raw": "MAS.CI.NOSQRTN"
+  },
+  {
+   "item_id": "MAI391-GEN-inverse-0117",
+   "truth": "LA.INV.NOSIGN",
+   "guess": "LA.INV.NODET",
+   "raw": "LA.INV.NODET"
+  },
+  {
+   "item_id": "MAE101-INT-005",
+   "truth": "MAE.INT.NOCONST",
+   "guess": "MAE.INT.POWER.WRONGEXP",
+   "raw": "MAE.INT.POWER.WRONGEXP"
+  },
+  {
+   "item_id": "MAD101-GEN-tree_edges-0472",
+   "truth": "MAD.TREE.EDGES",
+   "guess": "MAD.TREE.EDGES",
+   "raw": "MAD.TREE.EDGES"
+  },
+  {
+   "item_id": "MAE101-GEN-definite_subst-0050",
+   "truth": "MAE.INT.DEF.NOEVAL",
+   "guess": "MAE.INT.SUBST.NOFACTOR",
+   "raw": "MAE.INT.SUBST.NOFACTOR"
+  },
+  {
+   "item_id": "MAS291-BIN-003",
+   "truth": "MAS.DIST.CDF_PMF",
+   "guess": "MAS.DIST.CDF_PMF",
+   "raw": "MAS.DIST.CDF_PMF"
+  },
+  {
+   "item_id": "MAI391-GEN-linear_system-0632",
+   "truth": "LA.SYS.FALSENOSOL",
+   "guess": "LA.SYS.FALSENOSOL",
+   "raw": "LA.SYS.FALSENOSOL"
+  },
+  {
+   "item_id": "MAI391-GEN-inverse-0730",
+   "truth": "LA.INV.NODET",
+   "guess": "LA.INV.SINGULAR",
+   "raw": "LA.INV.SINGULAR"
+  },
+  {
+   "item_id": "MAI391-GEN-moments-0517",
+   "truth": "MAI.PROB.STD_INSTEAD",
+   "guess": "MAI.PROB.STD_INSTEAD",
+   "raw": "MAI.PROB.STD_INSTEAD"
+  },
+  {
+   "item_id": "MAE101-GEN-definite_exp-0134",
+   "truth": "MAE.INT.DEF.NOEVAL",
+   "guess": "MAE.INT.POWER.WRONGEXP",
+   "raw": "MAE.INT.POWER.WRONGEXP"
+  },
+  {
+   "item_id": "MAS291-GEN-ci_prop-0441",
+   "truth": "MAS.CI.NOSQRTN",
+   "guess": "MAS.CI.NOSQRTN",
+   "raw": "MAS.CI.NOSQRTN"
+  },
+  {
+   "item_id": "MAI391-GEN-system_underdetermined-0821",
+   "truth": "LA.SHAPE",
+   "guess": "LA.SYS.NOTSOLUTION",
+   "raw": "LA.SYS.NOTSOLUTION"
+  },
+  {
+   "item_id": "MAI391-GEN-linear_system-1009",
+   "truth": "LA.SYS.FALSENOSOL",
+   "guess": "LA.SYS.FALSENOSOL",
+   "raw": "LA.SYS.FALSENOSOL"
+  },
+  {
+   "item_id": "MAD101-GEN-count_divisible-1141",
+   "truth": "MAD.COUNT.NOSUB",
+   "guess": "MAD.COUNT.NOSUB",
+   "raw": "MAD.COUNT.NOSUB"
+  },
+  {
+   "item_id": "MAE101-GEN-trig_linear-0140",
+   "truth": "MAE.INT.LINEARITY",
+   "guess": "MAE.INT.POWER.WRONGEXP",
+   "raw": "MAE.INT.POWER.WRONGEXP"
+  },
+  {
+   "item_id": "MAS291-GEN-decision-0201",
+   "truth": "MAS.HYP.DECISION",
+   "guess": "MAS.HYP.DECISION",
+   "raw": "MAS.HYP.DECISION"
+  },
+  {
+   "item_id": "MAD101-GEN-mst_weight-0753",
+   "truth": "MAD.TREE.MST_CYCLE",
+   "guess": "MAD.TREE.MST_CYCLE",
+   "raw": "MAD.TREE.MST_CYCLE"
+  },
+  {
+   "item_id": "MAI391-GEN-singular_values-0552",
+   "truth": "MAI.SVD.EIGEN_INSTEAD",
+   "guess": "LA.SHAPE",
+   "raw": "LA.SHAPE"
+  },
+  {
+   "item_id": "MAS291-GEN-descriptive-0784",
+   "truth": "MAS.DESC.VAR_N",
+   "guess": "MAS.DESC.STD_INSTEAD",
+   "raw": "MAS.DESC.STD_INSTEAD"
+  },
+  {
+   "item_id": "MAI391-GEN-determinant-0462",
+   "truth": "LA.DET.SIGN",
+   "guess": "LA.INV.SINGULAR",
+   "raw": "LA.INV.SINGULAR"
+  },
+  {
+   "item_id": "MAS291-GEN-binom_cdf-0026",
+   "truth": "MAS.DIST.CDF_PMF",
+   "guess": "MAS.DIST.CDF_PMF",
+   "raw": "MAS.DIST.CDF_PMF"
+  },
+  {
+   "item_id": "MAD101-GEN-count-0898",
+   "truth": "MAD.COUNT.ORDER",
+   "guess": "MAD.COUNT.REPETITION",
+   "raw": "MAD.COUNT.REPETITION"
+  },
+  {
+   "item_id": "MAS291-GEN-conditional-0040",
+   "truth": "MAS.PROB.JOINT_INSTEAD",
+   "guess": "MAS.PROB.JOINT_INSTEAD",
+   "raw": "MAS.PROB.JOINT_INSTEAD"
+  },
+  {
+   "item_id": "MAI391-GEN-singular_values-0728",
+   "truth": "MAI.SVD.NOSQRT",
+   "guess": null,
+   "raw": "LA.SYS.WRONGSHAPE"
+  },
+  {
+   "item_id": "MAS291-GEN-normal_prob-1162",
+   "truth": "MAS.DIST.TAIL",
+   "guess": "MAS.NORM.NOSTANDARDIZE",
+   "raw": "MAS.NORM.NOSTANDARDIZE"
+  },
+  {
+   "item_id": "MAI391-GEN-eigenvector-1037",
+   "truth": "LA.EIG.NOTEIGEN",
+   "guess": "LA.EIG.WRONGVALUE",
+   "raw": "LA.EIG.WRONGVALUE"
+  },
+  {
+   "item_id": "MAI391-GEN-trace-0505",
+   "truth": "MAI.DEC.TRACE_DET",
+   "guess": "MAI.DEC.TRACE_DET",
+   "raw": "MAI.DEC.TRACE_DET"
+  },
+  {
+   "item_id": "MAI391-GEN-system_underdetermined-1094",
+   "truth": "LA.SYS.PARTIAL",
+   "guess": "LA.SYS.NOTSOLUTION",
+   "raw": "LA.SYS.NOTSOLUTION"
+  },
+  {
+   "item_id": "MAI391-GEN-svm_margin-0943",
+   "truth": "MAI.SVM.HALFMARGIN",
+   "guess": "MAI.SVM.HALFMARGIN",
+   "raw": "MAI.SVM.HALFMARGIN"
+  },
+  {
+   "item_id": "MAI391-GEN-eigenvalues-1194",
+   "truth": "LA.EIG.NOTVALUE",
+   "guess": "MAI.SVD.NOSQRT",
+   "raw": "MAI.SVD.NOSQRT"
+  },
+  {
+   "item_id": "MAE101-GEN-negative_power-0021",
+   "truth": "MAE.INT.NOCONST",
+   "guess": "MAE.INT.POWER.WRONGEXP",
+   "raw": "MAE.INT.POWER.WRONGEXP"
+  },
+  {
+   "item_id": "MAI391-GEN-eigenvector-1142",
+   "truth": "LA.EIG.NOTEIGEN",
+   "guess": "LA.SHAPE",
+   "raw": "LA.SHAPE"
+  },
+  {
+   "item_id": "MAS291-GEN-test_stat-0649",
+   "truth": "MAS.HYP.NOSQRTN",
+   "guess": "MAS.HYP.NOSQRTN",
+   "raw": "MAS.HYP.NOSQRTN"
+  },
+  {
+   "item_id": "MAE101-GEN-parts_trig-0063",
+   "truth": "MAE.INT.CONSTFACTOR",
+   "guess": "MAE.INT.SUBST.NOFACTOR",
+   "raw": "MAE.INT.SUBST.NOFACTOR"
+  },
+  {
+   "item_id": "MAE101-GEN-exp_linear-0022",
+   "truth": "MAE.INT.SUBST.NOFACTOR",
+   "guess": "MAE.INT.POWER.WRONGEXP",
+   "raw": "MAE.INT.POWER.WRONGEXP"
+  },
+  {
+   "item_id": "MAS291-GEN-p_value-0476",
+   "truth": "MAS.HYP.TAIL",
+   "guess": "MAS.HYP.NOSQRTN",
+   "raw": "MAS.HYP.NOSQRTN"
+  },
+  {
+   "item_id": "MAD101-GEN-logic_contrapositive-0407",
+   "truth": "MAD.LOGIC.INVERSE",
+   "guess": "MAD.LOGIC.DEMORGAN",
+   "raw": "MAD.LOGIC.DEMORGAN"
+  },
+  {
+   "item_id": "MAI391-GEN-norm-0545",
+   "truth": "MAI.GEO.WRONGNORM",
+   "guess": "MAI.GEO.NOSQRT",
+   "raw": "MAI.GEO.NOSQRT"
+  },
+  {
+   "item_id": "MAE101-GEN-partial_fractions-0065",
+   "truth": "MAE.ALG.STEP",
+   "guess": "MAE.INT.POWER.WRONGEXP",
+   "raw": "MAE.INT.POWER.WRONGEXP"
+  },
+  {
+   "item_id": "MAD101-REC-002",
+   "truth": "MAD.REC.INITIAL",
+   "guess": "MAD.COUNT.REPETITION",
+   "raw": "MAD.COUNT.REPETITION"
+  },
+  {
+   "item_id": "MAS291-GEN-normal_prob-0798",
+   "truth": "MAS.NORM.NOSTANDARDIZE",
+   "guess": "MAS.NORM.NOSTANDARDIZE",
+   "raw": "MAS.NORM.NOSTANDARDIZE"
+  },
+  {
+   "item_id": "MAS291-GEN-normal_prob-0266",
+   "truth": "MAS.NORM.VAR_AS_SD",
+   "guess": "MAS.DIST.TAIL",
+   "raw": "MAS.DIST.TAIL"
+  },
+  {
+   "item_id": "MAI391-GEN-linear_system-0174",
+   "truth": "LA.SHAPE",
+   "guess": "LA.INV.SINGULAR",
+   "raw": "LA.INV.SINGULAR"
+  },
+  {
+   "item_id": "MAD101-GEN-mary_leaves-0044",
+   "truth": "MAD.TREE.LEAVES",
+   "guess": "MAD.TREE.LEAVES",
+   "raw": "MAD.TREE.LEAVES"
+  },
+  {
+   "item_id": "MAD101-GEN-mst_weight-0250",
+   "truth": "MAD.TREE.MST_CYCLE",
+   "guess": "MAD.TREE.MST_CYCLE",
+   "raw": "MAD.TREE.MST_CYCLE"
+  },
+  {
+   "item_id": "MAS291-GEN-descriptive-0784",
+   "truth": "MAS.DESC.STD_INSTEAD",
+   "guess": "MAS.DESC.STD_INSTEAD",
+   "raw": "MAS.DESC.STD_INSTEAD"
+  },
+  {
+   "item_id": "MAI391-GEN-projection-0186",
+   "truth": "MAI.GEO.PROJ_WRONG",
+   "guess": "MAI.GEO.PROJ_WRONG",
+   "raw": "MAI.GEO.PROJ_WRONG"
+  },
+  {
+   "item_id": "MAI391-GEN-least_squares-0617",
+   "truth": "MAI.REG.NOTLS",
+   "guess": "MAI.REG.NOTLS",
+   "raw": "MAI.REG.NOTLS"
+  },
+  {
+   "item_id": "MAI391-GEN-system_underdetermined-0316",
+   "truth": "LA.SYS.PARTIAL",
+   "guess": "LA.SYS.NOTSOLUTION",
+   "raw": "LA.SYS.NOTSOLUTION"
+  },
+  {
+   "item_id": "MAS291-GEN-bayes-0024",
+   "truth": "MAS.PROB.COND_REVERSED",
+   "guess": "MAS.NORM.VAR_AS_SD",
+   "raw": "MAS.NORM.VAR_AS_SD"
+  },
+  {
+   "item_id": "MAS291-GEN-test_stat-0493",
+   "truth": "MAS.HYP.NOSQRTN",
+   "guess": "MAS.HYP.NOSQRTN",
+   "raw": "MAS.HYP.NOSQRTN"
+  },
+  {
+   "item_id": "MAD101-GEN-count-0883",
+   "truth": "MAD.COUNT.REPETITION",
+   "guess": "MAD.COUNT.REPETITION",
+   "raw": "MAD.COUNT.REPETITION"
+  },
+  {
+   "item_id": "MAS291-GEN-conditional-0971",
+   "truth": "MAS.PROB.JOINT_INSTEAD",
+   "guess": "MAS.PROB.JOINT_INSTEAD",
+   "raw": "MAS.PROB.JOINT_INSTEAD"
+  },
+  {
+   "item_id": "MAS291-GEN-normal_prob-0437",
+   "truth": "MAS.DIST.TAIL",
+   "guess": "MAS.NORM.VAR_AS_SD",
+   "raw": "MAS.NORM.VAR_AS_SD"
+  },
+  {
+   "item_id": "MAE101-GEN-root-0071",
+   "truth": "MAE.INT.DERIV_INSTEAD",
+   "guess": "MAE.INT.POWER.WRONGEXP",
+   "raw": "MAE.INT.POWER.WRONGEXP"
+  },
+  {
+   "item_id": "MAS291-GEN-bayes-1002",
+   "truth": "MAS.PROB.BAYES_NONORM",
+   "guess": "MAS.NORM.VAR_AS_SD",
+   "raw": "MAS.NORM.VAR_AS_SD"
+  },
+  {
+   "item_id": "MAE101-GEN-reciprocal_linear-0125",
+   "truth": "MAE.SIGN",
+   "guess": "MAE.INT.POWER.WRONGEXP",
+   "raw": "MAE.INT.POWER.WRONGEXP"
+  },
+  {
+   "item_id": "MAI391-GEN-linear_system-0174",
+   "truth": "LA.SYS.NOTSOLUTION",
+   "guess": "LA.INV.SINGULAR",
+   "raw": "LA.INV.SINGULAR"
+  },
+  {
+   "item_id": "MAD101-GEN-chromatic-0510",
+   "truth": "MAD.GRAPH.CHROMATIC_BOUND",
+   "guess": "MAD.GRAPH.UNWEIGHTED",
+   "raw": "MAD.GRAPH.UNWEIGHTED"
+  },
+  {
+   "item_id": "MAS291-GEN-binom_pmf-0414",
+   "truth": "MAS.BIN.NOCOMB",
+   "guess": "MAS.DIST.CDF_PMF",
+   "raw": "MAS.DIST.CDF_PMF"
+  },
+  {
+   "item_id": "MAI391-GEN-gradient-0472",
+   "truth": "MAI.VC.SWAPPED",
+   "guess": "LA.INV.SINGULAR",
+   "raw": "LA.INV.SINGULAR"
+  },
+  {
+   "item_id": "MAD101-GEN-lcm-0362",
+   "truth": "MAD.INT.GCD_LCM",
+   "guess": "MAD.INT.GCD_LCM",
+   "raw": "MAD.INT.GCD_LCM"
+  },
+  {
+   "item_id": "MAD101-GEN-count-0393",
+   "truth": "MAD.COUNT.REPETITION",
+   "guess": "MAD.COUNT.REPETITION",
+   "raw": "MAD.COUNT.REPETITION"
+  },
+  {
+   "item_id": "MAE101-GEN-root-0167",
+   "truth": "MAE.ALG.STEP",
+   "guess": "MAE.INT.POWER.WRONGEXP",
+   "raw": "MAE.INT.POWER.WRONGEXP"
+  },
+  {
+   "item_id": "MAI391-GEN-diagonal_form-0166",
+   "truth": "MAI.DEC.WRONGSPECTRUM",
+   "guess": "MAI.DEC.NOTDIAG",
+   "raw": "MAI.DEC.NOTDIAG"
+  },
+  {
+   "item_id": "MAD101-GEN-set_union-1174",
+   "truth": "MAD.COUNT.NOSUB",
+   "guess": "MAD.COUNT.NOSUB",
+   "raw": "MAD.COUNT.NOSUB"
+  },
+  {
+   "item_id": "MAE101-INT-016",
+   "truth": "MAE.SIGN",
+   "guess": "MAE.INT.SUBST.NOFACTOR",
+   "raw": "MAE.INT.SUBST.NOFACTOR"
+  },
+  {
+   "item_id": "MAI391-GEN-system_underdetermined-0246",
+   "truth": "LA.SHAPE",
+   "guess": "LA.SYS.NOTSOLUTION",
+   "raw": "LA.SYS.NOTSOLUTION"
+  },
+  {
+   "item_id": "MAS291-GEN-binom_cdf-1031",
+   "truth": "MAS.DIST.OFFBYONE",
+   "guess": "MAS.DIST.CDF_PMF",
+   "raw": "MAS.DIST.CDF_PMF"
+  },
+  {
+   "item_id": "MAI391-GEN-inverse-0064",
+   "truth": "LA.INV.FALSESINGULAR",
+   "guess": "LA.INV.FALSESINGULAR",
+   "raw": "LA.INV.FALSESINGULAR"
+  },
+  {
+   "item_id": "MAE101-GEN-trig_linear-0091",
+   "truth": "MAE.INT.SUBST.NOFACTOR",
+   "guess": "MAE.INT.POWER.WRONGEXP",
+   "raw": "MAE.INT.POWER.WRONGEXP"
+  },
+  {
+   "item_id": "MAS291-GEN-normal_prob-0753",
+   "truth": "MAS.NORM.VAR_AS_SD",
+   "guess": "MAS.NORM.VAR_AS_SD",
+   "raw": "MAS.NORM.VAR_AS_SD"
+  },
+  {
+   "item_id": "MAS291-GEN-binom_pmf-0414",
+   "truth": "MAS.DIST.CDF_PMF",
+   "guess": "MAS.DIST.CDF_PMF",
+   "raw": "MAS.DIST.CDF_PMF"
+  },
+  {
+   "item_id": "MAE101-GEN-exp_linear-0022",
+   "truth": "MAE.INT.DERIV_INSTEAD",
+   "guess": "MAE.INT.POWER.WRONGEXP",
+   "raw": "MAE.INT.POWER.WRONGEXP"
+  },
+  {
+   "item_id": "MAS291-GEN-binom_var-0211",
+   "truth": "MAS.BIN.VAR_MEAN",
+   "guess": "MAS.BIN.VAR_MEAN",
+   "raw": "MAS.BIN.VAR_MEAN"
+  }
+ ]
+}

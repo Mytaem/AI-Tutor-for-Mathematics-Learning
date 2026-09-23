@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -183,6 +184,22 @@ class EmbeddingCache:
         np.savez(self.path, keys=keys, vectors=np.stack([self._vectors[k] for k in keys]))
 
 
+#: Chữ cái chỉ có trong tiếng Việt — đủ để nhận ra câu hỏi tiếng Việt mà không
+#: cần thư viện nhận dạng ngôn ngữ nào.
+_VIETNAMESE_LETTERS = set("ăâđêôơưàáảãạằắẳẵặầấẩẫậèéẻẽẹềếểễệìíỉĩịòóỏõọồốổỗộờớởỡợùúủũụừứửữựỳýỷỹỵ")
+
+#: Câu hỏi tiếng Việt viết KHÔNG DẤU thì không có chữ nào ở trên; bắt qua từ chức năng.
+_VIETNAMESE_WORDS = {"la", "gi", "cua", "cach", "the", "nao", "tinh", "tim", "khi", "cho"}
+
+
+def looks_vietnamese(text: str) -> bool:
+    lowered = text.lower()
+    if any(character in _VIETNAMESE_LETTERS for character in lowered):
+        return True
+    words = set(re.findall(r"[a-z]+", lowered))
+    return len(words & _VIETNAMESE_WORDS) >= 2
+
+
 class RagIndex:
     """Kho chunk có thể tìm kiếm."""
 
@@ -282,6 +299,23 @@ class RagIndex:
         order = np.argsort(-similarities)[:top_k]
         return [(int(indices[i]), float(similarities[i])) for i in order]
 
+    def _fusion_mode(self, fusion: str, query: str) -> str:
+        """Chọn nhánh tìm kiếm. ``auto`` = theo ngôn ngữ câu hỏi.
+
+        Đo được ở EXP-4 (70 câu hỏi, k = 5): câu hỏi TIẾNG VIỆT trên kho giáo
+        trình tiếng Anh cho Recall@5 là BM25 0.167, dense 0.595, hybrid 0.310 —
+        hybrid TỆ HƠN dense vì RRF trộn kết quả rác của BM25 vào làm loãng. Câu
+        hỏi tiếng Anh thì ngược lại: BM25 0.929, dense 0.833, hybrid 0.976.
+
+        Nên: hỏi cùng ngôn ngữ với kho thì hợp nhất hai nhánh, hỏi khác ngôn ngữ
+        thì chỉ dùng nhánh dense (bge-m3 vốn đa ngữ).
+        """
+        if fusion != "auto":
+            return fusion
+        if self.has_dense and looks_vietnamese(query):
+            return "dense"
+        return "hybrid"
+
     @staticmethod
     def _fuse(ranked_lists: list[list[tuple[int, float]]]) -> dict[int, float]:
         """Reciprocal Rank Fusion trên nhiều danh sách xếp hạng."""
@@ -296,6 +330,7 @@ class RagIndex:
         query: str,
         top_k: int = 5,
         *,
+        fusion: str = "auto",
         subject: str | None = None,
         types: list[ChunkType] | None = None,
         skill_ids: list[str] | None = None,
@@ -309,10 +344,12 @@ class RagIndex:
         if not allowed:
             return []
 
-        lexical = self.bm25.search(query, top_k=pool, candidates=allowed)
-        dense = self._dense_search(query, pool, allowed)
+        mode = self._fusion_mode(fusion, query)
+        lexical = self.bm25.search(query, top_k=pool, candidates=allowed) if mode != "dense" else []
+        dense = self._dense_search(query, pool, allowed) if mode != "bm25" else []
 
-        fused = self._fuse([lexical, dense] if dense else [lexical])
+        lists = [ranking for ranking in (lexical, dense) if ranking]
+        fused = self._fuse(lists) if lists else {}
         bm25_ranks = {index: rank for rank, (index, _) in enumerate(lexical, start=1)}
         dense_ranks = {index: rank for rank, (index, _) in enumerate(dense, start=1)}
 

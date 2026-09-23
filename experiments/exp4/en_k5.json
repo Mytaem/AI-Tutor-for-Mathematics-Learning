@@ -1,0 +1,39 @@
+{
+ "k": 5,
+ "english": true,
+ "queries": 70,
+ "summary": {
+  "bm25": {
+   "n": 42,
+   "recall_at_k": 0.9285714285714286,
+   "mrr": 0.8829365079365079,
+   "misses": [
+    "MAE101: «Integration by substitution» (cần «Integration by substitution»)",
+    "MAE101: «Matrix inverse» (cần «Matrix inverse»)",
+    "MAI391: «Partial derivatives and gradients» (cần «Partial derivatives and gradients»)"
+   ]
+  },
+  "dense": {
+   "n": 42,
+   "recall_at_k": 0.8333333333333334,
+   "mrr": 0.7123015873015873,
+   "misses": [
+    "MAE101: «Integration by substitution» (cần «Integration by substitution»)",
+    "MAE101: «Matrix operations» (cần «Matrix operations»)",
+    "MAE101: «Matrix inverse» (cần «Matrix inverse»)",
+    "MAI391: «Partial derivatives and gradients» (cần «Partial derivatives and gradients»)",
+    "MAS291: «Simple linear regression» (cần «Simple linear regression»)",
+    "MAD101: «Logical equivalence» (cần «Logical equivalence»)",
+    "MAD101: «Shortest paths» (cần «Shortest paths»)"
+   ]
+  },
+  "hybrid": {
+   "n": 42,
+   "recall_at_k": 0.9761904761904762,
+   "mrr": 0.8654761904761905,
+   "misses": [
+    "MAE101: «Matrix inverse» (cần «Matrix inverse»)"
+   ]
+  }
+ }
+}
