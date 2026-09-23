@@ -185,11 +185,28 @@ def extract_candidates(text: str) -> list[str]:
     unique: list[str] = []
     seen: set[str] = set()
     for candidate in candidates:
-        key = candidate.strip()
-        if key and key not in seen:
-            seen.add(key)
-            unique.append(key)
+        for key in _punctuation_variants(candidate):
+            if key and key not in seen:
+                seen.add(key)
+                unique.append(key)
     return unique
+
+
+def _punctuation_variants(candidate: str) -> list[str]:
+    """Mảnh đó, kèm bản đã gỡ dấu câu ở hai đầu.
+
+    Dấu chấm cuối câu dính vào token cuối cùng, nên "nguyên hàm là tan(x) + C."
+    chỉ sinh ra ứng viên ``tan(x) + C.`` — parse hỏng, và câu gợi ý nói thẳng đáp
+    án vẫn lọt qua. Đây là ca CÓ THẬT bắt được khi chạy EXP-8 với Qwen 2.5 3b.
+
+    Chỉ gỡ ``.,;:!?`` — không gỡ ngoặc, vì ``(x+1)`` mất ngoặc là đổi nghĩa.
+    """
+    stripped = candidate.strip()
+    variants = [stripped]
+    trimmed = stripped.strip(".,;:!? ")
+    if trimmed != stripped:
+        variants.append(trimmed)
+    return variants
 
 
 def extract_expressions(text: str) -> list[sp.Expr]:

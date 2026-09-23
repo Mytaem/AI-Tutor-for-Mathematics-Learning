@@ -104,6 +104,21 @@ class TestExtraction:
     def test_khong_nham_loi_goi_ham_la_vector(self) -> None:
         assert "(1, 2)" not in extract_candidates("Xét f(1, 2) trước đã")
 
+    def test_go_dau_cau_dinh_vao_bieu_thuc(self) -> None:
+        """Ca thật từ EXP-8: Qwen viết "... là tan(x) + C." và lọt guardrail.
+
+        Dấu chấm cuối câu dính vào token cuối nên ứng viên là ``C.``, parse hỏng.
+        """
+        assert "tan(x) + C" in extract_candidates("Nguyên hàm là tan(x) + C. Em kiểm tra lại nhé")
+
+
+class TestPunctuationLeak:
+    def test_dap_an_cuoi_cau_van_bi_chan(self, bank) -> None:
+        assert leaked(bank, "MAE101-INT-009", "Nguyên hàm của 1/cos²(x) là tan(x) + C. Em thử đạo hàm lại xem?")
+
+    def test_goi_y_hop_le_khong_bi_chan_oan(self, bank) -> None:
+        assert not leaked(bank, "MAE101-INT-009", "Em thử nhớ lại đạo hàm của hàm nào cho ra 1/cos²(x) nhé.")
+
 
 class TestTemplateHintsNeverLeak:
     """Chạy cả thang gợi ý trên MỌI bài có đáp án cấu trúc — gợi ý template không được tự làm lộ đáp án."""
