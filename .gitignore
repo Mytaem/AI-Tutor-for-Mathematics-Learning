@@ -52,3 +52,6 @@ web/out/
 Thumbs.db
 .vscode/
 .idea/
+
+# Thư mục tạm khi đẩy dữ liệu lên Kaggle — không commit
+.kaggle_tmp/
