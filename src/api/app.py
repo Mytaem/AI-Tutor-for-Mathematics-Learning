@@ -20,7 +20,14 @@ from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 from src.core.config import AppConfig, load_config
-from src.core.itembank import ITEMS_DIR, ItemBank, load_course_error_codes
+from src.core.itembank import (
+    ITEMS_DIR,
+    SKILLS_DIR,
+    ItemBank,
+    load_course_error_codes,
+    load_items,
+    load_skills,
+)
 from src.core.schema import Item, Submission, VerificationResult
 from src.kt.bkt import BKTTracker
 from src.kt.coldstart import (
@@ -384,6 +391,20 @@ class TutorService:
             step=hint.step,
         )
 
+    @staticmethod
+    def _verdict(verification: Any) -> str:
+        """Một câu ngắn nói bài sai ở đâu, KHÔNG nói sai thế nào.
+
+        Cố ý không dùng ``verification.notes``: ghi chú của bộ chấm hay chứa
+        chính đáp án ("Đáp án đúng ≈ 0.7745"), đẩy ra client là lộ đáp án ngay
+        trước cả khi thang gợi ý kịp làm việc.
+        """
+        if verification.first_wrong_step is not None:
+            return f"Bước {verification.first_wrong_step} chưa đúng. Em xem lại chỗ đó nhé."
+        if verification.final_answer_correct is False:
+            return "Đáp án cuối chưa đúng. Em thử lại nhé."
+        return "Chưa kiểm chứng được bài làm — em thử viết rõ đáp án cuối xem."
+
     def _to_attempt_response(self, response: Any, changes: dict[str, float]) -> AttemptResponse:
         verification = response.verification
         return AttemptResponse(
@@ -395,7 +416,7 @@ class TutorService:
                 for s in verification.step_results
             ],
             error_codes=list(verification.candidate_error_codes),
-            message=response.congratulation or "",
+            message=response.congratulation or self._verdict(verification),
             hint=self._to_hint(response.hint) if response.hint else None,
             mastery_changes={k: round(v, 4) for k, v in changes.items()},
         )
@@ -404,6 +425,20 @@ class TutorService:
 # ==========================================================================
 # Ứng dụng
 # ==========================================================================
+
+def _load_bank(code: str) -> ItemBank:
+    """Ngân hàng đề của một môn: đề chép tay CỘNG đề sinh tự động.
+
+    Bộ chọn bài cần nhiều đề mới chọn được bài vừa sức — với 40 đề chép tay thì
+    tiêu chí "vừa sức" gần như không có gì để chọn. Đề sinh tự động đã được
+    verifier xác nhận từng bài lúc sinh nên dùng thẳng được.
+    """
+    items = load_items(ITEMS_DIR / f"{code.lower()}.jsonl")
+    generated = ITEMS_DIR / f"{code.lower()}_generated.jsonl"
+    if generated.exists():
+        items += load_items(generated)
+    return ItemBank(items, load_skills(SKILLS_DIR / f"{code.lower()}.json"))
+
 
 def _make_generator(config: AppConfig, code: str, bank: ItemBank) -> HintGenerator:
     """Bộ sinh gợi ý cho một môn.
@@ -438,7 +473,7 @@ def build_service(config: AppConfig | None = None, store: Store | None = None) -
         code = subject.value
         if not (ITEMS_DIR / f"{code.lower()}.jsonl").exists():
             continue
-        bank = ItemBank.load(code)
+        bank = _load_bank(code)
         # Bảng mã lỗi ĐẦY ĐỦ của môn — MAE101 gồm cả mã giải tích lẫn mã đại số
         # tuyến tính LA.*, thiếu một phần thì gợi ý mức 2 không có câu cảnh báo.
         generator = _make_generator(config, code, bank)

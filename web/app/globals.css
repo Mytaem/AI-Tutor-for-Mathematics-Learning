@@ -1,0 +1,127 @@
+/* Giao diện tối giản, không dùng framework CSS: cả ứng dụng chỉ có ba trang,
+   thêm Tailwind vào chỉ tổ phình cấu hình mà không giúp gì cho đồ án. */
+
+:root {
+  --bg: #f7f7f8;
+  --panel: #ffffff;
+  --ink: #1c1c1e;
+  --muted: #6b6b70;
+  --line: #e2e2e6;
+  --accent: #2f5fd0;
+  --ok: #1f7a4d;
+  --wrong: #b3261e;
+  --hint: #8a5a00;
+  --hint-bg: #fff6e0;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+}
+
+main { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+
+header.site {
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+
+header.site .inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+}
+
+header.site a { color: var(--muted); text-decoration: none; }
+header.site a:hover { color: var(--accent); }
+header.site .brand { font-weight: 600; color: var(--ink); margin-right: auto; }
+
+h1 { font-size: 1.4rem; margin: 0 0 4px; }
+h2 { font-size: 1.05rem; margin: 24px 0 8px; }
+p.lead { color: var(--muted); margin-top: 0; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.statement { font-size: 1.1rem; margin: 0 0 4px; }
+.meta { color: var(--muted); font-size: 0.85rem; }
+
+label { display: block; font-size: 0.9rem; color: var(--muted); margin-bottom: 4px; }
+
+input[type="text"], textarea, select {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+  background: #fff;
+}
+
+textarea { min-height: 72px; resize: vertical; font-family: ui-monospace, "Cascadia Code", monospace; }
+
+button {
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+button.secondary { background: #fff; color: var(--ink); border-color: var(--line); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.row.spread { justify-content: space-between; }
+
+.verdict { padding: 12px 14px; border-radius: 8px; margin-top: 12px; }
+.verdict.ok { background: #e8f5ee; color: var(--ok); }
+.verdict.wrong { background: #fdeceb; color: var(--wrong); }
+
+.hint {
+  background: var(--hint-bg);
+  border-left: 3px solid var(--hint);
+  padding: 10px 12px;
+  border-radius: 0 8px 8px 0;
+  margin-top: 10px;
+}
+
+.hint .level { font-size: 0.8rem; color: var(--hint); text-transform: uppercase; letter-spacing: 0.04em; }
+
+.bar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--accent); }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+td { padding: 7px 4px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+td.name { width: 45%; }
+td.value { width: 60px; text-align: right; color: var(--muted); }
+
+.error { color: var(--wrong); }
+.katex-display { margin: 8px 0; }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17181a; --panel: #202124; --ink: #ececee; --muted: #9a9aa1;
+    --line: #35363a; --accent: #7aa2f7; --ok: #6ecf9b; --wrong: #ef8b85;
+    --hint: #e8b33c; --hint-bg: #2c2718;
+  }
+  input[type="text"], textarea, select { background: #1a1b1d; color: var(--ink); }
+  button.secondary { background: #1a1b1d; }
+  .verdict.ok { background: #16281f; }
+  .verdict.wrong { background: #2a1917; }
+}

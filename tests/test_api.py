@@ -132,6 +132,36 @@ class TestAttempt:
         assert body["hint"] is not None
         assert body["hint"]["level_label"]
 
+    def test_lam_sai_van_co_loi_nhan_xet(self, client: TestClient, session: dict) -> None:
+        """Giao diện hiển thị 'Chưa đúng — {message}'; message rỗng thì hiện ra câu cụt."""
+        body = client.post("/attempt", json={
+            "session_id": session["session_id"],
+            "item_id": session["first_item"]["item_id"],
+            "final_answer": "x",
+        }).json()
+        assert body["message"].strip()
+
+    @pytest.mark.parametrize("subject", ["MAE101", "MAI391", "MAS291", "MAD101"])
+    def test_khong_de_nao_lo_dap_an_qua_api(self, client: TestClient, subject: str) -> None:
+        """Quét NHIỀU đề của mọi môn, không chỉ đề đầu tiên của một phiên.
+
+        Bản test cũ chỉ kiểm bài đầu tiên; một dạng bài hiếm làm lộ đáp án sẽ
+        không bao giờ bị bắt.
+        """
+        service = build_service(AppConfig(), store=Store(":memory:"))
+        bank = service.banks[subject]
+        started = client.post("/session/start", json={"user_id": f"sv-{subject}", "subject": subject}).json()
+
+        leaks = []
+        for item in list(bank.items.values())[::37]:
+            answer = item.answer_text
+            body = client.post("/attempt", json={
+                "session_id": started["session_id"], "item_id": item.item_id, "final_answer": "0",
+            }).json()
+            if len(answer) >= 4 and answer.lower() in json.dumps(body, ensure_ascii=False).lower():
+                leaks.append(f"{item.item_id}: «{answer}»")
+        assert leaks == [], "\n".join(leaks[:5])
+
     def test_cap_nhat_muc_thanh_thao(self, client: TestClient, session: dict) -> None:
         body = client.post("/attempt", json={
             "session_id": session["session_id"],
