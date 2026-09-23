@@ -405,6 +405,29 @@ class TutorService:
 # Ứng dụng
 # ==========================================================================
 
+def _make_generator(config: AppConfig, code: str, bank: ItemBank) -> HintGenerator:
+    """Bộ sinh gợi ý cho một môn.
+
+    Bảng mã lỗi phải ĐẦY ĐỦ của môn — MAE101 gồm cả mã giải tích lẫn mã đại số
+    tuyến tính LA.*, thiếu một phần thì gợi ý mức 2 không có câu cảnh báo.
+    """
+    error_codes = load_course_error_codes(code)
+    if not config.llm_hints:
+        return HintGenerator(error_codes=error_codes, skills=bank.skills)
+
+    # Nhập muộn: kéo theo kho RAG và tầng model, không cần khi chạy bằng template.
+    from src.llm.client import LLMClient
+    from src.rag.hint_retriever import default_hint_retriever
+    from src.tutor.llm_hints import LLMHintGenerator
+
+    return LLMHintGenerator(
+        LLMClient.from_config(config.llm),
+        error_codes=error_codes,
+        skills=bank.skills,
+        retriever=default_hint_retriever(bank.skills),
+    )
+
+
 def build_service(config: AppConfig | None = None, store: Store | None = None) -> TutorService:
     """Dựng dịch vụ cho mọi môn vừa có verifier vừa có ngân hàng đề."""
     config = config or load_config()
@@ -418,7 +441,7 @@ def build_service(config: AppConfig | None = None, store: Store | None = None) -
         bank = ItemBank.load(code)
         # Bảng mã lỗi ĐẦY ĐỦ của môn — MAE101 gồm cả mã giải tích lẫn mã đại số
         # tuyến tính LA.*, thiếu một phần thì gợi ý mức 2 không có câu cảnh báo.
-        generator = HintGenerator(error_codes=load_course_error_codes(code), skills=bank.skills)
+        generator = _make_generator(config, code, bank)
         banks[code] = bank
         engines[code] = TutorEngine(verifier_for(code), generator)
 

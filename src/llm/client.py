@@ -253,7 +253,7 @@ class LLMClient:
 
         if config.demo_mode:
             # Chế độ demo: khoá hẳn vào cache, không gọi mạng dù model có sống.
-            return cls([CacheBackend(cache, model=config.vllm_model)], cache, config)
+            return cls([CacheBackend(cache, model=config.cache_model)], cache, config)
 
         backends: list[Backend] = []
         if config.vllm_url:
@@ -262,7 +262,7 @@ class LLMClient:
         if config.ollama_url:
             backends.append(OpenAICompatibleBackend(
                 "ollama", config.ollama_url, config.ollama_model, config.timeout_seconds))
-        backends.append(CacheBackend(cache, model=config.vllm_model))
+        backends.append(CacheBackend(cache, model=config.cache_model))
 
         return cls(backends, cache, config)
 
@@ -275,7 +275,7 @@ class LLMClient:
 
         # Cache đọc trước: model nhỏ chạy CPU mất hàng chục giây cho một câu,
         # mà trong lúc phát triển ta gọi đi gọi lại cùng một prompt.
-        key = fingerprint(messages, self.config.vllm_model, temperature)
+        key = fingerprint(messages, self.config.cache_model, temperature)
         if self.cache is not None and not self.config.demo_mode:
             hit = self.cache.get(key)
             if hit is not None:

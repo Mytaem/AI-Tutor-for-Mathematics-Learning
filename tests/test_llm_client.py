@@ -48,6 +48,12 @@ class TestFingerprint:
     def test_doi_nhiet_do_thi_doi_khoa(self) -> None:
         assert fingerprint(MESSAGES, "m", 0.0) != fingerprint(MESSAGES, "m", 0.9)
 
+    def test_doi_model_ollama_thi_doi_khoa(self) -> None:
+        """Hồi quy: khoá từng chỉ theo vllm_model, nên 3b và 7b qua Ollama dùng chung cache."""
+        small = LLMConfig(vllm_url="", ollama_model="qwen2.5:3b-instruct")
+        large = LLMConfig(vllm_url="", ollama_model="qwen2.5:7b-instruct")
+        assert small.cache_model != large.cache_model
+
 
 class TestResponseCache:
     def test_ghi_roi_doc_lai_duoc(self, cache: ResponseCache) -> None:
@@ -108,12 +114,12 @@ class TestFallbackChain:
     def test_roi_xuong_cache_khi_moi_backend_deu_chet(
         self, cache: ResponseCache, config: LLMConfig
     ) -> None:
-        cache.put(fingerprint(MESSAGES, config.vllm_model, config.temperature),
+        cache.put(fingerprint(MESSAGES, config.cache_model, config.temperature),
                   LLMResponse(text="câu trả lời đã ghi sẵn", backend="vllm"))
 
         client = LLMClient(
             [StubBackend("vllm", is_up=False), StubBackend("ollama", is_up=False),
-             CacheBackend(cache, model=config.vllm_model)],
+             CacheBackend(cache, model=config.cache_model)],
             cache, config,
         )
         assert client.chat(MESSAGES).text == "câu trả lời đã ghi sẵn"
@@ -156,7 +162,7 @@ class TestDemoMode:
         """Lúc bảo vệ phải trả lời tức thì và không phụ thuộc mạng."""
         config = LLMConfig(cache_path=tmp_path / "c.sqlite", demo_mode=True, vllm_url="http://x")
         cache = ResponseCache(config.cache_path)
-        cache.put(fingerprint(MESSAGES, config.vllm_model, config.temperature),
+        cache.put(fingerprint(MESSAGES, config.cache_model, config.temperature),
                   LLMResponse(text="đáp án đã chuẩn bị", backend="vllm"))
 
         client = LLMClient.from_config(config)

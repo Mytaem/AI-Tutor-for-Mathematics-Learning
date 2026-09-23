@@ -59,11 +59,26 @@ class LLMConfig:
     temperature: float = field(default_factory=lambda: _env_float("LLM_TEMPERATURE", 0.3))
     max_tokens: int = 512
 
+    @property
+    def cache_model(self) -> str:
+        """Danh tính model dùng làm khoá cache.
+
+        Trước đây khoá theo ``vllm_model`` cả khi vLLM không được cấu hình, nên
+        câu trả lời của qwen2.5:3b và 7b (qua Ollama) dùng chung một khoá: đổi
+        OLLAMA_MODEL để so hai model thì nhận lại nguyên câu trả lời của model cũ.
+        """
+        if self.vllm_url:
+            return f"{self.vllm_model}+{self.ollama_model}"
+        return self.ollama_model
+
 
 @dataclass
 class AppConfig:
     llm: LLMConfig = field(default_factory=LLMConfig)
     database_url: str = field(default_factory=lambda: _env("DATABASE_URL", ""))
+    #: Bật LLM_HINTS=1 để gợi ý do model sinh (có guardrail); mặc định dùng câu
+    #: template — tất định, không cần model, nên test và CI không phụ thuộc Ollama.
+    llm_hints: bool = field(default_factory=lambda: _env_bool("LLM_HINTS"))
     subject_default: str = "MAE101"
 
     @property
