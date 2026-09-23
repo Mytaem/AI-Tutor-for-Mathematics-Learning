@@ -144,21 +144,26 @@ def table_exp7() -> str:
 
 
 def table_exp8() -> str:
+    """Một dòng cho mỗi (model, cấu hình) — để thấy cả ảnh hưởng của cỡ model."""
     folder = EXPERIMENTS / "exp8"
     paths = sorted(folder.glob("*.json")) if folder.exists() else []
     if not paths:
         return MISSING
-    data = load(paths[0])
     labels = {"raw": "không guardrail, prompt không có đáp án",
               "raw+answer": "không guardrail, prompt CÓ đáp án",
               "full": "hệ thống thật (guardrail + viết lại)",
               "full+answer": "guardrail, prompt CÓ đáp án"}
-    rows = [
-        f"| {labels.get(name, name)} | {percent(values['leak_rate'])} | "
-        f"{percent(values['fallback_rate'])} | {values['mean_attempts']:.2f} |"
-        for name, values in data["summary"].items()
-    ]
-    return ("| Cấu hình | Lộ đáp án | Về template | Lượt TB |\n|---|---|---|---|\n" + "\n".join(rows))
+    rows = []
+    for path in paths:
+        data = load(path)
+        if data is None:
+            continue
+        for name, values in data["summary"].items():
+            rows.append(f"| {data['model']} | {labels.get(name, name)} | "
+                        f"{percent(values['leak_rate'])} | {percent(values['fallback_rate'])} | "
+                        f"{values['mean_attempts']:.2f} |")
+    return ("| Model | Cấu hình | Lộ đáp án | Về template | Lượt TB |\n"
+            "|---|---|---|---|---|\n" + "\n".join(rows))
 
 
 def main() -> None:

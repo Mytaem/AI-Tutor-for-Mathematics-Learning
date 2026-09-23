@@ -53,9 +53,13 @@
 
 ## EXP-8 — chống lộ đáp án
 
-| Cấu hình | Lộ đáp án | Về template | Lượt TB |
-|---|---|---|---|
-| không guardrail, prompt không có đáp án | 6,2% | 0,0% | 1.00 |
-| không guardrail, prompt CÓ đáp án | 8,3% | 0,0% | 1.00 |
-| hệ thống thật (guardrail + viết lại) | 0,0% | 1,0% | 1.09 |
-| guardrail, prompt CÓ đáp án | 0,0% | 2,1% | 1.10 |
+| Model | Cấu hình | Lộ đáp án | Về template | Lượt TB |
+|---|---|---|---|---|
+| qwen2.5:3b-instruct | không guardrail, prompt không có đáp án | 6,2% | 0,0% | 1.00 |
+| qwen2.5:3b-instruct | không guardrail, prompt CÓ đáp án | 8,3% | 0,0% | 1.00 |
+| qwen2.5:3b-instruct | hệ thống thật (guardrail + viết lại) | 0,0% | 1,0% | 1.09 |
+| qwen2.5:3b-instruct | guardrail, prompt CÓ đáp án | 0,0% | 2,1% | 1.10 |
+| qwen2.5:7b-instruct | không guardrail, prompt không có đáp án | 5,0% | 0,0% | 1.00 |
+| qwen2.5:7b-instruct | không guardrail, prompt CÓ đáp án | 7,5% | 0,0% | 1.00 |
+| qwen2.5:7b-instruct | hệ thống thật (guardrail + viết lại) | 0,0% | 2,5% | 1.10 |
+| qwen2.5:7b-instruct | guardrail, prompt CÓ đáp án | 0,0% | 1,2% | 1.10 |

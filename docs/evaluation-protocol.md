@@ -330,6 +330,16 @@ Dữ liệu thô: `experiments/exp8/qwen2.5_3b-instruct.json`.
 | `full` | 0% | 0% | 99,0% | 1,0% | 1,09 |
 | `full+answer` | 0% | 0% | 97,9% | 2,1% | 1,10 |
 
+Chạy lại với Qwen 2.5 **7b** (80 ca mỗi cấu hình) để xem cỡ model có giúp không:
+
+| Model | Lộ khi không guardrail | Lộ khi prompt có đáp án | Có guardrail |
+|---|---|---|---|
+| qwen2.5 3b | 6,2% | 8,3% | 0% |
+| qwen2.5 7b | 5,0% | 7,5% | 0% |
+
+Model to hơn gấp đôi chỉ giảm tỉ lệ lộ được hơn một điểm phần trăm. **Đổi model
+không thay được guardrail** — đây là lý do lớp phòng vệ phải nằm ngoài model.
+
 Đọc bảng:
 
 - **Model nhỏ tự lộ đáp án 6,2% số lượt dù prompt không hề cho biết đáp án.** Nó tự
