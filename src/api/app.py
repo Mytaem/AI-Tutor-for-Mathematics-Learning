@@ -28,7 +28,7 @@ from src.core.itembank import (
     load_items,
     load_skills,
 )
-from src.core.schema import Item, Submission, VerificationResult
+from src.core.schema import AnswerType, Item, Submission, VerificationResult
 from src.kt.bkt import BKTTracker
 from src.kt.coldstart import (
     PLACEMENT_LENGTH,
@@ -300,7 +300,7 @@ class TutorService:
         if response.hint is not None:
             self.store.record_hint(request.session_id, item.item_id, response.hint)
 
-        result = self._to_attempt_response(response, changes)
+        result = self._to_attempt_response(response, changes, item)
         result.placement_mode = self.in_placement(user_id, subject)
         result.placement_remaining = self.placement_remaining(user_id, subject)
         return result
@@ -391,8 +391,26 @@ class TutorService:
             step=hint.step,
         )
 
-    @staticmethod
-    def _verdict(verification: Any) -> str:
+    #: Dạng đáp án mong đợi, nói bằng lời — hiện khi bộ chấm không đọc nổi bài làm.
+    #:
+    #: Ví dụ trong đây dùng CHỮ CÁI làm chỗ trống (``[a, b]``, ``a/b``) chứ không
+    #: dùng số cụ thể. Bản đầu viết "nghiệm dạng [2, 1]" và lập tức bị test chống
+    #: lộ đáp án bắt: [2, 1] đúng là đáp án của một bài giải hệ trong ngân hàng.
+    ANSWER_FORMATS = {
+        AnswerType.EXPRESSION: "một biểu thức theo biến của đề, ví dụ dạng a*x**2 + b",
+        AnswerType.ANTIDERIVATIVE: "một nguyên hàm, nhớ cộng hằng số C",
+        AnswerType.NUMBER: "một con số; phân số viết kiểu a/b",
+        AnswerType.SET: "các phần tử cách nhau bởi dấu phẩy",
+        AnswerType.MATRIX: "ma trận kiểu [[a, b], [c, d]], vector kiểu [a, b]",
+        AnswerType.VECTOR_DIRECTION: "một vector kiểu [a, b]",
+        AnswerType.EIGENVECTOR: "một vector kiểu [a, b]",
+        AnswerType.LINEAR_SYSTEM: "bộ nghiệm kiểu [a, b]; hệ không giải được thì nói rõ bằng lời",
+        AnswerType.BOOLEAN: "một câu khẳng định hoặc phủ định",
+        AnswerType.ODE_SOLUTION: "nghiệm kèm hằng số tự do, kiểu C1*f(x)",
+        AnswerType.TEXT: "một câu trả lời bằng lời",
+    }
+
+    def _verdict(self, verification: Any, item: Item | None = None) -> str:
         """Một câu ngắn nói bài sai ở đâu, KHÔNG nói sai thế nào.
 
         Cố ý không dùng ``verification.notes``: ghi chú của bộ chấm hay chứa
@@ -403,9 +421,15 @@ class TutorService:
             return f"Bước {verification.first_wrong_step} chưa đúng. Em xem lại chỗ đó nhé."
         if verification.final_answer_correct is False:
             return "Đáp án cuối chưa đúng. Em thử lại nhé."
+        # Không đọc nổi bài làm thì phải nói rõ cần viết thế nào, chứ nói trống
+        # "chưa kiểm chứng được" thì sinh viên nộp lại y hệt và lại tắc.
+        form = self.ANSWER_FORMATS.get(item.answer_type) if item else None
+        if form:
+            return f"Thầy chưa đọc được đáp án của em. Em viết dưới dạng {form} nhé."
         return "Chưa kiểm chứng được bài làm — em thử viết rõ đáp án cuối xem."
 
-    def _to_attempt_response(self, response: Any, changes: dict[str, float]) -> AttemptResponse:
+    def _to_attempt_response(self, response: Any, changes: dict[str, float],
+                             item: Item | None = None) -> AttemptResponse:
         verification = response.verification
         return AttemptResponse(
             is_correct=response.is_correct,
@@ -416,7 +440,7 @@ class TutorService:
                 for s in verification.step_results
             ],
             error_codes=list(verification.candidate_error_codes),
-            message=response.congratulation or self._verdict(verification),
+            message=response.congratulation or self._verdict(verification, item),
             hint=self._to_hint(response.hint) if response.hint else None,
             mastery_changes={k: round(v, 4) for k, v in changes.items()},
         )
