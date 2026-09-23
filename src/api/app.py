@@ -146,6 +146,20 @@ class ProgressResponse(BaseModel):
     correct: int
 
 
+class AskRequest(BaseModel):
+    question: str
+    subject: str | None = None
+
+
+class AskResponse(BaseModel):
+    """Trả lời câu hỏi lý thuyết, LUÔN kèm nguồn để người đọc tự kiểm."""
+
+    answer: str
+    sources: list[str] = Field(default_factory=list)
+    in_scope: bool = True
+    used_llm: bool = False
+
+
 # ==========================================================================
 # Tầng dịch vụ
 # ==========================================================================
@@ -166,11 +180,13 @@ class TutorService:
         banks: dict[str, ItemBank],
         engines: dict[str, TutorEngine],
         default_subject: str = "MAE101",
+        config: AppConfig | None = None,
     ) -> None:
         self.store = store
         self.banks = banks
         self.engines = engines
         self.default_subject = default_subject
+        self.config = config or AppConfig()
 
     # Giữ tương thích với mã gọi cũ chỉ biết một môn.
     @property
@@ -325,6 +341,18 @@ class TutorService:
         )
         self.store.record_hint(request.session_id, item.item_id, response.hint)
         return self._to_hint(response.hint)
+
+    def ask(self, question: str, subject: str | None = None):
+        """Hỏi đáp lý thuyết. Kho RAG và model đều là tuỳ chọn — thiếu thì vẫn trả lời được."""
+        from src.rag.ask import answer_question
+        from src.rag.hint_retriever import load_index
+
+        client = None
+        if self.config.llm_hints:
+            from src.llm.client import LLMClient
+
+            client = LLMClient.from_config(self.config.llm)
+        return answer_question(question, load_index(), subject=subject, client=client)
 
     def progress(self, user_id: str, subject: str | None = None) -> ProgressResponse:
         skills_by_id = self.bank_for(subject).skills if subject else self.all_skills()
@@ -504,7 +532,8 @@ def build_service(config: AppConfig | None = None, store: Store | None = None) -
         banks[code] = bank
         engines[code] = TutorEngine(verifier_for(code), generator)
 
-    return TutorService(store or Store(config.database_path), banks, engines, config.subject_default)
+    return TutorService(store or Store(config.database_path), banks, engines,
+                        config.subject_default, config)
 
 
 def create_app(service: TutorService | None = None) -> FastAPI:
@@ -579,6 +608,20 @@ def create_app(service: TutorService | None = None) -> FastAPI:
             return service.request_hint(request)
         except LookupError as exc:
             raise HTTPException(404, str(exc)) from exc
+
+    @app.post("/ask", response_model=AskResponse)
+    def ask(request: AskRequest, service: TutorService = Depends(get_service)) -> AskResponse:
+        """Hỏi đáp lý thuyết dựa trên giáo trình.
+
+        Không tìm được đoạn nào đủ liên quan thì trả lời "ngoài phạm vi" chứ
+        không đoán — câu hỏi ngoài 4 môn không được nhận một đoạn văn nghe có vẻ
+        đúng.
+        """
+        if not request.question.strip():
+            raise HTTPException(422, "Câu hỏi trống")
+        result = service.ask(request.question, request.subject)
+        return AskResponse(answer=result.text, sources=result.sources,
+                           in_scope=result.in_scope, used_llm=result.used_llm)
 
     @app.get("/progress", response_model=ProgressResponse)
     def progress(

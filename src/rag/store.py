@@ -299,6 +299,22 @@ class RagIndex:
         order = np.argsort(-similarities)[:top_k]
         return [(int(indices[i]), float(similarities[i])) for i in order]
 
+    def best_similarity(self, query: str, subject: str | None = None) -> float | None:
+        """Độ tương đồng cosine cao nhất giữa câu hỏi và kho.
+
+        Dùng để nhận ra câu hỏi NGOÀI PHẠM VI. Không dùng điểm RRF của
+        ``search`` được: RRF chỉ là hàm của THỨ HẠNG nên câu hỏi nào cũng cho
+        điểm gần như nhau, kể cả "cách nấu phở".
+
+        Trả None khi kho chưa có embedding — khi đó không có cách nào phân biệt,
+        và bên gọi phải tự quyết.
+        """
+        if not self.has_dense:
+            return None
+        allowed = self.candidates(subject, None, None)
+        hits = self._dense_search(query, 1, allowed)
+        return hits[0][1] if hits else None
+
     def _fusion_mode(self, fusion: str, query: str) -> str:
         """Chọn nhánh tìm kiếm. ``auto`` = theo ngôn ngữ câu hỏi.
 

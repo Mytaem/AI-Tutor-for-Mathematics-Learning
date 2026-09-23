@@ -50,6 +50,13 @@ export type SkillProgress = {
   mastery: number;
 };
 
+export type AskResponse = {
+  answer: string;
+  sources: string[];
+  in_scope: boolean;
+  used_llm: boolean;
+};
+
 export type Progress = {
   user_id: string;
   skills: SkillProgress[];
@@ -113,6 +120,12 @@ export const api = {
         item_id: itemId,
         asked_for_solution: askedForSolution,
       }),
+    }),
+
+  ask: (question: string, subject?: string) =>
+    call<AskResponse>("/ask", {
+      method: "POST",
+      body: JSON.stringify({ question, subject: subject ?? null }),
     }),
 
   progress: (userId: string, subject: string) =>

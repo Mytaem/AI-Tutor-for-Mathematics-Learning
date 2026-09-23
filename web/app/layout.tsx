@@ -17,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <span className="brand">AI Tutor Toán</span>
             <Link href="/">Chọn môn</Link>
             <Link href="/practice">Luyện tập</Link>
+            <Link href="/ask">Hỏi lý thuyết</Link>
             <Link href="/progress">Tiến độ</Link>
           </div>
         </header>
