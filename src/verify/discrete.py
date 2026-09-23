@@ -181,6 +181,15 @@ def logically_equivalent(a: sp.Basic, b: sp.Basic) -> bool:
     return satisfiable(sp.Not(sp.Equivalent(a, b))) is False
 
 
+def _is_same_implication(given: sp.Basic, formula: sp.Basic) -> bool:
+    """Bài làm có phải chính mệnh đề kéo theo của đề, chỉ khác cách viết hai vế?"""
+    if not (isinstance(given, sp.Implies) and isinstance(formula, sp.Implies)):
+        return False
+    premise, conclusion = formula.args
+    antecedent, consequent = given.args
+    return logically_equivalent(antecedent, premise) and logically_equivalent(consequent, conclusion)
+
+
 def is_negation_normal_form(formula: sp.Basic) -> bool:
     """¬ chỉ đứng trước mệnh đề đơn, và không còn → hay ↔.
 
@@ -499,6 +508,11 @@ class DiscreteVerifier(Verifier):
         if logically_equivalent(given, expected):
             if task in ("logic_simplify", "logic_negate") and not is_negation_normal_form(given):
                 return _wrong("Tương đương rồi, nhưng chưa đưa ¬ vào sát từng mệnh đề (và bỏ →, ↔) như đề yêu cầu"), []
+            if task == "logic_contrapositive" and _is_same_implication(given, formula):
+                # Phản đảo TƯƠNG ĐƯƠNG mệnh đề gốc, nên chép lại nguyên đề "p → q"
+                # cũng đúng trên mọi dòng bảng chân trị — nhưng sinh viên chưa làm
+                # gì cả. Phân biệt được vì đề yêu cầu một CÁCH VIẾT cụ thể.
+                return _wrong("Đây vẫn là mệnh đề gốc; phản đảo phải đổi chỗ và phủ định hai vế"), []
             return _ok("Tương đương logic trên mọi dòng bảng chân trị"), []
 
         if task == "logic_contrapositive":

@@ -97,6 +97,15 @@ class TestLogic:
         assert check(verifier, bank, "MAD101-LOGIC-006", "¬q → ¬p").is_correct
         assert check(verifier, bank, "MAD101-LOGIC-006", "q ∨ ¬p").is_correct  # tương đương, viết khác
 
+    def test_chep_lai_nguyen_de_khong_duoc_tinh_la_phan_dao(self, verifier, bank) -> None:
+        """p → q tương đương phản đảo của chính nó, nên bảng chân trị nói "đúng".
+
+        Bắt được khi chạy EXP-8: Qwen nhắc lại "Mệnh đề gốc là p → q" và guardrail
+        báo lộ đáp án — vì bộ chấm khi đó chấm ĐÚNG cho chính đề bài.
+        """
+        assert check(verifier, bank, "MAD101-LOGIC-006", "p → q").final_answer_correct is False
+        assert check(verifier, bank, "MAD101-LOGIC-006", "¬q → ¬p").is_correct
+
     def test_hang_dung(self, verifier, bank) -> None:
         assert check(verifier, bank, "MAD101-LOGIC-008", "có").is_correct
         assert check(verifier, bank, "MAD101-LOGIC-009", "không").is_correct
