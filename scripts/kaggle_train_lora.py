@@ -78,7 +78,7 @@ DATA_DIR = _find_data_dir()
 OUTPUT_DIR = Path("/kaggle/working")
 MAX_LENGTH = 1152          # p95 của prompt ≈ 880 token, chừa chỗ cho đáp án
 EVAL_SAMPLES = 300
-EPOCHS = float(os.environ.get("EPOCHS", 3))
+EPOCHS = float(os.environ.get("EPOCHS", 2))
 SEED = 20260923
 
 CODE_PATTERN = re.compile(r"\b[A-Z]{2,4}(?:\.[A-Z0-9_]+)+\b")
@@ -172,7 +172,7 @@ def collate(batch: list[dict], pad_id: int) -> dict:
 
 @torch.no_grad()
 def evaluate(model, tokenizer, rows: list[dict], valid: set[str], tiers: dict[str, str],
-             batch_size: int = 8) -> dict:
+             batch_size: int = 4) -> dict:
     model.eval()
     pairs: list[tuple[str, str | None]] = []
     started = time.time()
@@ -253,8 +253,12 @@ def main() -> None:
         args=TrainingArguments(
             output_dir=str(OUTPUT_DIR / "checkpoints"),
             num_train_epochs=EPOCHS,
-            per_device_train_batch_size=2,
-            gradient_accumulation_steps=8,
+            # Batch 1: vocab của Qwen là 151k từ, nên tensor logits của một lô
+            # 2 × 1152 token chiếm hơn 4 GB và T4 hết VRAM ở bước tính loss
+            # (đã gặp thật: chết ở bước 228/684 sau 59 phút). Bù lại bằng
+            # gradient accumulation nên batch hiệu dụng không đổi.
+            per_device_train_batch_size=1,
+            gradient_accumulation_steps=16,
             learning_rate=2e-4,
             lr_scheduler_type="cosine",
             warmup_ratio=0.03,

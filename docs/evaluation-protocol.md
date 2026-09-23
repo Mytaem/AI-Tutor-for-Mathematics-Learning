@@ -20,7 +20,7 @@ Nguyên tắc chung:
 |---|---|---|
 | EXP-1 LLM tự giải toán | 22,9% (hỏi thẳng) → 41,7% (có suy luận từng bước) | xong |
 | EXP-2 chất lượng bộ chấm | phát hiện 100%; gán đúng mã 72–100% tuỳ môn | xong trên lỗi tổng hợp |
-| EXP-3 phân loại mã lỗi | prompting: macro-F1 0,358; LoRA đang train | một phần |
+| EXP-3 phân loại mã lỗi | prompting 3b 0,358 / 7b 0,415; LoRA đang train | một phần |
 | EXP-4 truy xuất | Recall@5: 0,595 (hỏi tiếng Việt) / 0,976 (tiếng Anh) | xong |
 | EXP-5 knowledge tracing | DKT 0,852 > SAKT 0,776 > BKT 0,639 > mốc 0,500 | xong trên mô phỏng |
 | EXP-6 chọn bài | ZPD tốt nhất về trải nghiệm, kém nhất về phủ kỹ năng | xong trên mô phỏng |
@@ -113,6 +113,35 @@ In ra ba tỉ lệ, cố ý tách riêng vì ba mức độ khó khác hẳn nha
 
 Hạn chế phải ghi rõ trong báo cáo: lỗi tổng hợp phân bố khác lỗi thật, nên con số ở
 đây là chặn trên. Tập test thật (~200 bài làm gán nhãn tay) mới là thước đo cuối.
+
+---
+
+## EXP-3 — phân loại mã lỗi
+
+```
+python scripts/build_sft_dataset.py 120                    # dựng dữ liệu
+python scripts/exp3_error_classification.py --limit 150    # baseline prompting
+python scripts/kaggle_push.py                              # fine-tune LoRA trên GPU Kaggle
+```
+
+89 mã lỗi, 150 mẫu test. Chỉ số chính là **macro-F1** chứ không phải accuracy: dữ
+liệu lệch nặng nên chỉ cần đoán vài mã phổ biến là accuracy đã khá, trong khi phần
+lớn mã không bao giờ được nhận ra.
+
+| Cấu hình | macro-F1 | accuracy | đúng tầng lỗi | bịa mã | trễ |
+|---|---|---|---|---|---|
+| Qwen 2.5 **3b** zero-shot | 0,358 | 38,0% | 48,7% | 1,3% | 4,7 s |
+| Qwen 2.5 3b few-shot (6 ví dụ) | 0,343 | 35,3% | 49,3% | 0,0% | 5,3 s |
+| Qwen 2.5 **7b** zero-shot | **0,415** | 46,7% | 63,3% | 2,7% | 5,8 s |
+| LoRA 1.5B (QLoRA, 3.636 mẫu) | *đang chạy trên Kaggle* | | | | |
+
+Hai điều đáng nói:
+
+- **Few-shot không giúp gì, còn kém hơn zero-shot.** 6 ví dụ cho 89 lớp thì quá
+  loãng, và model có xu hướng đoán quanh mấy mã vừa được cho xem.
+- Model to gấp hơn hai lần chỉ thêm được 0,06 macro-F1. Cả hai đều dưới 50%
+  accuracy, tức là **tầng ký hiệu vẫn phải là tầng chẩn đoán chính**; tầng neural
+  chỉ lấp chỗ mà luật so khớp không kết luận được.
 
 ---
 
