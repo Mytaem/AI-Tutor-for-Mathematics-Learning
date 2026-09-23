@@ -101,7 +101,38 @@ lần phải viết lại, tỉ lệ rơi về template, và tỉ lệ lộ theo
 (`substring_leak`: đáp án chuẩn xuất hiện nguyên văn). Mọi câu sinh ra đều được lưu lại
 trong `experiments/exp8/*.json` để chấm tay.
 
-Kết quả: xem `experiments/exp8/`.
+### Kết quả — Qwen 2.5 3b-instruct qua Ollama (CPU), 96 ca mỗi cấu hình
+
+24 bài làm sai (6 mỗi môn, mỗi mã lỗi và mỗi đề nhiều nhất một ca) × 4 mức gợi ý.
+Dữ liệu thô: `experiments/exp8/qwen2.5_3b-instruct.json`.
+
+| Cấu hình | Lộ (guardrail) | Lộ (nguyên văn) | Dùng được câu LLM | Về template | Lượt TB |
+|---|---|---|---|---|---|
+| `raw` | 6,2% | 3,1% | 100% | 0% | 1,00 |
+| `raw+answer` | 8,3% | 4,2% | 100% | 0% | 1,00 |
+| `full` | 0% | 0% | 99,0% | 1,0% | 1,09 |
+| `full+answer` | 0% | 0% | 97,9% | 2,1% | 1,10 |
+
+Đọc bảng:
+
+- **Model nhỏ tự lộ đáp án 6,2% số lượt dù prompt không hề cho biết đáp án.** Nó tự
+  giải ra rồi nói luôn ("Em đã tìm được nguyên hàm của 1/cos²(x) là tan(x) + C").
+- **Đưa đáp án vào prompt làm tỉ lệ lộ tăng lên 8,3%** — lớp phòng vệ 1 (giấu đáp án)
+  cắt được khoảng một phần tư số ca, nhưng một mình nó KHÔNG đủ.
+- **Guardrail chặn nốt phần còn lại**, giá phải trả rất nhỏ: chỉ 6/96 lượt phải viết
+  lại, 1% rơi về câu template.
+- Trong 6 ca `raw` bị chặn có 1 ca chặn oan (gợi ý nhắc cận tích phân "từ 1 đến e"
+  trong khi đáp án đúng bằng 1). Thiên lệch này là cố ý: chặn oan tốn một lượt sinh
+  lại, để lọt là lộ đáp án thật.
+- Trễ trung vị ~6–8 giây mỗi lượt trên CPU. Đây là lý do phải có cache và DEMO_MODE.
+
+Chạy thí nghiệm này còn tìm ra hai lỗi thật, cả hai đều không lộ ra khi chỉ chạy test:
+
+1. **Guardrail thủng vì dấu câu.** "Nguyên hàm là tan(x) + C." lọt qua, do dấu chấm
+   dính vào token cuối làm biểu thức parse hỏng. Thước đo độc lập thấy, guardrail
+   thì không — đúng lý do phải giữ hai thước đo khác nhau.
+2. **Bộ chấm MAD101 cho điểm bài chép lại nguyên đề.** Phản đảo tương đương logic với
+   mệnh đề gốc, nên "p → q" đúng trên mọi dòng bảng chân trị.
 
 ---
 
