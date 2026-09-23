@@ -84,6 +84,65 @@ hình dense / BM25 / hybrid.
 
 ---
 
+## EXP-6 — chiến lược chọn bài
+
+```
+python scripts/exp6_selection.py --subject MAE101 --prefix MAE.INT --students 80 --seeds 3
+python scripts/exp6_selection.py --no-hint          # ablation giả thiết sư phạm
+```
+
+Đo trên **học sinh mô phỏng** (`src/kt/simulator.py`): mỗi người một vector năng lực
+ẩn theo kỹ năng, khởi tạo từ độ sâu trong đồ thị tiên quyết; xác suất làm đúng theo
+kiểu IRT có slip và guess; học sau mỗi lượt, học **nhiều hơn** khi làm sai mà được
+gợi ý. Tốc độ học hiệu chỉnh theo một tiêu chí độc lập với mọi chiến lược: người học
+trung bình thạo một kỹ năng sau khoảng 10 lượt luyện.
+
+### Kết quả — 80 học sinh × 60 lượt × 3 seed
+
+MAE101, chương tích phân (321 đề, 8 kỹ năng):
+
+| Chiến lược | Tỉ lệ đúng | Kỹ năng thạo | Đạt mục tiêu | Sai liên tiếp |
+|---|---|---|---|---|
+| random | 62,2% | 4,6 | 86% | 4,1 |
+| sequential | 64,6% | **4,8** | 95% | 4,6 |
+| weakest | 51,1% | 4,7 | 81% | 5,9 |
+| zpd | **69,9%** | 4,0 | 80% | **3,8** |
+| zpd + phủ kỹ năng | 56,7% | 4,6 | 74% | 4,7 |
+
+MAD101, chương đồ thị (3,7 vs 1,2 kỹ năng — chênh lệch lớn nhất quan sát được):
+
+| Chiến lược | Tỉ lệ đúng | Kỹ năng thạo | Đạt mục tiêu |
+|---|---|---|---|
+| sequential | 72,2% | **3,7** | 100% |
+| zpd | **76,4%** | 1,2 | 13% |
+| zpd + phủ kỹ năng | 69,6% | 2,8 | 92% |
+
+**Kết luận trung thực, ngược với kỳ vọng ban đầu:** ZPD cho trải nghiệm tốt nhất —
+tỉ lệ đúng sát mục tiêu 75% và chuỗi sai liên tiếp ngắn nhất — nhưng **không** giúp
+thạo nhiều kỹ năng hơn cách dạy theo thứ tự giáo trình. Lý do đã truy được: ZPD bám
+lấy kỹ năng đang cho xác suất đúng ≈ 0,75 rồi đào sâu ở đó, bỏ quên các kỹ năng còn
+quá khó — kinh điển là bài toán khai thác/khám phá.
+
+Thêm tiêu chí **phủ kỹ năng** (ưu tiên kỹ năng ít được luyện) sửa được một phần. Bảng
+quét trọng số trên chương đồ thị MAD101 cho thấy rõ cái giá phải trả:
+
+| Trọng số phủ | 0 | 1,5 | 3 | 6 | 12 |
+|---|---|---|---|---|---|
+| Kỹ năng thạo | 1,2 | 1,9 | 2,1 | 2,8 | 3,3 |
+| Tỉ lệ đúng | 76,1% | 70,2% | 69,3% | 69,0% | 69,4% |
+
+Càng nặng thì càng phủ rộng nhưng càng mất tính "vừa sức", tới mức hoá ra quay vòng
+đều như dạy tuần tự. Mặc định chọn 6.
+
+Chạy EXP-6 cũng tìm ra một lỗi thật trong bộ chọn bài: `expected_success` **không hề
+dùng độ khó của bài**, nên mọi bài của cùng một kỹ năng đều cho cùng xác suất và tiêu
+chí "vừa sức" không phân biệt nổi bài dễ với bài khó.
+
+Hạn chế: học sinh ở đây do mô hình sinh ra. Kết luận chỉ nói được về HÀNH VI CỦA
+THUẬT TOÁN dưới giả định đó, không nói được về hiệu quả học tập ngoài đời.
+
+---
+
 ## EXP-8 — chống lộ đáp án
 
 Thí nghiệm đo **ba lớp phòng vệ** của bộ sinh gợi ý, mỗi lớp tách riêng được:

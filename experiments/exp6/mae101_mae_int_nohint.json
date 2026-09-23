@@ -1,0 +1,82 @@
+{
+ "subject": "MAE101",
+ "prefix": "MAE.INT",
+ "items": 321,
+ "skills": 8,
+ "students": 60,
+ "steps": 60,
+ "seeds": 3,
+ "with_hint": false,
+ "profile": {
+  "ability_mean": -0.1,
+  "ability_sd": 1.0,
+  "slip": 0.1,
+  "guess": 0.15,
+  "learn_correct": 0.6,
+  "learn_from_hint": 0.9,
+  "learn_no_hint": 0.2,
+  "depth_penalty": 0.25
+ },
+ "summary": {
+  "random": {
+   "n": 180,
+   "seeds": 3,
+   "accuracy": 0.5696296296296296,
+   "accuracy_sd": 0.011093350001965957,
+   "mastered": 2.7777777777777777,
+   "mastered_sd": 1.6247383807474185,
+   "mastered_sd_sd": 0.027941898321545235,
+   "reached_target": 0.2722222222222222,
+   "reached_target_sd": 0.04779069592801458,
+   "steps_to_target": 40.75961538461539,
+   "steps_to_target_sd": 2.036570845484758,
+   "wrong_streak": 4.694444444444445,
+   "wrong_streak_sd": 0.20472806414098088
+  },
+  "sequential": {
+   "n": 180,
+   "seeds": 3,
+   "accuracy": 0.5962037037037037,
+   "accuracy_sd": 0.006691056209310971,
+   "mastered": 2.8222222222222224,
+   "mastered_sd": 1.5702335526796716,
+   "mastered_sd_sd": 0.13093650299574666,
+   "reached_target": 0.2611111111111111,
+   "reached_target_sd": 0.0415739709641549,
+   "steps_to_target": 38.08735942420153,
+   "steps_to_target_sd": 3.773736119637502,
+   "wrong_streak": 5.322222222222222,
+   "wrong_streak_sd": 0.123478393171627
+  },
+  "weakest": {
+   "n": 180,
+   "seeds": 3,
+   "accuracy": 0.4126851851851852,
+   "accuracy_sd": 0.01220607800204652,
+   "mastered": 1.3055555555555556,
+   "mastered_sd": 2.1217099604443477,
+   "mastered_sd_sd": 0.07524399355470565,
+   "reached_target": 0.15555555555555556,
+   "reached_target_sd": 0.02078698548207745,
+   "steps_to_target": 42.42508417508417,
+   "steps_to_target_sd": 3.402729026676339,
+   "wrong_streak": 8.605555555555556,
+   "wrong_streak_sd": 0.5279824164674096
+  },
+  "zpd": {
+   "n": 180,
+   "seeds": 3,
+   "accuracy": 0.6539814814814815,
+   "accuracy_sd": 0.006902962525783647,
+   "mastered": 3.3555555555555556,
+   "mastered_sd": 0.9910562803492109,
+   "mastered_sd_sd": 0.0992193842826256,
+   "reached_target": 0.39444444444444443,
+   "reached_target_sd": 0.04157397096415492,
+   "steps_to_target": 45.29805996472663,
+   "steps_to_target_sd": 0.8935831089628058,
+   "wrong_streak": 4.75,
+   "wrong_streak_sd": 0.4098328475890664
+  }
+ }
+}
