@@ -84,6 +84,26 @@ class Chunk:
         }
 
 
+#: Dấu hiệu NGAY TRONG CÂU của một định nghĩa, dùng khi không có mốc mở đầu.
+#:
+#: Cần thiết vì mốc ở trên chỉ nhận chữ "Definition"/"Định nghĩa" đứng đầu dòng —
+#: đúng với sách, sai với slide. Slide MAS291 viết "Conditional Probability The
+#: conditional probability of an event B given A, denoted as P(B|A), is ..." nên
+#: cả môn thống kê không có lấy một chunk `definition` nào, và bộ lọc theo loại
+#: của gợi ý mức 1 không còn gì để chọn.
+_DEFINITION_CUES = re.compile(
+    r"\bis defined (?:as|to be)\b|\bwe define\b|\bis called\b|\bare called\b"
+    r"|\bdenoted (?:by|as)\b|\bif and only if\b"
+    r"|được\s+gọi\s+là|được\s+định\s+nghĩa|k[ýy]\s*hiệu\s+là",
+    re.IGNORECASE,
+)
+
+
+def classify_prose(text: str) -> ChunkType:
+    """Phân loại đoạn không có mốc mở đầu — chỉ dám kết luận khi câu chữ nói rõ."""
+    return ChunkType.DEFINITION if _DEFINITION_CUES.search(text) else ChunkType.PROSE
+
+
 def classify_marker(marker: str) -> ChunkType:
     """Mốc này mở đầu loại nội dung nào?"""
     for chunk_type, pattern in _MARKERS:
@@ -173,7 +193,7 @@ def chunk_text(
     # Không tìm thấy mốc nào: rơi về cắt theo đoạn văn, nhãn PROSE.
     if not matches:
         return [
-            Chunk(piece, ChunkType.PROSE, subject, chapter, source=source, page=page)
+            Chunk(piece, classify_prose(piece), subject, chapter, source=source, page=page)
             for piece in _split_long(text)
             if len(piece.strip()) >= MIN_CHARS
         ]
@@ -184,7 +204,7 @@ def chunk_text(
     preamble = text[: matches[0].start()].strip()
     if len(preamble) >= MIN_CHARS:
         for piece in _split_long(preamble):
-            chunks.append(Chunk(piece, ChunkType.PROSE, subject, chapter, source=source, page=page))
+            chunks.append(Chunk(piece, classify_prose(piece), subject, chapter, source=source, page=page))
 
     for index, match in enumerate(matches):
         end = matches[index + 1].start() if index + 1 < len(matches) else len(text)

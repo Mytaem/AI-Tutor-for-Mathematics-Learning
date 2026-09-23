@@ -88,6 +88,20 @@ class TestChunking:
         assert result
         assert all(c.chunk_type is ChunkType.PROSE for c in result)
 
+    def test_slide_viet_dinh_nghia_khong_co_moc_van_duoc_nhan_ra(self) -> None:
+        """Slide MAS291 không viết chữ "Definition" bao giờ — nhận qua cách diễn đạt.
+
+        Không nhận ra thì cả môn thống kê không có chunk ``definition`` nào, và
+        gợi ý mức 1 (lọc theo định nghĩa/định lý/công thức) trắng tay.
+        """
+        text = ("Conditional Probability The conditional probability of an event B given "
+                "an event A, denoted as P(B|A), is P(A and B) divided by P(A).")
+        assert [c.chunk_type for c in chunk_text(text)] == [ChunkType.DEFINITION]
+
+    def test_van_xuoi_thuong_van_la_prose(self) -> None:
+        text = "The net change theorem considers the integral of a rate of change of a quantity."
+        assert [c.chunk_type for c in chunk_text(text)] == [ChunkType.PROSE]
+
     def test_van_ban_rong_khong_sinh_chunk(self) -> None:
         assert chunk_text("") == []
         assert chunk_text("   \n\n  ") == []
