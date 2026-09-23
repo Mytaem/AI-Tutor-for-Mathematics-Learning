@@ -16,14 +16,66 @@ Nguyên tắc chung:
 
 ## Bảng chỉ số tổng hợp
 
-| Trục | Chỉ số | Baseline để so | Trạng thái |
+| Trục | Kết quả chính | Trạng thái |
+|---|---|---|
+| EXP-1 LLM tự giải toán | 22,9% (hỏi thẳng) → 41,7% (có suy luận từng bước) | xong |
+| EXP-2 chất lượng bộ chấm | phát hiện 100%; gán đúng mã 72–100% tuỳ môn | xong trên lỗi tổng hợp |
+| EXP-3 phân loại mã lỗi | prompting: macro-F1 0,358; LoRA đang train | một phần |
+| EXP-4 truy xuất | Recall@5: 0,595 (hỏi tiếng Việt) / 0,976 (tiếng Anh) | xong |
+| EXP-5 knowledge tracing | DKT 0,852 > SAKT 0,776 > BKT 0,639 > mốc 0,500 | xong trên mô phỏng |
+| EXP-6 chọn bài | ZPD tốt nhất về trải nghiệm, kém nhất về phủ kỹ năng | xong trên mô phỏng |
+| EXP-7a bỏ kiểm chứng ký hiệu | LLM chấm đúng 50%, bộ chấm ký hiệu 100% | xong |
+| EXP-8 chống lộ đáp án | model tự lộ 6,2% → guardrail đưa về 0% | xong |
+| Rubric chất lượng gợi ý | — | chưa chạy |
+
+---
+
+## EXP-1 — mô hình ngôn ngữ tự giải toán được bao nhiêu
+
+```
+python scripts/exp1_solving.py --per-subject 12            # hỏi thẳng
+python scripts/exp1_solving.py --per-subject 12 --mode cot # cho nghĩ từng bước
+```
+
+48 bài (12 mỗi môn), **chấm bằng chính verifier của môn** — chấp nhận mọi dạng viết
+tương đương. Lấy mô hình ra tự chấm thì con số chỉ đo được sự tự tin của nó.
+
+| Chế độ | MAE101 | MAI391 | MAS291 | MAD101 | Tổng | Thời gian |
+|---|---|---|---|---|---|---|
+| hỏi thẳng | 25,0% | 0,0% | 25,0% | 41,7% | **22,9%** | 7,1 s/bài |
+| suy luận từng bước | 50,0% | 33,3% | 50,0% | 33,3% | **41,7%** | 34,3 s/bài |
+
+Cho nghĩ từng bước gần như gấp đôi tỉ lệ đúng nhưng chậm gấp 5 lần, và vẫn dưới 50%.
+MAI391 (ma trận, gradient, PCA) là môn model yếu nhất: hỏi thẳng đúng 0/12.
+
+Đây là lý do tồn tại của cả tầng kiểm chứng: **phần tính toán giao cho SymPy, mô
+hình chỉ lo diễn đạt**. Một chatbot bọc API, dù prompt khéo tới đâu, cũng đang đứng
+ở mốc 23–42% này.
+
+---
+
+## EXP-7a — bỏ tầng kiểm chứng ký hiệu thì sao
+
+```
+python scripts/exp7_llm_judge.py --pairs 40
+```
+
+160 cặp cân bằng (80 bài làm đúng, 80 bài làm sai có nhãn), cùng một bộ dữ liệu cho
+cả hai bộ chấm:
+
+| Bộ chấm | Chính xác | Báo ĐÚNG cho bài SAI | Báo SAI cho bài ĐÚNG |
 |---|---|---|---|
-| Giải đúng | Accuracy theo môn | LLM thuần, không công cụ | chưa chạy |
-| Kiểm chứng | Precision/Recall phát hiện bước sai | luật so khớp đơn giản | chưa chạy |
-| Chẩn đoán lỗi | Macro-F1 mã lỗi | prompting zero-shot | một phần (EXP-3a) |
-| Chất lượng gợi ý | Rubric 4 trục (1–5) | trả đáp án trực tiếp | chưa chạy |
-| Knowledge tracing | AUC, ACC | chọn bài ngẫu nhiên | chưa chạy |
-| Chống lộ đáp án | % gợi ý bị rò | không guardrail | **đã chạy (EXP-8)** |
+| Qwen 2.5 3b làm giám khảo | 50,0% | 35,0% | 65,0% |
+| Kiểm chứng ký hiệu | **100%** | **0%** | **0%** |
+
+Mô hình chấm đúng đúng bằng tung đồng xu, và **nhận nhầm 35% bài sai thành đúng** —
+sinh viên sẽ mang nguyên lỗi đó đi tiếp. Nó cũng bác nhầm 65% bài đúng, phần lớn vì
+không chấp nhận dạng viết tương đương (`x**3/3 + C` và `(1/3)x³ + C`).
+
+Ghi chú về cách dựng bộ dữ liệu: lỗi ở mức BƯỚC và lỗi giữ nguyên giá trị (quên
+`+ C`) bị loại khỏi tập "sai", vì thí nghiệm chỉ nộp đáp án cuối và hệ thống cố ý
+chấm những ca đó là đúng giá trị rồi gắn mã lỗi riêng. Bản đầu để lẫn vào làm bộ
+chấm ký hiệu trông như "bỏ sót 3,8%" trong khi nó chấm đúng theo đúng thiết kế.
 
 ---
 

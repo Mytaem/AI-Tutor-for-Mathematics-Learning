@@ -21,9 +21,25 @@ from __future__ import annotations
 import json
 import os
 import re
+import subprocess
+import sys
 import time
 from collections import defaultdict
 from pathlib import Path
+
+
+def _install_dependencies() -> None:
+    """Cài bitsandbytes và peft ngay trong kernel.
+
+    Ảnh Kaggle có sẵn torch và transformers nhưng KHÔNG có bitsandbytes bản đủ
+    mới (transformers đòi >= 0.46.1 cho 4-bit), và peft thì tuỳ ảnh. Cài ở đây
+    để kernel tự chạy được, không phải sửa tay trên giao diện.
+    """
+    packages = ["bitsandbytes>=0.46.1", "peft>=0.11", "accelerate>=0.30"]
+    subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-U", *packages], check=False)
+
+
+_install_dependencies()
 
 import torch
 from torch.utils.data import Dataset as TorchDataset
@@ -47,10 +63,11 @@ def _find_data_dir() -> Path:
     báo lỗi cũng nói rõ có những gì trong /kaggle/input.
     """
     root = Path("/kaggle/input")
-    for candidate in sorted(root.glob("*")):
-        if (candidate / "train.jsonl").exists():
-            return candidate
-    available = [str(path.name) for path in root.glob("*")] if root.exists() else []
+    # Tìm đệ quy: Kaggle không phải lúc nào cũng mount thẳng vào
+    # /kaggle/input/<slug>; lần chạy trước nó nằm dưới /kaggle/input/datasets/...
+    for found in sorted(root.rglob("train.jsonl")):
+        return found.parent
+    available = [str(path.relative_to(root)) for path in root.rglob("*")][:20] if root.exists() else []
     raise FileNotFoundError(
         f"Không thấy train.jsonl trong /kaggle/input (có: {available}). "
         "Dataset có thể chưa xử lý xong — đợi rồi chạy lại kernel."

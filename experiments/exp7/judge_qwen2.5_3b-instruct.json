@@ -1,0 +1,1460 @@
+{
+ "model": "qwen2.5:3b-instruct",
+ "pairs": 160,
+ "llm": {
+  "n": 160,
+  "accuracy": 0.5,
+  "false_accept": 0.35,
+  "false_reject": 0.65,
+  "no_answer": 0.0
+ },
+ "symbolic": {
+  "n": 160,
+  "accuracy": 1.0,
+  "false_accept": 0.0,
+  "false_reject": 0.0,
+  "no_answer": 0.0
+ },
+ "records": [
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-mod_pow-0414",
+   "answer": "3",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-union-1199",
+   "answer": "0.65",
+   "truth": false,
+   "error_code": "MAS.PROB.UNION_NOSUB",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-mod_pow-0162",
+   "answer": "1",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-shortest_path-0189",
+   "answer": "12",
+   "truth": false,
+   "error_code": "MAD.GRAPH.UNWEIGHTED",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-determinant-0982",
+   "answer": "6",
+   "truth": false,
+   "error_code": "LA.DET.SIGN",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-regression-0921",
+   "answer": "1.5625",
+   "truth": false,
+   "error_code": "MAS.REG.SWAPPED",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-least_squares-0024",
+   "answer": "[11/10, 8/5]",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-conditional-0040",
+   "answer": "0.384615",
+   "truth": false,
+   "error_code": "MAS.PROB.COND_REVERSED",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-inverse-1107",
+   "answer": "[[-1/5, -4/15], [0, -1/3]]",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-singular_values-0398",
+   "answer": "[5, 5]",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-subst_log-0061",
+   "answer": "log(x**2 + x + 3) + C",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-SUM-003",
+   "answer": "2**n - 1",
+   "truth": false,
+   "error_code": "MAD.SUM.OFFBYONE",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-two_sample_z-0876",
+   "answer": "1.17851",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-chromatic-0323",
+   "answer": "4",
+   "truth": false,
+   "error_code": "MAD.GRAPH.CHROMATIC_BOUND",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-trace-0926",
+   "answer": "7",
+   "truth": false,
+   "error_code": "MAI.DEC.TRACE_SUMALL",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-definite_exp-0049",
+   "answer": "exp(3*x)/3",
+   "truth": false,
+   "error_code": "MAE.INT.DEF.NOEVAL",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-logic_simplify-0768",
+   "answer": "¬p ∨ ¬r",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-partial_fractions-0193",
+   "answer": "6*log(x + 2) - 6*log(x + 4) + C",
+   "truth": false,
+   "error_code": "MAE.INT.CONSTFACTOR",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-shortest_path-0647",
+   "answer": "10",
+   "truth": false,
+   "error_code": "MAD.GRAPH.UNWEIGHTED",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-eigenvalues-0623",
+   "answer": "[3, 4]",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-sec_squared-0025",
+   "answer": "-8*x*tan(3*x/2 - 1/2)/(3*tan(3*x/2 - 1/2)**2 - 3) + C",
+   "truth": false,
+   "error_code": "MAE.INT.LINEARITY",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-binom_cdf-0503",
+   "answer": "0.347425",
+   "truth": false,
+   "error_code": "MAS.DIST.CDF_PMF",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-logic_tautology-0004",
+   "answer": "có",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-normal_prob-1018",
+   "answer": "0",
+   "truth": false,
+   "error_code": "MAS.NORM.NOSTANDARDIZE",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-tree_edges-0326",
+   "answer": "11",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-LA-EIG-002",
+   "answer": "2, 6",
+   "truth": false,
+   "error_code": "LA.EIG.NOTVALUE",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-binom_var-0384",
+   "answer": "5",
+   "truth": false,
+   "error_code": "MAS.BIN.VAR_MEAN",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-pca_first-0052",
+   "answer": "[1, 1]",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-ci_prop-0508",
+   "answer": "[0.2456, 0.4944]",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-rank-0840",
+   "answer": "2",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-lcm-0719",
+   "answer": "1",
+   "truth": false,
+   "error_code": "MAD.INT.GCD_LCM",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-ci_mean-1179",
+   "answer": "[48.6841, 51.3159]",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-power-0120",
+   "answer": "-x**4/4 + C",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-subst_log-0237",
+   "answer": "log(x**2 + 3) + C",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-partial_fractions-0295",
+   "answer": "5*log(x + 2)/2 - 5*log(x + 4)/2 + C",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-definite_power-0194",
+   "answer": "7/3",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-test_stat-0816",
+   "answer": "0.6",
+   "truth": false,
+   "error_code": "MAS.HYP.NOSQRTN",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-set_union-1152",
+   "answer": "25",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-euler-0862",
+   "answer": "không",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-partial_fractions-0083",
+   "answer": "3*log(x + 1) - 3*log(x + 5) + C",
+   "truth": false,
+   "error_code": "MAE.INT.CONSTFACTOR",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-gradient-0751",
+   "answer": "[3*x**2 + y, x]",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-lcm-0427",
+   "answer": "11",
+   "truth": false,
+   "error_code": "MAD.INT.GCD_LCM",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-tree_edges-0499",
+   "answer": "40",
+   "truth": false,
+   "error_code": "MAD.TREE.EDGES",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-partial_fractions-0116",
+   "answer": "-log(x + 4) + log(x + 6) + C",
+   "truth": false,
+   "error_code": "MAE.SIGN",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-projection-1065",
+   "answer": "[0, -4]",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-svm_margin-0943",
+   "answer": "2*sqrt(41)/41",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-conditional-0561",
+   "answer": "0.228571",
+   "truth": false,
+   "error_code": "MAS.PROB.COND_REVERSED",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-eigenvalues-0759",
+   "answer": "-3",
+   "truth": false,
+   "error_code": "LA.EIG.MISSING",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-partial-0150",
+   "answer": "4*x**2 - 2",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-ci_prop-0555",
+   "answer": "[-0.5960, 1.2210]",
+   "truth": false,
+   "error_code": "MAS.CI.NOSQRTN",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-polynomial-0035",
+   "answer": "5*x**3/3 - 2*x**2 + 3*x + C",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-euler-0302",
+   "answer": "có",
+   "truth": false,
+   "error_code": "MAD.GRAPH.EULER_PATH_CIRCUIT",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-conditional-0670",
+   "answer": "0.2",
+   "truth": false,
+   "error_code": "MAS.PROB.JOINT_INSTEAD",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-determinant-0438",
+   "answer": "-23",
+   "truth": false,
+   "error_code": "LA.DET.SIGN",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-linear_system-1183",
+   "answer": "[-1, -3]",
+   "truth": false,
+   "error_code": "LA.SYS.NOTSOLUTION",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-trig_linear-0023",
+   "answer": "sin(4*x + 2) + C",
+   "truth": false,
+   "error_code": "MAE.INT.SUBST.NOFACTOR",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-mst_weight-0738",
+   "answer": "16",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-conditional-0530",
+   "answer": "0.18",
+   "truth": false,
+   "error_code": "MAS.PROB.JOINT_INSTEAD",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-binom_pmf-0910",
+   "answer": "0.236223",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-inverse-0969",
+   "answer": "[[5/12, 1/4], [1/3, 0]]",
+   "truth": false,
+   "error_code": "LA.INV.NOSIGN",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-euler-1096",
+   "answer": "có",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-least_squares-0636",
+   "answer": "[3, 0]",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-complete_edges-0104",
+   "answer": "132",
+   "truth": false,
+   "error_code": "MAD.GRAPH.HANDSHAKE",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-conditional-0258",
+   "answer": "0.685714",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-pca_first-0700",
+   "answer": "[1, 1]",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-least_squares-0771",
+   "answer": "[4, 1]",
+   "truth": false,
+   "error_code": "MAI.REG.NOTLS",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-root-0214",
+   "answer": "-15*x**(4/3)/4 + C",
+   "truth": false,
+   "error_code": "MAE.SIGN",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-gd_step-0153",
+   "answer": "[-3, -20]",
+   "truth": false,
+   "error_code": "MAI.OPT.GD_NOLR",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-determinant-0549",
+   "answer": "-4",
+   "truth": false,
+   "error_code": "LA.DET.SCALE",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-REG-001",
+   "answer": "0.6",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-definite_exp-0101",
+   "answer": "-exp(-3*x)",
+   "truth": false,
+   "error_code": "MAE.INT.DEF.NOEVAL",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-union-0578",
+   "answer": "0.28",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-gradient_chain-0406",
+   "answer": "[x*exp(x*y), y*exp(x*y)]",
+   "truth": false,
+   "error_code": "MAI.VC.SWAPPED",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-trace-0741",
+   "answer": "-7",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-rank-0591",
+   "answer": "3",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-binom_var-1093",
+   "answer": "2.55",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-reciprocal_linear-0156",
+   "answer": "log(4*x + 5)/4 + C",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-conditional-1170",
+   "answer": "0.923077",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-root-0273",
+   "answer": "6*x**(4/3) + C",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-parts_trig-0293",
+   "answer": "5*x*cos(x) - 5*sin(x) + C",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-definite_subst-0102",
+   "answer": "2 - 2*exp(-4)",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GRAPH-001",
+   "answer": "6",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-ci_prop-1180",
+   "answer": "[-0.4241, 1.1641]",
+   "truth": false,
+   "error_code": "MAS.CI.NOSQRTN",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-least_squares-0888",
+   "answer": "[2, -2]",
+   "truth": false,
+   "error_code": "MAI.REG.NOTLS",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-definite_exp-0134",
+   "answer": "2 - 2*exp(6)",
+   "truth": false,
+   "error_code": "MAE.INT.DEF.SWAPBOUNDS",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-parts_trig-0045",
+   "answer": "-2*x*sin(x) + 2*cos(x) + C",
+   "truth": false,
+   "error_code": "MAE.INT.DERIV_INSTEAD",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-lcm-0362",
+   "answer": "1",
+   "truth": false,
+   "error_code": "MAD.INT.GCD_LCM",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-logic_negate-0025",
+   "answer": "¬p ∨ ¬s",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-sum_closed-0050",
+   "answer": "2*2**(n - 1) - 2",
+   "truth": false,
+   "error_code": "MAD.SUM.OFFBYONE",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-tree_edges-0065",
+   "answer": "23",
+   "truth": false,
+   "error_code": "MAD.TREE.EDGES",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-eigenvector-0168",
+   "answer": "[0, 0]",
+   "truth": false,
+   "error_code": "LA.EIG.ZEROVEC",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-union-1102",
+   "answer": "0.58",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-parts_exp-0238",
+   "answer": "(-4*x - 1)*exp(-4*x)/4 + C",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-regression-0936",
+   "answer": "1",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-to_binary-0101",
+   "answer": "10010111",
+   "truth": false,
+   "error_code": "MAD.INT.BASE_REVERSED",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-binom_cdf-0062",
+   "answer": "0.0475553",
+   "truth": false,
+   "error_code": "MAS.DIST.CDF_PMF",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-parts_exp-0044",
+   "answer": "3*(-12*x - 3)*exp(-4*x)/8 + C",
+   "truth": false,
+   "error_code": "MAE.INT.CONSTFACTOR",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-system_underdetermined-0271",
+   "answer": "[7/2, 0, 0, 0]",
+   "truth": false,
+   "error_code": "LA.SHAPE",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-system_underdetermined-1110",
+   "answer": "[8, 0, 0, 0]",
+   "truth": false,
+   "error_code": "LA.SHAPE",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-test_stat-1112",
+   "answer": "1",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-inverse-0193",
+   "answer": "[[1/5, 1/10], [0, 1/2]]",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-binom_cdf-1147",
+   "answer": "0.938949",
+   "truth": false,
+   "error_code": "MAS.DIST.OFFBYONE",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-descriptive-0160",
+   "answer": "14.56",
+   "truth": false,
+   "error_code": "MAS.DESC.VAR_N",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-set_union-0157",
+   "answer": "56",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-gcd-0900",
+   "answer": "3",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-chromatic-0646",
+   "answer": "4",
+   "truth": false,
+   "error_code": "MAD.GRAPH.CHROMATIC_BOUND",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-to_binary-0904",
+   "answer": "110110",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-union-0715",
+   "answer": "0.6",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-logic_negate-0133",
+   "answer": "¬q ∨ ¬s",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GRAPH-002",
+   "answer": "21",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-definite_subst-0270",
+   "answer": "1 - exp(-4)",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-partial-0865",
+   "answer": "6*x*y + cos(y)",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-ci_prop-0756",
+   "answer": "[-0.3843, 1.2443]",
+   "truth": false,
+   "error_code": "MAS.CI.NOSQRTN",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-inverse_singular-0785",
+   "answer": "không khả nghịch",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-inverse-0243",
+   "answer": "[[5/6, 1/6], [-1/6, 1/6]]",
+   "truth": false,
+   "error_code": "LA.INV.TRANSPOSE",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-parts_trig-0239",
+   "answer": "-3*x*cos(x) - 3*sin(x) + C",
+   "truth": false,
+   "error_code": "MAE.INT.DERIV_INSTEAD",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-gd_step-0562",
+   "answer": "[3/5, -1/5]",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-definite_power-0066",
+   "answer": "1023",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-logic_negate-0374",
+   "answer": "q ∧ ¬s",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-total_prob-0656",
+   "answer": "0.036",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-root-0053",
+   "answer": "32*x**(5/4)/5 + C",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-count_divisible-0899",
+   "answer": "300",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-subst_power-0094",
+   "answer": "8*x**2*(2*x**2 + 2) + (2*x**2 + 2)**2 + C",
+   "truth": false,
+   "error_code": "MAE.INT.DERIV_INSTEAD",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-determinant-0164",
+   "answer": "-16",
+   "truth": false,
+   "error_code": "LA.DET.SCALE",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-binom_pmf-1030",
+   "answer": "8.47175e-05",
+   "truth": false,
+   "error_code": "MAS.BIN.NOCOMB",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-union-0937",
+   "answer": "0.75",
+   "truth": false,
+   "error_code": "MAS.PROB.UNION_NOSUB",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-conditional-0546",
+   "answer": "0.509091",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-p_value-0742",
+   "answer": "0.044565",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-shortest_path-0063",
+   "answer": "14",
+   "truth": false,
+   "error_code": "MAD.GRAPH.UNWEIGHTED",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-subst_exp-0158",
+   "answer": "exp(4*x**2)/8 + C",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-TREE-003",
+   "answer": "7",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-p_value-0235",
+   "answer": "0.021448",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-eigenvector-0010",
+   "answer": "[0, 1/2]",
+   "truth": false,
+   "error_code": "LA.EIG.NOTEIGEN",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-mst_weight-0109",
+   "answer": "16",
+   "truth": false,
+   "error_code": "MAD.TREE.MST_CYCLE",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-mst_weight-0129",
+   "answer": "14",
+   "truth": false,
+   "error_code": "MAD.TREE.MST_CYCLE",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-exp_linear-0260",
+   "answer": "-exp(-2*x) + C",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-moments-0718",
+   "answer": "sqrt(2)/2",
+   "truth": false,
+   "error_code": "MAI.PROB.STD_INSTEAD",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-partial_fractions-0282",
+   "answer": "6*log(x + 1) - 6*log(x + 3) + C",
+   "truth": false,
+   "error_code": "MAE.INT.CONSTFACTOR",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-LA-INV-001",
+   "answer": "[[3/5, -7/10], [-1/5, 2/5]]",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-total_prob-0780",
+   "answer": "0.064",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-count_divisible-0297",
+   "answer": "392",
+   "truth": false,
+   "error_code": "MAD.COUNT.NOSUB",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-inverse_singular-0534",
+   "answer": "không khả nghịch",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-power-0069",
+   "answer": "4*x**3/3 + C",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-conditional-0684",
+   "answer": "0.3",
+   "truth": false,
+   "error_code": "MAS.PROB.JOINT_INSTEAD",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-eigenvector-0529",
+   "answer": "[0, 1/2]",
+   "truth": false,
+   "error_code": "LA.EIG.NOTEIGEN",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-projection-0414",
+   "answer": "[2, -3]",
+   "truth": false,
+   "error_code": "MAI.GEO.PROJ_WRONG",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAI391",
+   "item_id": "MAI391-GEN-gd_step-0299",
+   "answer": "[8/5, 8/5]",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-union-0446",
+   "answer": "0.6",
+   "truth": false,
+   "error_code": "MAS.PROB.UNION_NOSUB",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-trig_linear-0200",
+   "answer": "4*x*sin(3*x + 1)/3 + C",
+   "truth": false,
+   "error_code": "MAE.INT.LINEARITY",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-p_value-0035",
+   "answer": "0.008198",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-partial_fractions-0267",
+   "answer": "-5*log(x + 1)/3 + 5*log(x + 4)/3 + C",
+   "truth": false,
+   "error_code": "MAE.SIGN",
+   "llm": false,
+   "symbolic": false
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-power-0228",
+   "answer": "-x**3/3 + C",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-parts_log-0013",
+   "answer": "21*x**2*log(x)/2 - 21*x**2/4 + C",
+   "truth": false,
+   "error_code": "MAE.INT.CONSTFACTOR",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-INT-001",
+   "answer": "x**3 + C",
+   "truth": false,
+   "error_code": "MAE.INT.CONSTFACTOR",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-count-0007",
+   "answer": "125",
+   "truth": false,
+   "error_code": "MAD.COUNT.REPETITION",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-subst_power-0110",
+   "answer": "24*x**8 + 24*x**6 + 9*x**4 + 3*x**2/2 + C",
+   "truth": false,
+   "error_code": "MAE.INT.CONSTFACTOR",
+   "llm": true,
+   "symbolic": false
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-recurrence-0597",
+   "answer": "2**n",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAE101",
+   "item_id": "MAE101-GEN-trig_linear-0155",
+   "answer": "-cos(3*x + 3)/3 + C",
+   "truth": true,
+   "error_code": null,
+   "llm": true,
+   "symbolic": true
+  },
+  {
+   "subject": "MAS291",
+   "item_id": "MAS291-GEN-test_stat-0843",
+   "answer": "-1.8",
+   "truth": true,
+   "error_code": null,
+   "llm": false,
+   "symbolic": true
+  },
+  {
+   "subject": "MAD101",
+   "item_id": "MAD101-GEN-mary_leaves-0530",
+   "answer": "15",
+   "truth": false,
+   "error_code": "MAD.TREE.LEAVES",
+   "llm": true,
+   "symbolic": false
+  }
+ ]
+}

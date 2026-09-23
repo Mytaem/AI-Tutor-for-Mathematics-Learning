@@ -1,0 +1,351 @@
+{
+ "model": "qwen2.5:3b-instruct",
+ "mode": "cot",
+ "samples": 1,
+ "per_subject": 12,
+ "accuracy": 0.4166666666666667,
+ "by_subject": {
+  "MAE101": 0.5,
+  "MAI391": 0.3333333333333333,
+  "MAS291": 0.5,
+  "MAD101": 0.3333333333333333
+ },
+ "records": [
+  {
+   "item_id": "MAE101-LA-SYS-005",
+   "subject": "MAE101",
+   "correct": true,
+   "model_answer": "{}",
+   "true_answer": "vô nghiệm"
+  },
+  {
+   "item_id": "MAE101-INT-003",
+   "subject": "MAE101",
+   "correct": false,
+   "model_answer": "ln|x| + C",
+   "true_answer": "log(x) + C"
+  },
+  {
+   "item_id": "MAE101-INT-012",
+   "subject": "MAE101",
+   "correct": false,
+   "model_answer": "(1/2) x·e^(x²) - 1/2 ∫ e^(x²) dx + C",
+   "true_answer": "exp(x**2)/2 + C"
+  },
+  {
+   "item_id": "MAE101-INT-002",
+   "subject": "MAE101",
+   "correct": false,
+   "model_answer": "x³ + x² - 5x + C",
+   "true_answer": "x**3 + x**2 - 5*x + C"
+  },
+  {
+   "item_id": "MAE101-LA-VEC-001",
+   "subject": "MAE101",
+   "correct": true,
+   "model_answer": "[1, 1]",
+   "true_answer": "[1, 1]"
+  },
+  {
+   "item_id": "MAE101-LA-INV-004",
+   "subject": "MAE101",
+   "correct": false,
+   "model_answer": "[[1/2, 0], [0, 1/3], [0, 1/4]]",
+   "true_answer": "[[1/2, 0, 0], [0, 1/3, 0], [0, 0, 1/4]]"
+  },
+  {
+   "item_id": "MAE101-INT-006",
+   "subject": "MAE101",
+   "correct": true,
+   "model_answer": "(1/2) * e^(2x) + C",
+   "true_answer": "exp(2*x)/2 + C"
+  },
+  {
+   "item_id": "MAE101-INT-010",
+   "subject": "MAE101",
+   "correct": false,
+   "model_answer": "(1/8)x⁸ + (1/2)x² + (3/4)x⁴ + (1/2)x² + C",
+   "true_answer": "(x**2 + 1)**4/8 + C"
+  },
+  {
+   "item_id": "MAE101-DEF-001",
+   "subject": "MAE101",
+   "correct": true,
+   "model_answer": "1/3",
+   "true_answer": "1/3"
+  },
+  {
+   "item_id": "MAE101-INT-007",
+   "subject": "MAE101",
+   "correct": true,
+   "model_answer": "-cos(x) + C",
+   "true_answer": "-cos(x) + C"
+  },
+  {
+   "item_id": "MAE101-LA-INV-002",
+   "subject": "MAE101",
+   "correct": false,
+   "model_answer": "",
+   "true_answer": "[[-2, 1], [3/2, -1/2]]"
+  },
+  {
+   "item_id": "MAE101-DEF-004",
+   "subject": "MAE101",
+   "correct": true,
+   "model_answer": "(1/2) e - (1/2)",
+   "true_answer": "(E - 1)/2"
+  },
+  {
+   "item_id": "MAI391-DIAG-001",
+   "subject": "MAI391",
+   "correct": false,
+   "model_answer": "[[5, 0], [0, 2]]",
+   "true_answer": "[[1, 0], [0, 6]]"
+  },
+  {
+   "item_id": "MAI391-PART-001",
+   "subject": "MAI391",
+   "correct": false,
+   "model_answer": "3x²y²",
+   "true_answer": "3*x**2*y**2"
+  },
+  {
+   "item_id": "MAI391-NORM-003",
+   "subject": "MAI391",
+   "correct": true,
+   "model_answer": "5",
+   "true_answer": "5"
+  },
+  {
+   "item_id": "MAI391-CRIT-001",
+   "subject": "MAI391",
+   "correct": true,
+   "model_answer": "[1, -2]",
+   "true_answer": "[1, -2]"
+  },
+  {
+   "item_id": "MAI391-JAC-001",
+   "subject": "MAI391",
+   "correct": false,
+   "model_answer": "[[2xy, x²], [1, 1]]",
+   "true_answer": "[[2*x*y, x**2], [1, 1]]"
+  },
+  {
+   "item_id": "MAI391-SVM-001",
+   "subject": "MAI391",
+   "correct": false,
+   "model_answer": "Không thể suy luận được độ rộng lề từ w mà cần giá trị của tham số C.",
+   "true_answer": "2/5"
+  },
+  {
+   "item_id": "MAI391-NORM-002",
+   "subject": "MAI391",
+   "correct": true,
+   "model_answer": "3",
+   "true_answer": "3"
+  },
+  {
+   "item_id": "MAI391-VEC-001",
+   "subject": "MAI391",
+   "correct": false,
+   "model_answer": "Để tìm vector",
+   "true_answer": "[4, 1]"
+  },
+  {
+   "item_id": "MAI391-LS-001",
+   "subject": "MAI391",
+   "correct": false,
+   "model_answer": "3. θ₀",
+   "true_answer": "[5/6, 3/2]"
+  },
+  {
+   "item_id": "MAI391-SVD-003",
+   "subject": "MAI391",
+   "correct": false,
+   "model_answer": "2, 1",
+   "true_answer": "[sqrt(10), 0]"
+  },
+  {
+   "item_id": "MAI391-TRACE-002",
+   "subject": "MAI391",
+   "correct": false,
+   "model_answer": "-12",
+   "true_answer": "15"
+  },
+  {
+   "item_id": "MAI391-TRACE-001",
+   "subject": "MAI391",
+   "correct": true,
+   "model_answer": "5",
+   "true_answer": "5"
+  },
+  {
+   "item_id": "MAS291-NORM-003",
+   "subject": "MAS291",
+   "correct": true,
+   "model_answer": "0.025",
+   "true_answer": "0.0249979"
+  },
+  {
+   "item_id": "MAS291-EXP-002",
+   "subject": "MAS291",
+   "correct": false,
+   "model_answer": "0.9512",
+   "true_answer": "0.606531"
+  },
+  {
+   "item_id": "MAS291-DESC-001",
+   "subject": "MAS291",
+   "correct": false,
+   "model_answer": "5 1/3",
+   "true_answer": "5"
+  },
+  {
+   "item_id": "MAS291-DESC-002",
+   "subject": "MAS291",
+   "correct": true,
+   "model_answer": "4.8",
+   "true_answer": "4.8"
+  },
+  {
+   "item_id": "MAS291-PROB-008",
+   "subject": "MAS291",
+   "correct": false,
+   "model_answer": "2/3",
+   "true_answer": "0.161017"
+  },
+  {
+   "item_id": "MAS291-PROB-003",
+   "subject": "MAS291",
+   "correct": true,
+   "model_answer": "0.4",
+   "true_answer": "0.4"
+  },
+  {
+   "item_id": "MAS291-PROB-005",
+   "subject": "MAS291",
+   "correct": true,
+   "model_answer": "0.15",
+   "true_answer": "0.15"
+  },
+  {
+   "item_id": "MAS291-HYP-006",
+   "subject": "MAS291",
+   "correct": false,
+   "model_answer": "không",
+   "true_answer": "không bác bỏ H0"
+  },
+  {
+   "item_id": "MAS291-CI-003",
+   "subject": "MAS291",
+   "correct": false,
+   "model_answer": "[0.314, 0.486]",
+   "true_answer": "[0.3040, 0.4960]"
+  },
+  {
+   "item_id": "MAS291-BIN-003",
+   "subject": "MAS291",
+   "correct": false,
+   "model_answer": "Tổng xác suất là P(X ≤ 2) = P(X = 0) + P(X = 1) + P(X = 2) = 0.0282 + 0.1",
+   "true_answer": "0.382783"
+  },
+  {
+   "item_id": "MAS291-POIS-002",
+   "subject": "MAS291",
+   "correct": true,
+   "model_answer": "0.1353",
+   "true_answer": "0.135335"
+  },
+  {
+   "item_id": "MAS291-POIS-001",
+   "subject": "MAS291",
+   "correct": true,
+   "model_answer": "0.2240415",
+   "true_answer": "0.224042"
+  },
+  {
+   "item_id": "MAD101-LOGIC-002",
+   "subject": "MAD101",
+   "correct": false,
+   "model_answer": "¬(p ∨ q) trở thành ¬p ∧ ¬q",
+   "true_answer": "¬p ∧ ¬q"
+  },
+  {
+   "item_id": "MAD101-INT-007",
+   "subject": "MAD101",
+   "correct": true,
+   "model_answer": "1101",
+   "true_answer": "1101"
+  },
+  {
+   "item_id": "MAD101-LOGIC-006",
+   "subject": "MAD101",
+   "correct": false,
+   "model_answer": "p ∧ ¬q",
+   "true_answer": "(¬q) → (¬p)"
+  },
+  {
+   "item_id": "MAD101-LOGIC-008",
+   "subject": "MAD101",
+   "correct": false,
+   "model_answer": "ĐÁ",
+   "true_answer": "có"
+  },
+  {
+   "item_id": "MAD101-LOGIC-005",
+   "subject": "MAD101",
+   "correct": false,
+   "model_answer": "p ∧ q",
+   "true_answer": "q ∧ ¬p"
+  },
+  {
+   "item_id": "MAD101-INT-008",
+   "subject": "MAD101",
+   "correct": true,
+   "model_answer": "100101",
+   "true_answer": "100101"
+  },
+  {
+   "item_id": "MAD101-COUNT-001",
+   "subject": "MAD101",
+   "correct": true,
+   "model_answer": "60",
+   "true_answer": "60"
+  },
+  {
+   "item_id": "MAD101-REC-002",
+   "subject": "MAD101",
+   "correct": false,
+   "model_answer": "Để tìm ra aₙ, ta cần giải phương trình này. Ta có thể",
+   "true_answer": "3*2**n - 2*3**n"
+  },
+  {
+   "item_id": "MAD101-GRAPH-005",
+   "subject": "MAD101",
+   "correct": false,
+   "model_answer": "Có",
+   "true_answer": "không"
+  },
+  {
+   "item_id": "MAD101-LOGIC-003",
+   "subject": "MAD101",
+   "correct": true,
+   "model_answer": "p ∧ ¬q",
+   "true_answer": "p ∧ ¬q"
+  },
+  {
+   "item_id": "MAD101-REC-004",
+   "subject": "MAD101",
+   "correct": false,
+   "model_answer": "Không thể suy ra một biểu thức chung cho aₙ từ thông tin đã cho.",
+   "true_answer": "(n + 1)*2**n"
+  },
+  {
+   "item_id": "MAD101-GRAPH-006",
+   "subject": "MAD101",
+   "correct": false,
+   "model_answer": "1.5",
+   "true_answer": "4"
+  }
+ ]
+}

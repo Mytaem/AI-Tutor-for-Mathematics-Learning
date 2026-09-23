@@ -45,6 +45,25 @@ JUDGE_SYSTEM = (
 )
 
 
+def _value_wrong(row: dict) -> bool:
+    """Bài làm này có sai Ở GIÁ TRỊ ĐÁP ÁN CUỐI không?
+
+    Thí nghiệm chỉ nộp đáp án cuối, nên hai loại lỗi sau không thể tính là sai và
+    phải loại khỏi bộ dữ liệu — bản đầu để lẫn vào và làm bộ chấm ký hiệu "bỏ sót
+    3,8%", trong khi thực ra nó chấm đúng theo đúng thiết kế:
+
+    - lỗi ở mức BƯỚC (``MAE.ALG.STEP``, ``LA.ROWOP.INVALID``): đáp án cuối cố ý
+      vẫn đúng, cái sai nằm trong lời giải;
+    - lỗi GIỮ NGUYÊN GIÁ TRỊ (``MAE.INT.NOCONST`` — quên ``+ C``): hệ thống cố ý
+      chấm là đúng giá trị rồi gắn thêm mã lỗi về cách trình bày.
+    """
+    from src.data_gen.error_injector import VALUE_PRESERVING
+
+    if row["error_code"] in VALUE_PRESERVING:
+        return False
+    return row["wrong_final_answer"].strip() != row["correct_answer"].strip()
+
+
 def build_pairs(count_per_subject: int, rng: random.Random) -> list[dict]:
     """Bộ dữ liệu cân bằng: một nửa đúng, một nửa sai, nhãn chắc chắn."""
     pairs: list[dict] = []
@@ -57,7 +76,7 @@ def build_pairs(count_per_subject: int, rng: random.Random) -> list[dict]:
 
         wrong_rows = [json.loads(line) for line
                       in (ERRORS_DIR / f"{subject.lower()}_injected.jsonl").open(encoding="utf-8")]
-        wrong_rows = [row for row in wrong_rows if row["item_id"] in items]
+        wrong_rows = [row for row in wrong_rows if row["item_id"] in items and _value_wrong(row)]
         rng.shuffle(wrong_rows)
         for row in wrong_rows[: count_per_subject // 2]:
             pairs.append({"subject": subject, "item_id": row["item_id"],
