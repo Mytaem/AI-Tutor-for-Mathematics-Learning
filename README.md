@@ -46,24 +46,34 @@ Phần huấn luyện (LoRA, knowledge tracing) cài riêng trên Colab/Kaggle:
 
 ## Tình trạng
 
-- [x] **Gate 0** — lõi so sánh tương đương, verifier MAE101 (tích phân, có xử lý đổi biến)
-- [x] **Sinh dữ liệu** — 18 template → 300 bài tự sinh (+21 chép tay); mẫu lỗi có nhãn: 1612 (MAE101), 63 (MAI391)
-- [x] **Tutor engine** — hint ladder 6 mức, chính sách leo thang, guardrail chống lộ đáp án
-- [x] **LLM client** — chuỗi dự phòng vLLM → Ollama → cache, có DEMO_MODE
-- [x] **API** — FastAPI + SQLite, BKT, bộ chọn bài theo vùng phát triển gần
-- [x] **RAG** — chia chunk theo cấu trúc, hybrid BM25 + embedding, lọc theo metadata
-- [x] **Cold start** — tiên nghiệm theo đồ thị tiên quyết, lan truyền ngược, bài đo đầu vào 6 câu
-- [ ] Gate 1 — còn lại: nạp giáo trình thật, web app Next.js
-- [x] **Gate 2 — sắp lại theo đề cương thật** — bộ chấm theo mảng kiến thức ghép thành môn:
-  MAE101 = giải tích + đại số tuyến tính (41 bài chép tay); MAI391 = Math for ML (Deisenroth)
-  + đại số tuyến tính (35 bài, 16 kỹ năng). Mã lỗi theo kiểu sai: `LA.*` dùng chung hai môn
-- [ ] Gate 3 — knowledge tracing + cá nhân hóa
-- [x] **MAS291** — xác suất, phân phối, thống kê mô tả, khoảng tin cậy, kiểm định, hồi quy; 36 bài,
-  20 mã lỗi; mọi đáp án xác suất kiểm chéo bằng Monte Carlo
-- [x] **MAD101** — logic, tập hợp và tổng, số học đồng dư, truy hồi, đếm, đồ thị, cây; 43 bài,
-  17 mã lỗi; bài đếm kiểm chéo bằng liệt kê vét cạn, truy hồi bằng tính lặp — **đủ 4/4 môn**
-- [ ] Gate 5 — Telegram bot, fine-tune LoRA, thực nghiệm người dùng
-- [ ] Gate 6 — báo cáo, slide, video demo
+Đủ 4/4 môn, chạy được end-to-end từ web và Telegram. **633 test**, chạy hết trong
+~100 giây, không cần GPU, không cần mạng, không cần model.
+
+| Phần | Trạng thái |
+|---|---|
+| Kiểm chứng ký hiệu 4 môn | ✅ có kiểm chéo độc lập (Monte Carlo, liệt kê vét cạn, tính lặp) |
+| Ngân hàng đề | ✅ 155 bài chép tay + 4.000 bài tự sinh, mỗi bài verifier tự chấm lại mới nhận |
+| Tập lỗi có nhãn | ✅ 5.990 mẫu / 89 mã lỗi |
+| Thang gợi ý + guardrail | ✅ có cả bản template lẫn bản do model sinh |
+| RAG | ✅ 10.566 đoạn, định tuyến BM25/dense theo ngôn ngữ câu hỏi |
+| Knowledge tracing | ✅ BKT, DKT, SAKT + học sinh mô phỏng |
+| API, web app, Telegram bot | ✅ |
+| Fine-tune LoRA | 🔄 đang train trên Kaggle GPU |
+| Thực nghiệm người dùng thật | ⬜ chờ dữ liệu bài làm sai thật |
+| Báo cáo, slide, video demo | ⬜ |
+
+Số liệu: [docs/results.md](docs/results.md) (sinh tự động) và
+[docs/evaluation-protocol.md](docs/evaluation-protocol.md) (cách đo, hạn chế).
+Hướng dẫn chạy: [docs/running.md](docs/running.md).
+
+### Vài con số đáng chú ý
+
+- Qwen 2.5 3b **tự giải đúng 22,9%** số bài, **tự chấm đúng 50%** — trong khi bộ chấm
+  ký hiệu đúng 100% trên cùng bộ dữ liệu. Đây là lý do tồn tại của cả tầng kiểm chứng.
+- Model **tự lộ đáp án 6,2%** số lượt dù prompt không hề cho biết đáp án; guardrail
+  đưa về 0% với giá 6/96 lượt phải viết lại.
+- DKT đạt **AUC 0,852** so với BKT 0,639 trên dữ liệu mô phỏng (đọc kèm cảnh báo
+  trong `docs/evaluation-protocol.md`: đây là chặn trên).
 
 ## Nạp giáo trình
 
