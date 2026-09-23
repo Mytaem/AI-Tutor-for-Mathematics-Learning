@@ -23,11 +23,10 @@ from __future__ import annotations
 
 import sympy as sp
 
-from src.core.schema import AnswerType, Item
+from src.core.schema import Item
 from src.verify.base import Verifier, parse_answer_list, parse_matrix
 from src.verify.equivalence import (
     EquivalenceResult,
-    ParseError,
     expr_equal,
     matrix_equal,
     number_equal,

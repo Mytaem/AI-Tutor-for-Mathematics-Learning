@@ -26,7 +26,6 @@ from src.verify.equivalence import (
     equal_up_to_constant,
     number_equal,
     expr_equal,
-    numeric_equal,
     parse_math,
     run_with_timeout,
 )

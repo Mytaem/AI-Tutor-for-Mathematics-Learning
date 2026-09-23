@@ -14,7 +14,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.core.itembank import ERRORS_DIR, ItemBank, load_error_codes  # noqa: E402
-from src.core.schema import AnswerType, Item, Subject, Submission  # noqa: E402
+from src.core.schema import Item, Submission  # noqa: E402
 from src.tutor.guardrail import (  # noqa: E402
     check_leak,
     extract_expressions,

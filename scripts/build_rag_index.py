@@ -20,7 +20,7 @@ from src.core.config import ROOT
 from src.core.itembank import COURSE_TAXONOMIES, course_taxonomy_paths
 from src.rag.chunking import assign_ids
 from src.rag.ingest import ingest_all, load_pitfalls
-from src.rag.store import EmbeddingCache, Encoder, RagIndex, best_available_encoder, encoder_from_name
+from src.rag.store import EmbeddingCache, Encoder, RagIndex, best_available_encoder
 
 RAW_DIR = ROOT / "data" / "raw"
 INDEX_DIR = ROOT / "data" / "rag_index"

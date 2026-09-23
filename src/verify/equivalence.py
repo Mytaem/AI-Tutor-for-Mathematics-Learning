@@ -23,7 +23,7 @@ from __future__ import annotations
 import random
 import re
 import threading
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Callable, Literal, Sequence
 
 import sympy as sp

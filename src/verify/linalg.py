@@ -28,7 +28,6 @@ from src.verify.equivalence import (
     expr_equal,
     matrix_equal,
     parse_math,
-    tidy,
 )
 
 # Mã lỗi tầng 2 (chi tiết trong data/errors/linear_algebra.json).

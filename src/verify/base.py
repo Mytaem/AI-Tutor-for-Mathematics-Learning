@@ -10,7 +10,7 @@ thêm một lớp con, và đó là điều cần chứng minh khi bảo vệ.
 from __future__ import annotations
 
 import re
-from abc import ABC, abstractmethod
+from abc import ABC
 
 import sympy as sp
 

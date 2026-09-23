@@ -12,7 +12,7 @@ xem README, mục nguyên tắc thiết kế.
 from __future__ import annotations
 
 import random
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from src.core.schema import AnswerType, ErrorCode, Item, Skill, Submission, VerificationResult
 from src.tutor.guardrail import LeakReport, check_leak

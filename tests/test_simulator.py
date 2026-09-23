@@ -12,7 +12,6 @@ sai theo mà không ai biết. Ba thứ được canh chặt:
 
 from __future__ import annotations
 
-import random
 import sys
 from pathlib import Path
 

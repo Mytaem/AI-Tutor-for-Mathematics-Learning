@@ -23,7 +23,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.kt.baselines import bkt_predict, fit_bkt, majority_predict  # noqa: E402
 from src.kt.bkt import BKTParams  # noqa: E402
 from src.kt.dkt import (  # noqa: E402
-    DKT,
     DKTConfig,
     SkillIndex,
     accuracy,

@@ -19,7 +19,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.core.itembank import ItemBank  # noqa: E402
-from src.core.schema import Item, Submission  # noqa: E402
+from src.core.schema import Submission  # noqa: E402
 from src.verify.registry import verifier_for  # noqa: E402
 
 
