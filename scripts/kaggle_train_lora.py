@@ -37,7 +37,27 @@ from transformers import (
 )
 
 BASE_MODEL = os.environ.get("BASE_MODEL", "Qwen/Qwen2.5-1.5B-Instruct")
-DATA_DIR = Path("/kaggle/input/ai-tutor-error-codes")
+
+
+def _find_data_dir() -> Path:
+    """Tìm thư mục dữ liệu trong /kaggle/input.
+
+    Không viết cứng đường dẫn: lần chạy đầu tiên đã hỏng vì kernel khởi động khi
+    dataset còn đang xử lý, và thư mục mount chưa tồn tại. Dò theo file thì thông
+    báo lỗi cũng nói rõ có những gì trong /kaggle/input.
+    """
+    root = Path("/kaggle/input")
+    for candidate in sorted(root.glob("*")):
+        if (candidate / "train.jsonl").exists():
+            return candidate
+    available = [str(path.name) for path in root.glob("*")] if root.exists() else []
+    raise FileNotFoundError(
+        f"Không thấy train.jsonl trong /kaggle/input (có: {available}). "
+        "Dataset có thể chưa xử lý xong — đợi rồi chạy lại kernel."
+    )
+
+
+DATA_DIR = _find_data_dir()
 OUTPUT_DIR = Path("/kaggle/working")
 MAX_LENGTH = 1152          # p95 của prompt ≈ 880 token, chừa chỗ cho đáp án
 EVAL_SAMPLES = 300

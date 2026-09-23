@@ -57,24 +57,30 @@ python scripts/build_error_dataset.py MAE101   # và MAI391 / MAS291 / MAD101
 python scripts/build_rag_index.py --dense      # kho giáo trình (cần Ollama cho bge-m3)
 ```
 
-## Fine-tune LoRA (cần GPU — Colab hoặc Kaggle)
+## Fine-tune LoRA (cần GPU — chạy trên Kaggle)
 
-Máy cá nhân không có GPU nên phần này chạy trên máy miễn phí. Các bước:
+Máy cá nhân không có GPU. Luồng đã tự động hoá qua API Kaggle:
 
 ```bash
-# 1. Trên máy: dựng tập dữ liệu rồi đẩy lên Drive / Kaggle dataset
-python scripts/build_sft_dataset.py 120        # ra data/sft/{train,validation,test}.jsonl
-
-# 2. Trên Colab/Kaggle (T4 16GB là đủ)
-pip install -r requirements-train.txt
-python scripts/train_lora_error_classifier.py --base Qwen/Qwen2.5-1.5B-Instruct --epochs 3
-
-# 3. Đo lại bằng đúng script đã đo baseline prompting, để hai số so được với nhau
-python scripts/exp3_error_classification.py --limit 300
+python scripts/build_sft_dataset.py 120     # dựng data/sft/{train,validation,test}.jsonl
+python scripts/kaggle_push.py               # đẩy kernel, bật GPU + internet, chạy luôn
+python scripts/kaggle_push.py --status      # xem chạy tới đâu
+python scripts/kaggle_push.py --fetch       # tải log, adapter và metrics.json về
 ```
 
-Chạy thử 5 phút trước khi chạy thật: thêm `--max-samples 200 --epochs 0.2`. Colab
-hay ngắt phiên giữa chừng nên script lưu checkpoint mỗi 100 bước và có `--resume`.
+Cần `~/.kaggle/access_token` (lấy ở Kaggle → Settings → API → Create New Token).
+Đẩy dataset lần đầu: `cd .kaggle_tmp/kg_data && python ../_cli.py datasets create -p .`
+(phải chạy TỪ TRONG thư mục đó — CLI Kaggle dựng tên file tạm từ đường dẫn truyền
+vào nên hỏng với đường dẫn tuyệt đối kiểu Windows).
+
+Kernel tự đo model gốc trước khi học rồi đo lại sau, bằng đúng cách tính macro-F1
+của baseline chạy ở máy, nên hai con số so trực tiếp được.
+
+Muốn chạy trên Colab thay vì Kaggle thì dùng `scripts/train_lora_error_classifier.py`
+(có `--resume` vì Colab hay ngắt phiên giữa chừng).
+
+**Lưu ý mạng**: nếu `kaggle` treo ở bước kết nối, nhiều khả năng DNS trả địa chỉ
+IPv6 NAT64; `scripts/kaggle_push.py` đã ép IPv4 sẵn.
 
 ## Chạy thí nghiệm
 
