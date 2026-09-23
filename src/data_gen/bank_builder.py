@@ -24,7 +24,7 @@ import random
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
-from src.core.schema import AnswerType, Item, Subject
+from src.core.schema import AnswerType, Item, SolutionStep, Subject
 
 #: Builder nhận bộ sinh số ngẫu nhiên, trả về phần RIÊNG của một đề, hoặc None
 #: khi bộ tham số vừa gieo không dùng được (ma trận suy biến, xác suất > 1...).
@@ -122,5 +122,9 @@ class Registry:
             answer=draft["answer"],
             difficulty=draft.get("difficulty", spec.difficulty),
             source="generated",
+            reference_solution_steps=[
+                SolutionStep(step=position, expr=expr, skill_id=(draft.get("skills") or spec.skills)[0])
+                for position, expr in enumerate(draft.get("steps") or [], start=1)
+            ],
             meta=meta,
         )

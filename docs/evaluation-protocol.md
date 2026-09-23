@@ -42,11 +42,12 @@ Quy mô dữ liệu hiện tại — **5.990 mẫu lỗi có nhãn trên 89 mã 
 | MAS291 | 36 | 1.200 | 1.432 | 100% |
 | MAD101 | 43 | 1.200 | 999 | 100% |
 
-Phân bố theo mã lỗi: 14 mã ≥ 100 mẫu, 54 mã 30–99, 20 mã 10–29, 1 mã dưới 10.
+Mọi mã lỗi đều có mặt ở cả ba tập train/validation/test, mã hiếm nhất còn 9 mẫu.
 
-Mã duy nhất còn dưới 10 mẫu là `LA.ROWOP.INVALID` (phép biến đổi hàng không hợp lệ).
-Nó là lỗi ở mức TỪNG BƯỚC, mà đề sinh tự động chỉ có đáp án cuối chứ không có lời
-giải theo bước — muốn đủ mẫu thì phải sinh cả lời giải mẫu, việc này để sau.
+Mã `LA.ROWOP.INVALID` (biến đổi hàng không hợp lệ) từng chỉ có ĐÚNG MỘT mẫu: nó là
+lỗi ở mức TỪNG BƯỚC, mà đề sinh tự động khi đó chỉ có đáp án cuối. Sau khi cho bài
+giải hệ sinh kèm lời giải mẫu dạng ma trận mở rộng (các bước khử Gauss), mã này có
+52 mẫu.
 
 ```
 python scripts/build_error_dataset.py MAE101      # và MAI391 / MAS291 / MAD101

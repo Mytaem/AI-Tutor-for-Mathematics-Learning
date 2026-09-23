@@ -90,8 +90,8 @@ Hạn chế phải viết đúng như đã đo, không làm nhẹ đi:
 3. **ZPD không thắng toàn diện.** Nó cho trải nghiệm tốt nhất nhưng thạo ít kỹ năng
    hơn dạy tuần tự; thêm tiêu chí phủ kỹ năng mới gỡ lại được một phần.
 4. **Kho giáo trình chưa phủ hết syllabus**, MAS291 thiếu nhiều chương.
-5. **Lỗi mức từng bước gần như không có dữ liệu** (`LA.ROWOP.INVALID` chỉ 1 mẫu): đề
-   sinh tự động mới có đáp án cuối, chưa có lời giải mẫu theo bước.
+5. **Lỗi mức từng bước mới có dữ liệu ở dạng giải hệ** (khử Gauss). Các dạng bài
+   khác vẫn chỉ sinh được đáp án cuối, nên chẩn đoán theo bước chưa phủ hết.
 6. **Chứng minh hình thức** chỉ kiểm được cấu trúc, không kiểm được lập luận.
 
 ## Chương 9 — Phụ lục

@@ -293,7 +293,28 @@ def _linear_system(rng: random.Random):
     if matrix.det() == 0:
         return None                                  # nghiệm không duy nhất, để dạng khác lo
     equations = ", ".join(_equation(row, value) for row, value in zip(A, b))
-    return draft(meta, f"Giải hệ: {equations}", [text(v) for v in solution], "linear_system")
+    return draft(meta, f"Giải hệ: {equations}", [text(v) for v in solution], "linear_system",
+                 steps=_gauss_steps(matrix, sp.Matrix(b)))
+
+
+def _gauss_steps(matrix: sp.Matrix, target: sp.Matrix) -> list[str]:
+    """Lời giải mẫu dạng MA TRẬN MỞ RỘNG, từng bước khử Gauss.
+
+    Có lời giải theo bước thì mới cài được lỗi ở mức BƯỚC (biến đổi hàng không
+    hợp lệ). Trước đây đề sinh tự động chỉ có đáp án cuối, nên mã LA.ROWOP.INVALID
+    cả bộ dữ liệu chỉ có đúng một mẫu, không đủ cho bất cứ mô hình nào học.
+    """
+    augmented = matrix.row_join(target)
+    steps = [augmented]
+    if augmented[0, 0] == 0:                       # đổi chỗ hai hàng cho trụ khác 0
+        augmented = augmented.elementary_row_op("n<->m", row1=0, row2=1)
+        steps.append(augmented)
+    if augmented[0, 0] != 0 and augmented[1, 0] != 0:
+        factor = sp.Rational(augmented[1, 0], augmented[0, 0])
+        augmented = augmented.elementary_row_op("n->n+km", row=1, k=-factor, row2=0)
+        steps.append(augmented)
+    steps.append(augmented.rref()[0])
+    return [show_matrix(as_rows(step)) for step in steps]
 
 
 # --------------------------------------------------------------------------
