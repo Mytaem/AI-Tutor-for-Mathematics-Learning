@@ -1,0 +1,19 @@
+{
+ "total": 301,
+ "found": 301,
+ "exact": 301,
+ "detection_rate": 1.0,
+ "exact_rate": 1.0,
+ "false_alarm_rate": 0.0,
+ "checked_correct": 301,
+ "by_code": {
+  "MAE.ALG.STEP": {
+   "n": 248,
+   "exact": 248
+  },
+  "LA.ROWOP.INVALID": {
+   "n": 53,
+   "exact": 53
+  }
+ }
+}

@@ -114,6 +114,28 @@ In ra ba tỉ lệ, cố ý tách riêng vì ba mức độ khó khác hẳn nha
 Hạn chế phải ghi rõ trong báo cáo: lỗi tổng hợp phân bố khác lỗi thật, nên con số ở
 đây là chặn trên. Tập test thật (~200 bài làm gán nhãn tay) mới là thước đo cuối.
 
+### EXP-2b — chỉ đúng BƯỚC SAI ĐẦU TIÊN
+
+```
+python scripts/exp2_step_detection.py
+```
+
+Phần trên chỉ đo ở mức đáp án cuối. Nhưng giá trị sư phạm nằm ở chỗ chỉ đúng chỗ sai
+trong lời giải: gợi ý mức 3 nói "bước 2 của em chưa đúng" mà chỉ sai bước thì thành
+vô nghĩa.
+
+| Chỉ số | Kết quả |
+|---|---|
+| Phát hiện có chỗ sai trong chuỗi bước | 301/301 = 100% |
+| Chỉ **đúng** bước đã bị cài lỗi | 301/301 = 100% |
+| Báo oan trên lời giải mẫu (đúng) | 0/301 = 0% |
+
+**Con số đẹp này có phạm vi rất hẹp, đừng trích dẫn trần trụi:** nó chỉ phủ 2 trong
+89 mã lỗi (`MAE.ALG.STEP` và `LA.ROWOP.INVALID`), và cả hai đều là lỗi do máy cài
+vào với dấu hiệu rõ ràng — một bước không tương đương bước trước. Bài làm thật có
+những kiểu sai mờ hơn nhiều (viết tắt, nhảy bước, trình bày lộn xộn). Muốn có số
+đáng tin thì phải chấm tay bài làm thật, đó là việc còn lại.
+
 ---
 
 ## EXP-3 — phân loại mã lỗi
