@@ -16,10 +16,13 @@ Mô hình sinh dữ liệu (ghi rõ trong báo cáo, đây là GIẢ ĐỊNH ch�
   θ tăng NHIỀU hơn (học từ lỗi) — đây chính là giả thiết sư phạm mà hệ thống đặt
   cược vào, nên EXP-6 phải báo cáo kết quả ở cả hai mức ``learn_from_hint``.
 
-Hạn chế phải nói thẳng: học sinh mô phỏng được sinh từ đúng mô hình mà BKT giả
-định, nên nó THIÊN VỊ cho BKT. Vì vậy AUC trên dữ liệu mô phỏng không được dùng
-để tuyên bố DKT tốt hơn BKT; so sánh đó phải làm trên dữ liệu công khai
-(ASSISTments) hoặc log người thật.
+Hạn chế phải nói thẳng, và nó THIÊN VỊ cho DKT chứ không phải cho BKT: mỗi học
+sinh ở đây có một năng lực NỀN dùng chung cho mọi kỹ năng, cộng thêm nhiễu riêng
+từng kỹ năng. Mô hình nào chia sẻ được thông tin giữa các kỹ năng (DKT, SAKT) sẽ
+đoán được ngay từ vài lượt đầu rằng người này khá hay yếu; BKT về cấu trúc không
+làm được điều đó vì mỗi kỹ năng một biến độc lập. Vì vậy khoảng cách AUC đo trên
+dữ liệu mô phỏng là chặn TRÊN, không được dùng để tuyên bố DKT tốt hơn BKT ngoài
+đời — so sánh đó phải làm trên dữ liệu công khai (ASSISTments) hoặc log người thật.
 """
 
 from __future__ import annotations

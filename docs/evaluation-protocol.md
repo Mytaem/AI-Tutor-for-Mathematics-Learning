@@ -84,6 +84,42 @@ hình dense / BM25 / hybrid.
 
 ---
 
+## EXP-5 — mô hình theo dõi năng lực
+
+```
+python scripts/exp5_kt.py --subject MAE101 --students 360 --steps 50 --seeds 3
+```
+
+Bốn mô hình trên cùng dữ liệu, chia **theo người học** 70/15/15 (chia theo lượt thì
+các lượt của cùng một người nằm cả ở train lẫn test, mô hình học thuộc người đó và
+AUC đẹp lên một cách giả tạo). Dữ liệu trộn ba chiến lược chọn bài để mô hình không
+học thuộc thói quen của một chiến lược.
+
+### Kết quả — 360 học sinh mô phỏng × 50 lượt × 3 seed
+
+| Mô hình | AUC (MAE101) | ± | ACC | log loss | AUC (MAD101) |
+|---|---|---|---|---|---|
+| majority | 0,500 | 0,000 | 0,622 | 0,664 | 0,500 |
+| BKT (khớp tham số) | 0,639 | 0,012 | 0,637 | 0,640 | 0,551 |
+| **DKT** (GRU) | **0,852** | 0,004 | 0,780 | 0,437 | **0,706** |
+| SAKT (self-attention) | 0,776 | 0,006 | 0,727 | 0,543 | 0,681 |
+
+- `majority` cho đúng 0,500 — kiểm chứng rằng hàm AUC không bị lỗi.
+- Tham số BKT được **khớp từ dữ liệu** bằng tìm kiếm trên lưới 400 bộ, không dùng
+  giá trị mặc định; nếu không thì phép so sánh thành "DKT đã huấn luyện" đấu với
+  "BKT đoán bừa tham số".
+- SAKT thua DKT ở cỡ dữ liệu này (25 nghìn lượt). Đúng như literature: self-attention
+  cần nhiều dữ liệu hơn hồi tiếp mới phát huy.
+
+**Cảnh báo khi trích dẫn con số này:** học sinh mô phỏng có một năng lực NỀN dùng
+chung cho mọi kỹ năng. Mô hình chia sẻ được thông tin giữa các kỹ năng (DKT, SAKT)
+đoán được ngay từ vài lượt đầu rằng người này khá hay yếu, còn BKT về cấu trúc không
+làm được — mỗi kỹ năng là một biến độc lập. Nên khoảng cách 0,64 → 0,85 là **chặn
+trên** cho lợi thế của DKT, không phải bằng chứng cho hiệu quả ngoài đời. Muốn kết
+luận thật phải chạy lại trên ASSISTments hoặc log người dùng thật.
+
+---
+
 ## EXP-6 — chiến lược chọn bài
 
 ```
