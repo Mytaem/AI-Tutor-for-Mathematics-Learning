@@ -115,3 +115,25 @@ class TestJudgeRates:
     def test_khong_tra_loi_duoc_van_tinh_la_sai(self, exp7) -> None:
         rates = exp7.rates([(True, None), (False, None)])
         assert rates["accuracy"] == 0.0 and rates["no_answer"] == 1.0
+
+
+@pytest.fixture(scope="module")
+def rating():
+    return load_script("build_hint_rating_sheet")
+
+
+class TestCohenKappa:
+    def test_dong_thuan_hoan_toan(self, rating) -> None:
+        assert rating.cohen_kappa([5, 4, 3, 2], [5, 4, 3, 2]) == 1.0
+
+    def test_lech_hoan_toan_thi_am(self, rating) -> None:
+        assert rating.cohen_kappa([5, 5, 5, 1], [1, 1, 1, 5]) < 0
+
+    def test_ai_cung_cho_mot_muc_diem_thi_khong_xac_dinh(self, rating) -> None:
+        """Trùng nhau 100% nhưng kappa không xác định — trả 1.0 ở đây là tự khen."""
+        value = rating.cohen_kappa([4, 4, 4, 4], [4, 4, 4, 4])
+        assert value != value, "phải là NaN"
+
+    def test_bo_qua_o_chua_cham(self, rating) -> None:
+        """Ô trống (giá trị 0) không được tính là một mức điểm."""
+        assert rating.cohen_kappa([5, 0, 3], [5, 0, 3]) == 1.0
