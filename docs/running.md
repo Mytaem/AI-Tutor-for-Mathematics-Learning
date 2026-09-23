@@ -57,6 +57,25 @@ python scripts/build_error_dataset.py MAE101   # và MAI391 / MAS291 / MAD101
 python scripts/build_rag_index.py --dense      # kho giáo trình (cần Ollama cho bge-m3)
 ```
 
+## Fine-tune LoRA (cần GPU — Colab hoặc Kaggle)
+
+Máy cá nhân không có GPU nên phần này chạy trên máy miễn phí. Các bước:
+
+```bash
+# 1. Trên máy: dựng tập dữ liệu rồi đẩy lên Drive / Kaggle dataset
+python scripts/build_sft_dataset.py 120        # ra data/sft/{train,validation,test}.jsonl
+
+# 2. Trên Colab/Kaggle (T4 16GB là đủ)
+pip install -r requirements-train.txt
+python scripts/train_lora_error_classifier.py --base Qwen/Qwen2.5-1.5B-Instruct --epochs 3
+
+# 3. Đo lại bằng đúng script đã đo baseline prompting, để hai số so được với nhau
+python scripts/exp3_error_classification.py --limit 300
+```
+
+Chạy thử 5 phút trước khi chạy thật: thêm `--max-samples 200 --epochs 0.2`. Colab
+hay ngắt phiên giữa chừng nên script lưu checkpoint mỗi 100 bước và có `--resume`.
+
 ## Chạy thí nghiệm
 
 ```bash
