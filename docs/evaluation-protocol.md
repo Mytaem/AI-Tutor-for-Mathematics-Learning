@@ -32,6 +32,22 @@ Nguyên tắc chung:
 Đo trên tập lỗi có nhãn `data/errors/*_injected.jsonl` (nhãn sạch 100% vì lỗi do máy
 cài vào), và sau này trên bài làm sai THẬT do sinh viên nộp.
 
+Quy mô dữ liệu hiện tại — **5.990 mẫu lỗi có nhãn trên 89 mã lỗi**, sinh từ 4.155 đề
+(155 chép tay + 4.000 sinh tự động):
+
+| Môn | Đề chép tay | Đề sinh tự động | Mẫu lỗi có nhãn | Gán đúng mã |
+|---|---|---|---|---|
+| MAE101 | 41 | 300 | 1.660 | 72,3% |
+| MAI391 | 35 | 1.200 | 1.899 | 99,7% |
+| MAS291 | 36 | 1.200 | 1.432 | 100% |
+| MAD101 | 43 | 1.200 | 999 | 100% |
+
+Phân bố theo mã lỗi: 14 mã ≥ 100 mẫu, 54 mã 30–99, 20 mã 10–29, 1 mã dưới 10.
+
+Mã duy nhất còn dưới 10 mẫu là `LA.ROWOP.INVALID` (phép biến đổi hàng không hợp lệ).
+Nó là lỗi ở mức TỪNG BƯỚC, mà đề sinh tự động chỉ có đáp án cuối chứ không có lời
+giải theo bước — muốn đủ mẫu thì phải sinh cả lời giải mẫu, việc này để sau.
+
 ```
 python scripts/build_error_dataset.py MAE101      # và MAI391 / MAS291 / MAD101
 ```
