@@ -29,6 +29,7 @@ WELCOME = (
     "/subject — chọn môn\n"
     "/practice — nhận bài tập\n"
     "/hint — xin gợi ý (cho dần từng mức)\n"
+    "/explain <khái niệm> — hỏi lý thuyết, có trích nguồn giáo trình\n"
     "/progress — xem mức thành thạo\n"
     "/stop — kết thúc\n\n"
     "Chọn môn trước nhé: /subject"
@@ -175,6 +176,25 @@ class Dialog:
             "Kỹ năng cần luyện thêm:",
         ]
         lines += [f"{_bar(s['mastery'])} {s['mastery']:.0%} — {s['name_vi']}" for s in weakest]
+        return Reply("\n".join(lines))
+
+    async def explain(self, chat_id: int, user_id: str, question: str) -> Reply:
+        """Hỏi lý thuyết — không cần đang làm bài, không cần chọn môn.
+
+        Đã chọn môn thì thu hẹp về giáo trình môn đó; chưa chọn thì tìm cả bốn môn.
+        """
+        state = self.state_for(chat_id, user_id)
+        if not question.strip():
+            return Reply("Em gõ kèm câu hỏi nhé, ví dụ: /explain chu trình Euler là gì")
+        try:
+            result = await self.api.ask(question.strip(), state.subject)
+        except ApiError as exc:
+            return Reply(f"Chưa tra được: {exc}")
+
+        lines = [result["answer"].strip()]
+        if result.get("sources"):
+            lines.append("\n📚 Nguồn:")
+            lines += [f"• {source}" for source in result["sources"][:3]]
         return Reply("\n".join(lines))
 
     async def stop(self, chat_id: int) -> Reply:

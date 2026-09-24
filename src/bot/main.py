@@ -79,6 +79,11 @@ async def run() -> None:
     async def handle_solution(message: Message) -> None:
         await send(message, await dialog.hint(*who(message), asked_for_solution=True))
 
+    @dispatcher.message(Command("explain"))
+    async def handle_explain(message: Message) -> None:
+        question = (message.text or "").partition(" ")[2]
+        await send(message, await dialog.explain(*who(message), question))
+
     @dispatcher.message(Command("progress"))
     async def handle_progress(message: Message) -> None:
         await send(message, await dialog.progress(*who(message)))

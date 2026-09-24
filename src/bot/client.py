@@ -70,6 +70,9 @@ class TutorApi:
             "asked_for_solution": asked_for_solution,
         })
 
+    async def ask(self, question: str, subject: str | None = None) -> dict:
+        return await self._call("POST", "/ask", json={"question": question, "subject": subject})
+
     async def progress(self, user_id: str, subject: str) -> dict:
         return await self._call("GET", "/progress",
                                 params={"user_id": user_id, "subject": subject})

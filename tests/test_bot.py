@@ -86,6 +86,11 @@ class FakeApi:
             {"skill_id": "MAE.INT.SUBST", "name_vi": "Đổi biến", "mastery": 0.2},
         ]}
 
+    async def ask(self, question, subject=None):
+        self._record("ask", question, subject)
+        return {"answer": "Chu trình Euler đi qua mỗi cạnh đúng một lần.",
+                "sources": ["rosen.pdf — Rosen — tr.693"], "in_scope": True, "used_llm": False}
+
     async def health(self):
         self._record("health")
         return {"items": 10, "skills": 3}
@@ -182,3 +187,25 @@ class TestBotDoesNotGrade:
         state = dialog.states[CHAT]
         assert not hasattr(state, "answer")
         assert "answer" not in vars(state)
+
+
+class TestExplain:
+    def test_hoi_ly_thuyet_kem_nguon(self, dialog: Dialog, api: FakeApi) -> None:
+        reply = run(dialog.explain(CHAT, USER, "chu trình Euler là gì"))
+        assert "đi qua mỗi cạnh" in reply.text
+        assert "Nguồn" in reply.text and "rosen.pdf" in reply.text
+
+    def test_khong_can_chon_mon_truoc(self, dialog: Dialog, api: FakeApi) -> None:
+        """Khác /practice: hỏi lý thuyết thì hỏi được ngay, môn để None."""
+        run(dialog.explain(CHAT, USER, "ma trận nghịch đảo"))
+        assert api.calls[-1] == ("ask", ("ma trận nghịch đảo", None))
+
+    def test_da_chon_mon_thi_thu_hep_theo_mon(self, dialog: Dialog, api: FakeApi) -> None:
+        pick_subject(dialog)
+        run(dialog.explain(CHAT, USER, "đổi biến"))
+        assert api.calls[-1] == ("ask", ("đổi biến", "MAE101"))
+
+    def test_go_lenh_khong_kem_cau_hoi(self, dialog: Dialog, api: FakeApi) -> None:
+        reply = run(dialog.explain(CHAT, USER, "   "))
+        assert "/explain" in reply.text
+        assert api.calls == [], "không gọi API khi chưa có câu hỏi"
