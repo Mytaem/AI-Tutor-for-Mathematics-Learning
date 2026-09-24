@@ -1,6 +1,6 @@
 # Bảng kết quả
 
-*Sinh tự động bằng `python scripts/make_report_tables.py`, ngày 2026-09-23.*
+*Sinh tự động bằng `python scripts/make_report_tables.py`, ngày 2026-09-24.*
 *Đừng sửa tay file này — sửa ở `experiments/` rồi chạy lại script.*
 
 ## EXP-1 — mô hình tự giải toán (chấm bằng verifier)
@@ -9,6 +9,16 @@
 |---|---|---|---|---|---|
 | hỏi thẳng | 25% | 0% | 25% | 42% | **22,9%** |
 | suy luận từng bước | 50% | 33% | 50% | 33% | **41,7%** |
+
+## EXP-2b — chỉ đúng bước sai đầu tiên
+
+| Chỉ số | Kết quả |
+|---|---|
+| Phát hiện có chỗ sai trong chuỗi bước | 301/301 = 100,0% |
+| Chỉ **đúng** bước đã bị cài lỗi | 301/301 = 100,0% |
+| Báo oan trên lời giải mẫu (đúng) | 0,0% trên 301 lời giải |
+
+*Chỉ phủ 2 mã lỗi mức bước: LA.ROWOP.INVALID, MAE.ALG.STEP — xem phần hạn chế trong `docs/evaluation-protocol.md`.*
 
 ## EXP-3 — phân loại mã lỗi
 

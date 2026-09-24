@@ -61,6 +61,27 @@ def table_exp1() -> str:
     return header + "\n" + "\n".join(rows)
 
 
+def table_exp2() -> str:
+    data = load(EXPERIMENTS / "exp2" / "step_detection.json")
+    if data is None:
+        return MISSING
+    rows = [
+        "| Chỉ số | Kết quả |",
+        "|---|---|",
+        f"| Phát hiện có chỗ sai trong chuỗi bước | {data['found']}/{data['total']} = "
+        f"{percent(data['detection_rate'])} |",
+        f"| Chỉ **đúng** bước đã bị cài lỗi | {data['exact']}/{data['total']} = "
+        f"{percent(data['exact_rate'])} |",
+        f"| Báo oan trên lời giải mẫu (đúng) | {percent(data['false_alarm_rate'])} "
+        f"trên {data['checked_correct']} lời giải |",
+        "",
+        f"*Chỉ phủ {len(data['by_code'])} mã lỗi mức bước: "
+        f"{', '.join(sorted(data['by_code']))} — xem phần hạn chế trong "
+        "`docs/evaluation-protocol.md`.*",
+    ]
+    return "\n".join(rows)
+
+
 def table_exp3() -> str:
     folder = EXPERIMENTS / "exp3"
     if not folder.exists():
@@ -169,6 +190,7 @@ def table_exp8() -> str:
 def main() -> None:
     sections = [
         ("EXP-1 — mô hình tự giải toán (chấm bằng verifier)", table_exp1()),
+        ("EXP-2b — chỉ đúng bước sai đầu tiên", table_exp2()),
         ("EXP-3 — phân loại mã lỗi", table_exp3()),
         ("EXP-4 — truy xuất giáo trình (Recall@5)", table_exp4()),
         ("EXP-5 — mô hình theo dõi năng lực", table_exp5()),
