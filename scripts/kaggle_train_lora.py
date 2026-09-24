@@ -263,7 +263,14 @@ def main() -> None:
             lr_scheduler_type="cosine",
             warmup_ratio=0.03,
             logging_steps=20,
-            eval_strategy="epoch",
+            # KHÔNG chạy eval giữa lúc train. Hai lần chạy trước đều chết đúng ở
+            # cuối epoch 1 (bước 228/684 và 228/456) — chỗ Trainer dừng lại để
+            # đánh giá, với batch eval mặc định là 8; tensor logits khi đó là
+            # 8 × 1152 × 151936 nên T4 hoặc hết VRAM hoặc văng CUDA launch
+            # failure. Chất lượng vẫn đo đầy đủ sau khi train xong, bằng sinh
+            # chuỗi thật chứ không phải loss, nên không mất gì.
+            eval_strategy="no",
+            per_device_eval_batch_size=1,
             save_strategy="epoch",
             save_total_limit=1,
             fp16=True,
@@ -272,7 +279,6 @@ def main() -> None:
             seed=SEED,
         ),
         train_dataset=CodeDataset(train_rows, tokenizer),
-        eval_dataset=CodeDataset(validation_rows[:200], tokenizer),
         data_collator=lambda batch: collate(batch, tokenizer.pad_token_id),
     )
     history = trainer.train()
