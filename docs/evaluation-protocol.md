@@ -40,13 +40,18 @@ python scripts/exp1_solving.py --per-subject 12 --mode cot # cho nghĩ từng b�
 48 bài (12 mỗi môn), **chấm bằng chính verifier của môn** — chấp nhận mọi dạng viết
 tương đương. Lấy mô hình ra tự chấm thì con số chỉ đo được sự tự tin của nó.
 
-| Chế độ | MAE101 | MAI391 | MAS291 | MAD101 | Tổng | Thời gian |
-|---|---|---|---|---|---|---|
-| hỏi thẳng | 25,0% | 0,0% | 25,0% | 41,7% | **22,9%** | 7,1 s/bài |
-| suy luận từng bước | 50,0% | 33,3% | 50,0% | 33,3% | **41,7%** | 34,3 s/bài |
+| Model | Chế độ | MAE101 | MAI391 | MAS291 | MAD101 | Tổng | Thời gian |
+|---|---|---|---|---|---|---|---|
+| 3b | hỏi thẳng | 25,0% | 0,0% | 25,0% | 41,7% | **22,9%** | 7,1 s/bài |
+| 3b | suy luận từng bước | 50,0% | 33,3% | 50,0% | 33,3% | **41,7%** | 34,3 s/bài |
+| 7b | hỏi thẳng | 58,3% | 25,0% | 33,3% | 58,3% | **43,8%** | 6,4 s/bài |
 
 Cho nghĩ từng bước gần như gấp đôi tỉ lệ đúng nhưng chậm gấp 5 lần, và vẫn dưới 50%.
-MAI391 (ma trận, gradient, PCA) là môn model yếu nhất: hỏi thẳng đúng 0/12.
+Model 7b hỏi thẳng (43,8%) ngang với model 3b phải nghĩ từng bước (41,7%) — nhưng
+nhanh hơn 5 lần, nên nếu chỉ cần lời giải thì đổi model rẻ hơn đổi cách hỏi.
+
+MAI391 (ma trận, gradient, PCA) là môn model yếu nhất ở cả hai cỡ: 3b hỏi thẳng
+đúng 0/12, 7b được 3/12.
 
 Đây là lý do tồn tại của cả tầng kiểm chứng: **phần tính toán giao cho SymPy, mô
 hình chỉ lo diễn đạt**. Một chatbot bọc API, dù prompt khéo tới đâu, cũng đang đứng

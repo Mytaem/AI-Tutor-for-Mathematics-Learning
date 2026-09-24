@@ -42,22 +42,29 @@ def number(value: float | None, digits: int = 3) -> str:
 # --------------------------------------------------------------------------
 
 def table_exp1() -> str:
+    """Một dòng cho MỖI FILE, có cột model.
+
+    Bản đầu gộp theo chế độ và giữ file cuối cùng, nên khi chạy thêm model 7b thì
+    bảng có dòng 7b nằm cạnh dòng 3b mà không ghi model — trông như cùng một model
+    mà chế độ này tốt hơn chế độ kia gấp đôi.
+    """
+    labels = {"direct": "hỏi thẳng", "cot": "suy luận từng bước",
+              "self_consistency": "tự nhất quán k=3"}
+    folder = EXPERIMENTS / "exp1"
     rows = []
-    for mode, label in (("direct", "hỏi thẳng"), ("cot", "suy luận từng bước"),
-                        ("self_consistency", "tự nhất quán k=3")):
-        data = None
-        for path in sorted((EXPERIMENTS / "exp1").glob(f"*_{mode}.json")) if (EXPERIMENTS / "exp1").exists() else []:
-            data = load(path)
+    for path in sorted(folder.glob("*.json")) if folder.exists() else []:
+        data = load(path)
         if data is None:
             continue
         by = data["by_subject"]
-        rows.append(f"| {label} | " + " | ".join(percent(by.get(s), 0) for s in
-                    ("MAE101", "MAI391", "MAS291", "MAD101")) +
-                    f" | **{percent(data['accuracy'], 1)}** |")
+        rows.append(f"| {data['model']} | {labels.get(data['mode'], data['mode'])} | "
+                    + " | ".join(percent(by.get(s), 0)
+                                 for s in ("MAE101", "MAI391", "MAS291", "MAD101"))
+                    + f" | **{percent(data['accuracy'], 1)}** |")
     if not rows:
         return MISSING
-    header = ("| Chế độ | MAE101 | MAI391 | MAS291 | MAD101 | Tổng |\n"
-              "|---|---|---|---|---|---|")
+    header = ("| Model | Chế độ | MAE101 | MAI391 | MAS291 | MAD101 | Tổng |\n"
+              "|---|---|---|---|---|---|---|")
     return header + "\n" + "\n".join(rows)
 
 

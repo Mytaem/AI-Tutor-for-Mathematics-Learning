@@ -5,10 +5,11 @@
 
 ## EXP-1 — mô hình tự giải toán (chấm bằng verifier)
 
-| Chế độ | MAE101 | MAI391 | MAS291 | MAD101 | Tổng |
-|---|---|---|---|---|---|
-| hỏi thẳng | 25% | 0% | 25% | 42% | **22,9%** |
-| suy luận từng bước | 50% | 33% | 50% | 33% | **41,7%** |
+| Model | Chế độ | MAE101 | MAI391 | MAS291 | MAD101 | Tổng |
+|---|---|---|---|---|---|---|
+| qwen2.5:3b-instruct | suy luận từng bước | 50% | 33% | 50% | 33% | **41,7%** |
+| qwen2.5:3b-instruct | hỏi thẳng | 25% | 0% | 25% | 42% | **22,9%** |
+| qwen2.5:7b-instruct | hỏi thẳng | 58% | 25% | 33% | 58% | **43,8%** |
 
 ## EXP-2b — chỉ đúng bước sai đầu tiên
 
