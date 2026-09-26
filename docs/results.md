@@ -1,6 +1,6 @@
 # Bảng kết quả
 
-*Sinh tự động bằng `python scripts/make_report_tables.py`, ngày 2026-09-24.*
+*Sinh tự động bằng `python scripts/make_report_tables.py`, ngày 2026-09-26.*
 *Đừng sửa tay file này — sửa ở `experiments/` rồi chạy lại script.*
 
 ## EXP-1 — mô hình tự giải toán (chấm bằng verifier)
@@ -28,6 +28,8 @@
 | qwen2.5:3b-instruct few-shot 6 | 0,343 | 35,3% | 49,3% | 0,0% |
 | qwen2.5:3b-instruct zero-shot | 0,358 | 38,0% | 48,7% | 1,3% |
 | qwen2.5:7b-instruct zero-shot | 0,415 | 46,7% | 63,3% | 2,7% |
+| Qwen2.5-1.5B-Instruct (base) | 0,098 | 15,7% | 29,3% | 16,0% |
+| Qwen2.5-1.5B-Instruct (**+ LoRA**) | 0,921 | 95,0% | 97,3% | 0,0% |
 
 ## EXP-4 — truy xuất giáo trình (Recall@5)
 

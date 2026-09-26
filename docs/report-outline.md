@@ -74,7 +74,7 @@ Hướng dẫn chạy: `docs/running.md`.
 |---|---|---|
 | EXP-1 độ chính xác giải toán | xong (22,9% / 41,7%) | `scripts/exp1_solving.py` |
 | EXP-2 chất lượng bộ chấm | xong trên lỗi tổng hợp; **thiếu tập lỗi thật** | `scripts/build_error_dataset.py` |
-| EXP-3 phân loại mã lỗi | prompting xong (3b 0,358 / 7b 0,415); LoRA đang train trên Kaggle | `scripts/exp3_error_classification.py`, `scripts/kaggle_push.py` |
+| EXP-3 phân loại mã lỗi | xong: prompting 7b 0,415 → LoRA 1.5B **0,921** | `scripts/exp3_error_classification.py`, `scripts/kaggle_push.py` |
 | EXP-4 truy xuất | xong; còn thiếu 100 cặp gán nhãn tay | `scripts/exp4_retrieval.py` |
 | EXP-5 knowledge tracing | xong trên mô phỏng; **chưa chạy trên ASSISTments** | `scripts/exp5_kt.py` |
 | EXP-6 chọn bài | xong | `scripts/exp6_selection.py` |

@@ -95,6 +95,8 @@ def table_exp3() -> str:
         return MISSING
     rows = []
     for path in sorted(folder.glob("*.json")):
+        if path.name == "lora_metrics.json":
+            continue                     # định dạng khác, xử lý riêng ở dưới
         data = load(path)
         if data is None:
             continue
@@ -104,10 +106,13 @@ def table_exp3() -> str:
                     f"{percent(data['tier_accuracy'])} | {percent(data['invalid_rate'])} |")
     lora = load(folder / "lora_metrics.json")
     if lora:
-        after = lora["after"]
-        rows.append(f"| **LoRA {lora['base_model'].split('/')[-1]}** | **{number(after['macro_f1'])}** | "
-                    f"{percent(after['accuracy'])} | {percent(after['tier_accuracy'])} | "
-                    f"{percent(after['invalid_rate'])} |")
+        name = lora["base_model"].split("/")[-1]
+        # Có cả dòng TRƯỚC khi học: không có nó thì không biết LoRA thêm được bao
+        # nhiêu, hay model vốn đã biết sẵn.
+        for label, values in (("base", lora["before"]), ("**+ LoRA**", lora["after"])):
+            rows.append(f"| {name} ({label}) | {number(values['macro_f1'])} | "
+                        f"{percent(values['accuracy'])} | {percent(values['tier_accuracy'])} | "
+                        f"{percent(values['invalid_rate'])} |")
     header = ("| Cấu hình | macro-F1 | accuracy | đúng tầng lỗi | bịa mã |\n|---|---|---|---|---|")
     return header + "\n" + "\n".join(rows) if rows else MISSING
 

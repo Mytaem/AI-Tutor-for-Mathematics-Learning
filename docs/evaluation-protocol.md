@@ -20,7 +20,7 @@ Nguyên tắc chung:
 |---|---|---|
 | EXP-1 LLM tự giải toán | 22,9% (hỏi thẳng) → 41,7% (có suy luận từng bước) | xong |
 | EXP-2 chất lượng bộ chấm | phát hiện 100%; gán đúng mã 72–100% tuỳ môn | xong trên lỗi tổng hợp |
-| EXP-3 phân loại mã lỗi | prompting 3b 0,358 / 7b 0,415; LoRA đang train | một phần |
+| EXP-3 phân loại mã lỗi | prompting 7b 0,415 → **LoRA 1.5B 0,921** macro-F1 | xong |
 | EXP-4 truy xuất | Recall@5: 0,595 (hỏi tiếng Việt) / 0,976 (tiếng Anh) | xong |
 | EXP-5 knowledge tracing | DKT 0,852 > SAKT 0,776 > BKT 0,639 > mốc 0,500 | xong trên mô phỏng |
 | EXP-6 chọn bài | ZPD tốt nhất về trải nghiệm, kém nhất về phủ kỹ năng | xong trên mô phỏng |
@@ -159,16 +159,36 @@ lớn mã không bao giờ được nhận ra.
 |---|---|---|---|---|---|
 | Qwen 2.5 **3b** zero-shot | 0,358 | 38,0% | 48,7% | 1,3% | 4,7 s |
 | Qwen 2.5 3b few-shot (6 ví dụ) | 0,343 | 35,3% | 49,3% | 0,0% | 5,3 s |
-| Qwen 2.5 **7b** zero-shot | **0,415** | 46,7% | 63,3% | 2,7% | 5,8 s |
-| LoRA 1.5B (QLoRA, 3.636 mẫu) | *đang chạy trên Kaggle* | | | | |
+| Qwen 2.5 **7b** zero-shot | 0,415 | 46,7% | 63,3% | 2,7% | 5,8 s |
+| Qwen 2.5 1.5B — chưa học | 0,098 | 15,7% | 29,3% | 16,0% | — |
+| **Qwen 2.5 1.5B + QLoRA** | **0,921** | **95,0%** | **97,3%** | **0,0%** | — |
 
-Hai điều đáng nói:
+Ba điều đáng nói:
 
 - **Few-shot không giúp gì, còn kém hơn zero-shot.** 6 ví dụ cho 89 lớp thì quá
   loãng, và model có xu hướng đoán quanh mấy mã vừa được cho xem.
-- Model to gấp hơn hai lần chỉ thêm được 0,06 macro-F1. Cả hai đều dưới 50%
-  accuracy, tức là **tầng ký hiệu vẫn phải là tầng chẩn đoán chính**; tầng neural
-  chỉ lấp chỗ mà luật so khớp không kết luận được.
+- Model to gấp hơn hai lần chỉ thêm được 0,06 macro-F1. Prompting, dù ở cỡ nào,
+  cũng không qua nổi 50% accuracy.
+- **Model 1.5B sau khi fine-tune vượt xa model 7B chỉ prompting** (0,921 so với
+  0,415) — đúng kết quả mà kế hoạch đặt cược vào. Model gốc 1.5B còn tệ hơn cả 3b
+  (0,098, và 16% số lượt bịa ra mã không tồn tại); chính việc học 3.636 mẫu đã
+  biến nó thành bộ phân loại dùng được, chứ không phải cỡ model.
+
+Huấn luyện: QLoRA 4-bit, r = 16, 2 epoch trên Kaggle T4, ~2,3 giờ. Loss chỉ tính
+trên phần đáp án (prompt dài ~900 token, đáp án vài token). Chi tiết lệnh chạy:
+`docs/running.md`.
+
+**Hạn chế phải ghi thẳng vào báo cáo, đừng để hội đồng phải hỏi:** tập test ở đây
+là lỗi do MÁY CÀI VÀO, mỗi mã lỗi có một dấu hiệu khá cố định (quên `+ C`, thiếu
+hệ số, đổi dấu). Một model fine-tune học được dấu hiệu đó là chuyện dễ hiểu, nên
+0,921 là **chặn trên**. Trên bài làm thật — viết tắt, nhảy bước, sai nhiều thứ
+cùng lúc — con số chắc chắn thấp hơn. Khoảng cách giữa fine-tune và prompting thì
+đáng tin, vì cả hai đo trên cùng tập test đó.
+
+65/80 mã lỗi trong tập test đạt F1 = 1,0. Số còn yếu nhất là những cặp mã dễ lẫn
+nhau về mặt ngữ nghĩa: `MAI.SVM.SQUARED` và `MAI.SVM.HALFMARGIN` (cùng là sai công
+thức lề, khác ở chỗ bình phương hay chia đôi), `MAI.GEO.NOSQRT` (quên căn) và
+`MAD.COUNT.ORDER` (nhầm tổ hợp với chỉnh hợp).
 
 ---
 

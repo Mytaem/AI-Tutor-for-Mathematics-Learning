@@ -58,7 +58,7 @@ Phần huấn luyện (LoRA, knowledge tracing) cài riêng trên Colab/Kaggle:
 | RAG | ✅ 10.566 đoạn, định tuyến BM25/dense theo ngôn ngữ câu hỏi |
 | Knowledge tracing | ✅ BKT, DKT, SAKT + học sinh mô phỏng |
 | API, web app, Telegram bot | ✅ |
-| Fine-tune LoRA | 🔄 đang train trên Kaggle GPU |
+| Fine-tune LoRA | ✅ macro-F1 0,098 → 0,921 (Qwen 1.5B, QLoRA trên Kaggle T4) |
 | Thực nghiệm người dùng thật | ⬜ chờ dữ liệu bài làm sai thật |
 | Báo cáo, slide, video demo | ⬜ |
 
@@ -74,6 +74,8 @@ Hướng dẫn chạy: [docs/running.md](docs/running.md).
   đưa về 0% với giá 6/96 lượt phải viết lại.
 - DKT đạt **AUC 0,852** so với BKT 0,639 trên dữ liệu mô phỏng (đọc kèm cảnh báo
   trong `docs/evaluation-protocol.md`: đây là chặn trên).
+- Phân loại mã lỗi: model **1.5B sau fine-tune đạt macro-F1 0,921**, vượt xa model
+  7B chỉ prompting (0,415) — cùng một tập test.
 
 ## Nạp giáo trình
 
