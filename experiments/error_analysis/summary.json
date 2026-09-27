@@ -1,0 +1,138 @@
+{
+ "total": 6042,
+ "causes": {
+  "dung": 5550,
+  "bat_duoc_nhieu_ma": 417,
+  "gan_nham_ma": 56,
+  "khong_gan_nhan": 19
+ },
+ "per_subject": {
+  "MAE101": {
+   "dung": 1174,
+   "bat_duoc_nhieu_ma": 417,
+   "gan_nham_ma": 50,
+   "khong_gan_nhan": 19
+  },
+  "MAI391": {
+   "dung": 1945,
+   "gan_nham_ma": 6
+  },
+  "MAS291": {
+   "dung": 1432
+  },
+  "MAD101": {
+   "dung": 999
+  }
+ },
+ "confusions": [
+  "MAE.INT.DERIV_INSTEAD → MAE.INT.SUBST.NOFACTOR (28 ca)",
+  "MAE.INT.POWER.NODIV → MAE.INT.CONSTFACTOR (11 ca)",
+  "MAE.INT.DERIV_INSTEAD → MAE.SIGN (5 ca)",
+  "MAE.INT.LINEARITY → MAE.INT.CONSTFACTOR (5 ca)",
+  "LA.INV.NOSIGN → LA.INV.TRANSPOSE (5 ca)",
+  "MAE.INT.POWER.NODIV → MAE.SIGN (1 ca)",
+  "MAI.DEC.TRACE_SUMALL → MAI.DEC.TRACE_DET (1 ca)"
+ ],
+ "worst_codes": {
+  "MAE.SIGN": {
+   "bat_duoc_nhieu_ma": 262
+  },
+  "MAE.INT.CONSTFACTOR": {
+   "bat_duoc_nhieu_ma": 107
+  },
+  "MAE.INT.SUBST.NOFACTOR": {
+   "bat_duoc_nhieu_ma": 48
+  },
+  "MAE.INT.DERIV_INSTEAD": {
+   "gan_nham_ma": 33
+  },
+  "MAE.INT.POWER.WRONGEXP": {
+   "khong_gan_nhan": 13
+  },
+  "MAE.INT.POWER.NODIV": {
+   "gan_nham_ma": 12
+  }
+ },
+ "examples": {
+  "bat_duoc_nhieu_ma": [
+   {
+    "item_id": "MAE101-INT-001",
+    "error_code": "MAE.SIGN",
+    "statement": "Tính nguyên hàm: ∫ x² dx",
+    "answer": "-x**3/3 + C",
+    "got": "MAE.SIGN, MAE.INT.CONSTFACTOR",
+    "subject": "MAE101"
+   },
+   {
+    "item_id": "MAE101-INT-002",
+    "error_code": "MAE.SIGN",
+    "statement": "Tính nguyên hàm: ∫ (3x² + 2x − 5) dx",
+    "answer": "-x**3 - x**2 + 5*x + C",
+    "got": "MAE.SIGN, MAE.INT.CONSTFACTOR",
+    "subject": "MAE101"
+   },
+   {
+    "item_id": "MAE101-INT-003",
+    "error_code": "MAE.SIGN",
+    "statement": "Tính nguyên hàm: ∫ 1/x dx",
+    "answer": "-log(x) + C",
+    "got": "MAE.SIGN, MAE.INT.CONSTFACTOR",
+    "subject": "MAE101"
+   }
+  ],
+  "gan_nham_ma": [
+   {
+    "item_id": "MAE101-INT-001",
+    "error_code": "MAE.INT.POWER.NODIV",
+    "statement": "Tính nguyên hàm: ∫ x² dx",
+    "answer": "x**3 + C",
+    "got": "MAE.INT.CONSTFACTOR",
+    "subject": "MAE101"
+   },
+   {
+    "item_id": "MAE101-INT-004",
+    "error_code": "MAE.INT.POWER.NODIV",
+    "statement": "Tính nguyên hàm: ∫ √x dx",
+    "answer": "x**(3/2) + C",
+    "got": "MAE.INT.CONSTFACTOR",
+    "subject": "MAE101"
+   },
+   {
+    "item_id": "MAE101-INT-006",
+    "error_code": "MAE.INT.DERIV_INSTEAD",
+    "statement": "Tính nguyên hàm: ∫ e^(2x) dx",
+    "answer": "2*exp(2*x) + C",
+    "got": "MAE.INT.SUBST.NOFACTOR, MAE.INT.CONSTFACTOR",
+    "subject": "MAE101"
+   }
+  ],
+  "khong_gan_nhan": [
+   {
+    "item_id": "MAE101-INT-001",
+    "error_code": "MAE.INT.POWER.WRONGEXP",
+    "statement": "Tính nguyên hàm: ∫ x² dx",
+    "answer": "x + C",
+    "got": "—",
+    "subject": "MAE101"
+   },
+   {
+    "item_id": "MAE101-INT-003",
+    "error_code": "MAE.INT.POWER.WRONGEXP",
+    "statement": "Tính nguyên hàm: ∫ 1/x dx",
+    "answer": "-1/(2*x**2) + C",
+    "got": "—",
+    "subject": "MAE101"
+   },
+   {
+    "item_id": "MAE101-INT-004",
+    "error_code": "MAE.INT.POWER.WRONGEXP",
+    "statement": "Tính nguyên hàm: ∫ √x dx",
+    "answer": "-2/sqrt(x) + C",
+    "got": "—",
+    "subject": "MAE101"
+   }
+  ],
+  "khong_bat_duoc_sai": [],
+  "loi_ky_thuat": []
+ }
+}

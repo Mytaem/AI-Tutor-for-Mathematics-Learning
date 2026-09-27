@@ -94,10 +94,13 @@ Quy mô dữ liệu hiện tại — **5.990 mẫu lỗi có nhãn trên 89 mã 
 
 | Môn | Đề chép tay | Đề sinh tự động | Mẫu lỗi có nhãn | Gán đúng mã |
 |---|---|---|---|---|
-| MAE101 | 41 | 300 | 1.660 | 72,3% |
-| MAI391 | 35 | 1.200 | 1.899 | 99,7% |
+| MAE101 | 41 | 300 | 1.660 | 95,8% |
+| MAI391 | 35 | 1.200 | 1.951 | 99,7% |
 | MAS291 | 36 | 1.200 | 1.432 | 100% |
 | MAD101 | 43 | 1.200 | 999 | 100% |
+
+MAE101 từng chỉ đạt 72,3%; phần phân tích lỗi ở dưới nói rõ nó được kéo lên bằng
+cách nào.
 
 Mọi mã lỗi đều có mặt ở cả ba tập train/validation/test, mã hiếm nhất còn 9 mẫu.
 
@@ -140,6 +143,58 @@ vô nghĩa.
 vào với dấu hiệu rõ ràng — một bước không tương đương bước trước. Bài làm thật có
 những kiểu sai mờ hơn nhiều (viết tắt, nhảy bước, trình bày lộn xộn). Muốn có số
 đáng tin thì phải chấm tay bài làm thật, đó là việc còn lại.
+
+---
+
+## Phân tích lỗi của chính hệ thống (L4)
+
+```
+python scripts/exp_error_analysis.py
+```
+
+"Gán đúng mã 72,3%" là một con số chết nếu không biết 27,7% còn lại hỏng vì cái gì.
+Script này chấm lại toàn bộ 6.042 mẫu lỗi rồi phân loại NGUYÊN NHÂN.
+
+### Lần chạy đầu
+
+| Nguyên nhân | Số ca | Tỉ lệ |
+|---|---|---|
+| gán đúng mã | 5.314 | 88,0% |
+| không gán nổi mã nào | 362 | 6,0% |
+| có mã đúng nhưng kèm mã thừa | 262 | 4,3% |
+| gán sang mã khác | 104 | 1,7% |
+| **chấm bài SAI thành đúng** | **0** | **0%** |
+
+Dòng cuối là dòng quan trọng nhất: **không có ca nào** bộ chấm nhận nhầm bài sai
+thành đúng. Ba dòng trên là chuyện chẩn đoán chưa đủ tinh, còn dòng cuối mới là
+chuyện mất lòng tin.
+
+### Hai nguyên nhân lớn nhất và cách sửa
+
+1. **`MAE.INT.DERIV_INSTEAD` — 224 ca không gán được mã.** Sinh viên lấy đạo hàm
+   thay vì nguyên hàm; bộ chấm biết là sai nhưng không có luật nào nhận ra. Thêm
+   một phép so: đáp án có bằng `f′(x)` không (bỏ qua hằng số cộng).
+2. **`MAE.INT.LINEARITY` — 125 ca.** Tưởng `∫f·g = (∫f)(∫g)`. Thêm luật: nếu biểu
+   thức dưới dấu tích phân là tích hai thừa số lấy được nguyên hàm, so đáp án với
+   tích hai nguyên hàm đó.
+
+Ngoài ra, 262 ca "kèm mã thừa" đều là lỗi DẤU nhưng mã `MAE.INT.CONSTFACTOR` lại
+đứng trước `MAE.SIGN` trong danh sách — mà gợi ý mức 2 lấy mã đầu tiên, nên người
+học nhận câu nhắc chệch hẳn cái bẫy đang mắc. Sửa bằng cách xếp mã CỤ THỂ lên trước.
+
+### Kết quả sau khi sửa
+
+| | Trước | Sau |
+|---|---|---|
+| MAE101 gán đúng mã | 72,3% | **95,8%** |
+| Toàn bộ 4 môn | 88,0% | **91,9%** |
+| Không gán nổi mã nào | 362 ca | **19 ca** |
+
+Một lần thử sai đáng ghi lại: ban đầu tôi cho bộ chấm trả về **một** mã cụ thể
+nhất thay vì kèm mã chung, và tỉ lệ gán đúng **tụt xuống 89,4%**. Lý do: nhìn vào
+đáp án cuối thì "quên nhân du khi đổi biến" và "sai một hệ số hằng" cho ra đúng
+một thứ — không có cách nào phân biệt. Bỏ bớt một mã là giả vờ chắc chắn hơn thực
+tế. Giữ cả hai, xếp mã cụ thể trước, thì vừa đúng vừa dẫn đúng chỗ.
 
 ---
 

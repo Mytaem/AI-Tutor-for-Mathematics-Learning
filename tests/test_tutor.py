@@ -232,7 +232,13 @@ class TestEngine:
         assert "lưu ý" in response.congratulation.lower()
 
     def test_sai_thi_goi_y_dung_loai_bay(self, engine: TutorEngine, item: Item) -> None:
-        """Gợi ý mức 2 phải lấy đúng câu nhắc ứng với mã lỗi đã chẩn đoán."""
+        """Gợi ý mức 2 phải lấy câu nhắc ứng với mã lỗi CỤ THỂ NHẤT.
+
+        Bài này là bài đổi biến và đáp án lệch đúng hệ số 1/2 của ``du = 2x dx``,
+        nên mã đúng là "quên hệ số khi đổi biến" chứ không phải mã chung "sai một
+        hệ số hằng" — hai mã cùng mô tả hiện tượng, nhưng chỉ mã đầu dẫn người học
+        tới đúng chỗ sai. Bộ chấm trả cả hai, mã cụ thể đứng trước.
+        """
         submission = Submission(item_id=item.item_id, final_answer="(x**2+1)**4 + C")
 
         engine.submit(item, submission)                      # lượt 1
@@ -242,7 +248,8 @@ class TestEngine:
 
         assert response.hint.level is HintLevel.PITFALL
         assert response.hint.source == "taxonomy"
-        assert response.hint.error_code == "MAE.INT.CONSTFACTOR"
+        assert response.hint.error_code == "MAE.INT.SUBST.NOFACTOR"
+        assert "MAE.INT.CONSTFACTOR" in response.verification.candidate_error_codes
 
     def test_khong_goi_y_nao_bi_ro_dap_an(self, engine: TutorEngine, item: Item) -> None:
         """Chạy hết cả thang gợi ý, không mức nào dưới 4 được lộ đáp án."""

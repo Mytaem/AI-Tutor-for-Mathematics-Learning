@@ -37,6 +37,9 @@ ERR_DEF_NOT_EVALUATED = "MAE.INT.DEF.NOEVAL"  # tích phân xác định còn ch
 ERR_SIGN = "MAE.SIGN"                      # sai dấu toàn cục
 ERR_ALG_STEP = "MAE.ALG.STEP"             # một bước biến đổi không tương đương bước trước
 ERR_DEF_SWAPBOUNDS = "MAE.INT.DEF.SWAPBOUNDS"  # thế cận ngược: F(a) − F(b)
+ERR_DERIV_INSTEAD = "MAE.INT.DERIV_INSTEAD"  # lấy đạo hàm thay vì nguyên hàm
+ERR_SUBST_NOFACTOR = "MAE.INT.SUBST.NOFACTOR"  # đổi biến nhưng quên nhân du
+ERR_LINEARITY = "MAE.INT.LINEARITY"        # tưởng ∫f·g = (∫f)(∫g)
 
 
 class CalculusVerifier(Verifier):
@@ -127,13 +130,60 @@ class CalculusVerifier(Verifier):
         ratio = self._constant_ratio(derivative, integrand, var)
         if ratio is not None and abs(ratio - 1.0) > 1e-9:
             # Đạo hàm của đáp án tỉ lệ hằng với biểu thức dưới dấu tích phân
-            # => sinh viên làm đúng dạng nhưng sai đúng một hệ số. Đây là dấu
-            # hiệu kinh điển của việc quên chia hệ số khi đổi biến.
-            codes.append(ERR_CONST_FACTOR)
+            # => sinh viên làm đúng dạng nhưng sai đúng một hệ số.
+            #
+            # Mã CỤ THỂ đứng trước, mã mô tả hiện tượng đứng sau. Thứ tự này quan
+            # trọng vì gợi ý mức 2 lấy mã đầu tiên: bản cũ luôn đặt "sai hệ số
+            # hằng" lên đầu nên 262 ca lỗi DẤU nhận được câu nhắc chệch hẳn cái
+            # bẫy đang mắc.
+            #
+            # Vẫn giữ cả hai mã chứ không bỏ mã chung: nhìn vào ĐÁP ÁN CUỐI thì
+            # "quên nhân du khi đổi biến" và "sai một hệ số hằng" cho ra đúng một
+            # thứ, không có cách nào phân biệt. Bỏ đi một mã là giả vờ chắc chắn
+            # hơn thực tế — và đo được: làm thế thì tỉ lệ gán đúng mã tụt 93% → 89%.
             if abs(ratio + 1.0) < 1e-9:
                 codes.append(ERR_SIGN)
+            elif any(skill.startswith("MAE.INT.SUBST") for skill in item.skills):
+                codes.append(ERR_SUBST_NOFACTOR)
+            codes.append(ERR_CONST_FACTOR)
+            return codes
+
+        # Hai luật dưới đây thêm vào sau khi phân tích lỗi (mục L4): chúng là hai
+        # nguyên nhân "không gán nổi mã nào" lớn nhất — 224 và 125 ca.
+        if self._looks_like_derivative(answer, integrand, var):
+            codes.append(ERR_DERIV_INSTEAD)
+        elif self._looks_like_split_product(answer, integrand, var):
+            codes.append(ERR_LINEARITY)
 
         return codes
+
+    @staticmethod
+    def _looks_like_derivative(answer: sp.Expr, integrand: sp.Expr, var: sp.Symbol) -> bool:
+        """Sinh viên ĐẠO HÀM biểu thức thay vì lấy nguyên hàm.
+
+        Nhận ra bằng cách so trực tiếp với f′(x), bỏ qua hằng số cộng thêm (bài
+        làm thường vẫn có "+ C" theo thói quen).
+        """
+        done, derivative = run_with_timeout(lambda: sp.diff(integrand, var))
+        if not done or derivative is None or derivative == 0:
+            return False
+        return equal_up_to_constant(answer, derivative, var)
+
+    @staticmethod
+    def _looks_like_split_product(answer: sp.Expr, integrand: sp.Expr, var: sp.Symbol) -> bool:
+        """Tưởng ∫f·g dx = (∫f dx)·(∫g dx).
+
+        Chỉ xét khi biểu thức dưới dấu tích phân đúng là một tích hai thừa số, và
+        cả hai thừa số đều lấy được nguyên hàm — đúng điều kiện sinh ra kiểu sai này.
+        """
+        factors = integrand.as_ordered_factors()
+        if len(factors) != 2:
+            return False
+        done, pieces = run_with_timeout(
+            lambda: [sp.integrate(factor, var) for factor in factors])
+        if not done or pieces is None or any(p is None or p.has(sp.Integral) for p in pieces):
+            return False
+        return equal_up_to_constant(answer, pieces[0] * pieces[1], var)
 
     def _diagnose_definite_integral(self, item: Item, raw: str) -> list[str]:
         """Tích phân xác định phải ra một số; còn chứa biến là chưa thế cận."""
