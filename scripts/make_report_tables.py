@@ -132,17 +132,29 @@ def table_exp4() -> str:
 
 
 def table_exp5() -> str:
-    rows = []
-    subjects = [path.stem.upper() for path in sorted((EXPERIMENTS / "exp5").glob("*.json"))] \
-        if (EXPERIMENTS / "exp5").exists() else []
-    if not subjects:
+    """Cột ASSISTments đứng trước: đó là dữ liệu NGƯỜI THẬT, mấy cột kia là mô phỏng."""
+    folder = EXPERIMENTS / "exp5"
+    paths = sorted(folder.glob("*.json")) if folder.exists() else []
+    if not paths:
         return MISSING
-    data = {subject: load(EXPERIMENTS / "exp5" / f"{subject.lower()}.json") for subject in subjects}
-    for model, label in (("majority", "majority"), ("bkt", "BKT"), ("dkt", "**DKT**"), ("sakt", "SAKT")):
-        cells = [number(data[s]["summary"][model]["auc"]) for s in subjects]
+
+    columns = []
+    for path in paths:
+        data = load(path)
+        if data is None:
+            continue
+        real = data.get("dataset") == "assistments"
+        label = "**ASSISTments** (người thật)" if real else f"{path.stem.upper()} (mô phỏng)"
+        columns.append((label, data["summary"], real))
+    columns.sort(key=lambda column: not column[2])   # dữ liệu thật lên đầu
+
+    rows = []
+    for model, label in (("majority", "majority"), ("bkt", "BKT"),
+                         ("dkt", "**DKT**"), ("sakt", "SAKT")):
+        cells = [number(summary[model]["auc"]) for _, summary, _ in columns]
         rows.append(f"| {label} | " + " | ".join(cells) + " |")
-    return (f"| Mô hình | {' | '.join(f'AUC {s}' for s in subjects)} |\n"
-            f"|---{'|---' * len(subjects)}|\n" + "\n".join(rows))
+    header = "| Mô hình | " + " | ".join(name for name, _, _ in columns) + " |"
+    return header + "\n|---" + "|---" * len(columns) + "|\n" + "\n".join(rows)
 
 
 def table_exp6() -> str:

@@ -69,8 +69,28 @@ def build_sequences(subject: str, students: int, steps: int, seed: int):
     return sequences, bank
 
 
-def run_once(subject: str, students: int, steps: int, seed: int, epochs: int) -> dict:
-    sequences, bank = build_sequences(subject, students, steps, seed)
+def build_assistments(max_students: int, max_length: int):
+    """Log người học THẬT — để đối chiếu AUC với literature.
+
+    Giới hạn số học sinh và độ dài chuỗi vì ``encode`` của DKT dựng một tensor
+    đặc kích thước (số chuỗi × độ dài × 2·số kỹ năng): với 118 kỹ năng và 3.087
+    học sinh × 200 lượt thì riêng nó đã hơn nửa GB, mà máy này chạy CPU.
+    """
+    from src.kt.assistments import describe, load_sequences
+
+    sequences = load_sequences(max_students=max_students, max_length=max_length)
+    stats = describe(sequences)
+    print(f"  ASSISTments: {stats['students']} học sinh / {stats['interactions']} lượt / "
+          f"{stats['skills']} kỹ năng / đúng {stats['accuracy']:.1%}")
+    return sequences
+
+
+def run_once(subject: str, students: int, steps: int, seed: int, epochs: int,
+             dataset: str = "simulated", max_length: int = 100) -> dict:
+    if dataset == "assistments":
+        sequences = build_assistments(students, max_length)
+    else:
+        sequences, _ = build_sequences(subject, students, steps, seed)
     train, validation, test = split_sequences(sequences, seed=seed)
     index = SkillIndex.from_sequences(sequences)
     interactions = sum(len(s) for s in sequences)
@@ -117,14 +137,19 @@ def main() -> None:
     parser.add_argument("--steps", type=int, default=50)
     parser.add_argument("--seeds", type=int, default=3)
     parser.add_argument("--epochs", type=int, default=25)
+    parser.add_argument("--data", choices=("simulated", "assistments"), default="simulated",
+                        help="assistments = log người học thật, để đối chiếu literature")
+    parser.add_argument("--max-length", type=int, default=100, help="chỉ dùng với --data assistments")
     parser.add_argument("--out", type=Path, default=None)
     args = parser.parse_args()
 
-    print(f"\nEXP-5 — {args.subject}: {args.students} học sinh × {args.steps} lượt × {args.seeds} seed\n")
+    label = "ASSISTments (người học thật)" if args.data == "assistments" else args.subject
+    print(f"\nEXP-5 — {label}: tối đa {args.students} học sinh × {args.seeds} seed\n")
     runs = []
     for index in range(args.seeds):
         print(f"seed {index + 1}/{args.seeds}")
-        runs.append(run_once(args.subject, args.students, args.steps, 1000 + 53 * index, args.epochs))
+        runs.append(run_once(args.subject, args.students, args.steps, 1000 + 53 * index,
+                             args.epochs, args.data, args.max_length))
 
     models = list(runs[0])
     summary = {
@@ -147,10 +172,12 @@ def main() -> None:
     print(f"\n  AUC cao nhất: {best}")
     print(f"  tham số BKT khớp được: {runs[0]['bkt']['params']}")
 
-    out = args.out or ROOT / "experiments" / "exp5" / f"{args.subject.lower()}.json"
+    out = args.out or ROOT / "experiments" / "exp5" / (
+        "assistments.json" if args.data == "assistments" else f"{args.subject.lower()}.json")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps({
-        "subject": args.subject, "students": args.students, "steps": args.steps,
+        "subject": args.subject, "dataset": args.data,
+        "students": args.students, "steps": args.steps,
         "seeds": args.seeds, "epochs": args.epochs, "summary": summary, "runs": runs,
     }, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"\nĐã ghi {out}\n")

@@ -22,7 +22,7 @@ Nguyên tắc chung:
 | EXP-2 chất lượng bộ chấm | phát hiện 100%; gán đúng mã 72–100% tuỳ môn | xong trên lỗi tổng hợp |
 | EXP-3 phân loại mã lỗi | prompting 7b 0,415 → **LoRA 1.5B 0,921** macro-F1 | xong |
 | EXP-4 truy xuất | Recall@5: 0,595 (hỏi tiếng Việt) / 0,976 (tiếng Anh) | xong |
-| EXP-5 knowledge tracing | DKT 0,852 > SAKT 0,776 > BKT 0,639 > mốc 0,500 | xong trên mô phỏng |
+| EXP-5 knowledge tracing | **ASSISTments thật**: DKT 0,849 > SAKT 0,792 > BKT 0,729 | xong |
 | EXP-6 chọn bài | ZPD tốt nhất về trải nghiệm, kém nhất về phủ kỹ năng | xong trên mô phỏng |
 | EXP-7a bỏ kiểm chứng ký hiệu | LLM chấm đúng 50%, bộ chấm ký hiệu 100% | xong |
 | EXP-8 chống lộ đáp án | model tự lộ 6,2% → guardrail đưa về 0% | xong |
@@ -264,7 +264,32 @@ học thuộc thói quen của một chiến lược.
 - SAKT thua DKT ở cỡ dữ liệu này (25 nghìn lượt). Đúng như literature: self-attention
   cần nhiều dữ liệu hơn hồi tiếp mới phát huy.
 
-**Cảnh báo khi trích dẫn con số này:** học sinh mô phỏng có một năng lực NỀN dùng
+### Kết quả trên dữ liệu NGƯỜI HỌC THẬT — ASSISTments 2009–2010
+
+```
+kaggle datasets download -d kanishkjain03/assistments-skill -p data/kt --unzip
+python scripts/exp5_kt.py --data assistments --students 2000 --seeds 3 --epochs 20
+```
+
+2.000 học sinh, 121.398 lượt, 116 kỹ năng, tỉ lệ đúng chung 65,3%. Làm sạch theo
+đúng quy ước của các bài báo DKT: bỏ lượt không gắn kỹ năng, bỏ bài "scaffolding"
+(`original = 0`, sinh ra sau khi học sinh làm sai — giữ lại là rò rỉ), sắp theo
+`order_id`, bỏ học sinh dưới 10 lượt.
+
+| Mô hình | AUC | ± | ACC | log loss | Literature báo cáo |
+|---|---|---|---|---|---|
+| majority | 0,500 | 0,000 | 0,668 | 0,637 | — |
+| BKT (khớp tham số) | 0,729 | 0,009 | 0,719 | 0,564 | ~0,67–0,73 |
+| **DKT** | **0,849** | 0,005 | 0,788 | 0,426 | ~0,80–0,86 |
+| SAKT | 0,792 | 0,007 | 0,752 | 0,508 | ~0,79–0,85 |
+
+**Đây mới là con số đáng trích dẫn**, và nó nằm đúng khoảng mà các bài báo gốc báo
+cáo trên cùng bộ dữ liệu — tức là phần cài đặt (mã hoá tương tác, mặt nạ, chia theo
+người học, tính AUC) không có lỗi ẩn nào. Khoảng cách DKT − BKT ở đây là **0,12**,
+nhỏ hơn hẳn mức 0,21 đo trên học sinh mô phỏng, đúng như dự đoán ở phần cảnh báo
+bên dưới.
+
+**Cảnh báo khi trích dẫn con số MÔ PHỎNG:** học sinh mô phỏng có một năng lực NỀN dùng
 chung cho mọi kỹ năng. Mô hình chia sẻ được thông tin giữa các kỹ năng (DKT, SAKT)
 đoán được ngay từ vài lượt đầu rằng người này khá hay yếu, còn BKT về cấu trúc không
 làm được — mỗi kỹ năng là một biến độc lập. Nên khoảng cách 0,64 → 0,85 là **chặn

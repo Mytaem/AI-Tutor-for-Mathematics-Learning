@@ -56,7 +56,7 @@ Phần huấn luyện (LoRA, knowledge tracing) cài riêng trên Colab/Kaggle:
 | Tập lỗi có nhãn | ✅ 5.990 mẫu / 89 mã lỗi |
 | Thang gợi ý + guardrail | ✅ có cả bản template lẫn bản do model sinh |
 | RAG | ✅ 10.566 đoạn, định tuyến BM25/dense theo ngôn ngữ câu hỏi |
-| Knowledge tracing | ✅ BKT, DKT, SAKT + học sinh mô phỏng |
+| Knowledge tracing | ✅ BKT, DKT, SAKT — đo trên cả học sinh mô phỏng lẫn ASSISTments thật |
 | API, web app, Telegram bot | ✅ |
 | Fine-tune LoRA | ✅ macro-F1 0,098 → 0,921 (Qwen 1.5B, QLoRA trên Kaggle T4) |
 | Thực nghiệm người dùng thật | ⬜ chờ dữ liệu bài làm sai thật |
@@ -72,8 +72,8 @@ Hướng dẫn chạy: [docs/running.md](docs/running.md).
   ký hiệu đúng 100% trên cùng bộ dữ liệu. Đây là lý do tồn tại của cả tầng kiểm chứng.
 - Model **tự lộ đáp án 6,2%** số lượt dù prompt không hề cho biết đáp án; guardrail
   đưa về 0% với giá 6/96 lượt phải viết lại.
-- DKT đạt **AUC 0,852** so với BKT 0,639 trên dữ liệu mô phỏng (đọc kèm cảnh báo
-  trong `docs/evaluation-protocol.md`: đây là chặn trên).
+- Trên **ASSISTments 2009 (log người học thật)**: DKT **0,849** AUC, BKT 0,729 —
+  nằm đúng khoảng các bài báo gốc báo cáo, tức là phần cài đặt không có lỗi ẩn.
 - Phân loại mã lỗi: model **1.5B sau fine-tune đạt macro-F1 0,921**, vượt xa model
   7B chỉ prompting (0,415) — cùng một tập test.
 

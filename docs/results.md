@@ -1,6 +1,6 @@
 # Bảng kết quả
 
-*Sinh tự động bằng `python scripts/make_report_tables.py`, ngày 2026-09-26.*
+*Sinh tự động bằng `python scripts/make_report_tables.py`, ngày 2026-09-27.*
 *Đừng sửa tay file này — sửa ở `experiments/` rồi chạy lại script.*
 
 ## EXP-1 — mô hình tự giải toán (chấm bằng verifier)
@@ -40,12 +40,12 @@
 
 ## EXP-5 — mô hình theo dõi năng lực
 
-| Mô hình | AUC MAD101 | AUC MAE101 |
-|---|---|---|
-| majority | 0,500 | 0,500 |
-| BKT | 0,551 | 0,639 |
-| **DKT** | 0,706 | 0,852 |
-| SAKT | 0,681 | 0,776 |
+| Mô hình | **ASSISTments** (người thật) | MAD101 (mô phỏng) | MAE101 (mô phỏng) |
+|---|---|---|---|
+| majority | 0,500 | 0,500 | 0,500 |
+| BKT | 0,729 | 0,551 | 0,639 |
+| **DKT** | 0,849 | 0,706 | 0,852 |
+| SAKT | 0,792 | 0,681 | 0,776 |
 
 ## EXP-6 — chiến lược chọn bài (MAE101, chương tích phân)
 
