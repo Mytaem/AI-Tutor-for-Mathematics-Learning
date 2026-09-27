@@ -52,8 +52,8 @@ Phần huấn luyện (LoRA, knowledge tracing) cài riêng trên Colab/Kaggle:
 | Phần | Trạng thái |
 |---|---|
 | Kiểm chứng ký hiệu 4 môn | ✅ có kiểm chéo độc lập (Monte Carlo, liệt kê vét cạn, tính lặp) |
-| Ngân hàng đề | ✅ 155 bài chép tay + 4.000 bài tự sinh, mỗi bài verifier tự chấm lại mới nhận |
-| Tập lỗi có nhãn | ✅ 5.990 mẫu / 89 mã lỗi |
+| Ngân hàng đề | ✅ 155 bài chép tay + 4.800 bài tự sinh, mỗi bài verifier tự chấm lại mới nhận |
+| Tập lỗi có nhãn | ✅ 8.732 mẫu / 91 mã lỗi |
 | Thang gợi ý + guardrail | ✅ có cả bản template lẫn bản do model sinh |
 | RAG | ✅ 10.566 đoạn, định tuyến BM25/dense theo ngôn ngữ câu hỏi |
 | Knowledge tracing | ✅ BKT, DKT, SAKT — đo trên cả học sinh mô phỏng lẫn ASSISTments thật |

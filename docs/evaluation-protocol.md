@@ -89,15 +89,20 @@ chấm ký hiệu trông như "bỏ sót 3,8%" trong khi nó chấm đúng theo 
 Đo trên tập lỗi có nhãn `data/errors/*_injected.jsonl` (nhãn sạch 100% vì lỗi do máy
 cài vào), và sau này trên bài làm sai THẬT do sinh viên nộp.
 
-Quy mô dữ liệu hiện tại — **5.990 mẫu lỗi có nhãn trên 89 mã lỗi**, sinh từ 4.155 đề
-(155 chép tay + 4.000 sinh tự động):
+Quy mô dữ liệu hiện tại — **8.732 mẫu lỗi có nhãn trên 91 mã lỗi**, sinh từ 4.955 đề
+(155 chép tay + 4.800 sinh tự động):
 
-| Môn | Đề chép tay | Đề sinh tự động | Mẫu lỗi có nhãn | Gán đúng mã |
-|---|---|---|---|---|
-| MAE101 | 41 | 300 | 1.660 | 95,8% |
-| MAI391 | 35 | 1.200 | 1.951 | 99,7% |
-| MAS291 | 36 | 1.200 | 1.432 | 100% |
-| MAD101 | 43 | 1.200 | 999 | 100% |
+| Môn | Đề chép tay | Đề sinh tự động | Kỹ năng được phủ | Mẫu lỗi có nhãn | Gán đúng mã |
+|---|---|---|---|---|---|
+| MAE101 | 41 | 1.200 | 16/21 | 4.350 | 97,2% |
+| MAI391 | 35 | 1.200 | 16/16 | 1.951 | 99,7% |
+| MAS291 | 36 | 1.200 | 15/15 | 1.432 | 100% |
+| MAD101 | 43 | 1.200 | 17/18 | 999 | 100% |
+
+MAE101 ban đầu chỉ sinh được đề giải tích (8/21 kỹ năng), phần đại số tuyến tính chỉ
+có 20 bài chép tay. Tách các dạng bài đại số tuyến tính thành module dùng chung cho
+cả MAE101 lẫn MAI391 — hai môn vốn đã dùng chung bảng mã lỗi `LA.*` — thì phủ lên
+16/21 kỹ năng và mã `LA.*` mỏng nhất từ 1–2 mẫu lên 53 mẫu.
 
 MAE101 từng chỉ đạt 72,3%; phần phân tích lỗi ở dưới nói rõ nó được kéo lên bằng
 cách nào.

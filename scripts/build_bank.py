@@ -25,23 +25,33 @@ DEFAULT_COUNT = 300
 SEED = 20260923
 
 #: Mỗi môn một module sinh đề riêng; tất cả cùng giao diện generate/template_ids.
+#: Mỗi môn một hay nhiều module sinh đề, tất cả cùng giao diện generate/template_ids.
+#: MAE101 có hai mảng kiến thức tách biệt (giải tích và đại số tuyến tính) nên dùng
+#: hai bộ sinh, chia đôi số lượng — chỉ dùng bộ giải tích thì cả chương ma trận
+#: không có đề sinh tự động nào để bộ chọn bài chọn.
 GENERATORS = {
-    "MAE101": "src.data_gen.item_generator",
-    "MAD101": "src.data_gen.discrete_items",
-    "MAS291": "src.data_gen.probstat_items",
-    "MAI391": "src.data_gen.mml_items",
+    "MAE101": ["src.data_gen.item_generator", "src.data_gen.linalg_items"],
+    "MAD101": ["src.data_gen.discrete_items"],
+    "MAS291": ["src.data_gen.probstat_items"],
+    "MAI391": ["src.data_gen.mml_items"],
 }
 
 
 def build(subject: str, count: int) -> None:
     from importlib import import_module
 
-    module = import_module(GENERATORS[subject])
-    templates = module.template_ids()
-    print(f"\n=== {subject}: sinh {count} bài từ {len(templates)} template (seed={SEED})")
+    modules = [import_module(name) for name in GENERATORS[subject]]
+    templates = [name for module in modules for name in module.template_ids()]
+    share = count // len(modules)
+    print(f"\n=== {subject}: sinh {count} bài từ {len(templates)} template "
+          f"({len(modules)} bộ sinh, seed={SEED})")
 
     seed = SEED if subject != "MAE101" else 20260921  # giữ nguyên seed cũ của MAE101
-    items = module.generate(count, seed=seed, validate=True)
+    items = []
+    for position, module in enumerate(modules):
+        # Bộ cuối nhận phần dư để tổng đúng bằng count.
+        wanted = share if position < len(modules) - 1 else count - share * (len(modules) - 1)
+        items += module.generate(wanted, seed=seed + 7 * position, validate=True)
 
     output = ITEMS_DIR / f"{subject.lower()}_generated.jsonl"
     write_items(items, output)
