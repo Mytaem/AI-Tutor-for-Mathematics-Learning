@@ -378,13 +378,23 @@ MAE101, chương tích phân (321 đề, 8 kỹ năng):
 | zpd | **69,9%** | 4,0 | 80% | **3,8** |
 | zpd + phủ kỹ năng | 56,7% | 4,6 | 74% | 4,7 |
 
-MAD101, chương đồ thị (3,7 vs 1,2 kỹ năng — chênh lệch lớn nhất quan sát được):
+Chạy lại trên **6 chương của cả 4 môn** (60 học sinh × 60 lượt × 2 seed mỗi chương)
+để xem kết luận có lặp lại không — một chương thì luôn có thể là ngẫu nhiên:
 
-| Chiến lược | Tỉ lệ đúng | Kỹ năng thạo | Đạt mục tiêu |
+| Chương | tuần tự | ZPD | ZPD + phủ kỹ năng |
 |---|---|---|---|
-| sequential | 72,2% | **3,7** | 100% |
-| zpd | **76,4%** | 1,2 | 13% |
-| zpd + phủ kỹ năng | 69,6% | 2,8 | 92% |
+| | *tỉ lệ đúng / số kỹ năng thạo* | | |
+| MAD101 · đếm | 78% / 2,8 | 79% / 2,2 | 78% / **3,0** |
+| MAD101 · đồ thị | 72% / **3,6** | 76% / 1,2 | 69% / 2,8 |
+| MAE101 · tích phân | 65% / **4,9** | 70% / 4,0 | 57% / 4,7 |
+| MAE101 · đại số tuyến tính | 69% / **3,5** | 70% / 1,9 | 68% / 2,9 |
+| MAI391 · phân rã ma trận | 71% / 2,1 | 76% / 1,0 | 64% / **3,0** |
+| MAS291 · phân phối | 78% / 2,8 | 77% / 2,5 | 76% / **3,9** |
+
+Lặp lại rất đều: **ZPD cho tỉ lệ đúng cao nhất ở 5/6 chương, nhưng thạo ít kỹ năng
+nhất ở 5/6 chương.** Chỗ nó tệ nhất là chương đồ thị MAD101 (1,2 so với 3,6) và
+chương phân rã ma trận MAI391 (1,0 so với 2,1) — đều là chương có vài kỹ năng khó
+hẳn so với phần còn lại, nên ZPD né luôn những kỹ năng đó.
 
 **Kết luận trung thực, ngược với kỳ vọng ban đầu:** ZPD cho trải nghiệm tốt nhất —
 tỉ lệ đúng sát mục tiêu 75% và chuỗi sai liên tiếp ngắn nhất — nhưng **không** giúp

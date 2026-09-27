@@ -47,15 +47,17 @@
 | **DKT** | 0,849 | 0,706 | 0,852 |
 | SAKT | 0,792 | 0,681 | 0,776 |
 
-## EXP-6 — chiến lược chọn bài (MAE101, chương tích phân)
+## EXP-6 — chiến lược chọn bài (6 chương, 4 môn)
 
-| Chiến lược | Tỉ lệ đúng | Kỹ năng thạo | Đạt mục tiêu | Số bài | Sai liên tiếp |
-|---|---|---|---|---|---|
-| random | 62,2% | 4.6 | 86% | 42 | 4.1 |
-| sequential | 64,6% | 4.8 | 95% | 43 | 4.6 |
-| weakest | 51,1% | 4.7 | 81% | 46 | 5.9 |
-| zpd | 69,9% | 4.0 | 80% | 48 | 3.8 |
-| zpd_coverage | 56,7% | 4.6 | 74% | 45 | 4.7 |
+| Chương | tuần tự | ZPD | ZPD + phủ kỹ năng |
+|---|---|---|---|
+| | *đúng / kỹ năng thạo* | | |
+| MAD101 · MAD.COUNT | 78% / 2.8 | 79% / 2.2 | 78% / 3.0 |
+| MAD101 · MAD.GRAPH | 72% / 3.6 | 76% / 1.2 | 69% / 2.8 |
+| MAE101 · MAE.INT | 65% / 4.9 | 70% / 4.0 | 57% / 4.7 |
+| MAE101 · MAE.LA | 69% / 3.5 | 70% / 1.9 | 68% / 2.9 |
+| MAI391 · MAI.DEC | 71% / 2.1 | 76% / 1.0 | 64% / 3.0 |
+| MAS291 · MAS.DIST | 78% / 2.8 | 77% / 2.5 | 76% / 3.9 |
 
 ## EXP-7a — bỏ tầng kiểm chứng ký hiệu
 

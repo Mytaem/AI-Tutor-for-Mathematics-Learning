@@ -130,6 +130,19 @@ class TestSession:
         used = [i.item_id for i in result.interactions]
         assert len(set(used)) == len({i.step for i in result.interactions})
 
+    def test_ti_le_dung_khong_vuot_qua_mot(self, chapter) -> None:
+        """Hồi quy: chương ít đề mà luyện nhiều lượt từng cho ra tỉ lệ đúng 212%.
+
+        Mẫu số phải là số lượt ĐÃ LÀM; bản cũ lấy min(số lượt, số đề) trong khi bộ
+        chọn vẫn cho làm lại đề cũ khi hết đề mới.
+        """
+        items, skills = chapter
+        few = items[:5]
+        student = make_cohort(1, skills, seed=2)[0]
+        result = run_session(student, few, skills, strategy="zpd", steps=40, seed=2)
+        assert 0.0 <= result.accuracy <= 1.0
+        assert len({i.step for i in result.interactions}) == 40
+
     def test_chuoi_cho_dkt_dung_dinh_dang(self, chapter) -> None:
         items, skills = chapter
         results = simulate_cohort(items, skills, students=3, steps=10, seed=6)

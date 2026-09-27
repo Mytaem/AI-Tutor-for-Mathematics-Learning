@@ -235,10 +235,12 @@ def run_session(
 
     practised: dict[str, int] = {}
 
+    attempted = 0
     for step in range(steps):
         item = _pick_item(strategy, items, tracker, skills, seen, step, rng, practised)
         if item is None:
             break
+        attempted += 1
 
         correct, probability = student.attempt(item, rng)
         for skill in item.skills:
@@ -266,7 +268,10 @@ def run_session(
         interactions=interactions,
         mastered_skills=len(student.mastered(list(skills))),
         steps_to_mastery=steps_to_mastery,
-        accuracy=correct_count / max(1, min(steps, len(items))),
+        # Chia cho số lượt ĐÃ LÀM, không phải min(số lượt, số đề). Bản cũ cho ra
+        # tỉ lệ đúng 212% ở chương chỉ có 20 đề mà luyện 60 lượt — bộ chọn vẫn cho
+        # làm lại đề cũ khi hết đề mới, nên số lượt vượt xa số đề.
+        accuracy=correct_count / max(1, attempted),
         longest_wrong_streak=worst_streak,
     )
 

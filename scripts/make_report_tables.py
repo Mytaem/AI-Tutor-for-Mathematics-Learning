@@ -158,17 +158,36 @@ def table_exp5() -> str:
 
 
 def table_exp6() -> str:
+    """Một dòng mỗi chương.
+
+    Gộp nhiều chương vào một bảng vì kết luận của EXP-6 (ZPD được trải nghiệm,
+    mất độ phủ) chỉ đáng tin khi lặp lại ở nhiều chương khác nhau — một chương
+    thì luôn có thể là ngẫu nhiên.
+    """
     folder = EXPERIMENTS / "exp6"
-    data = load(folder / "mae101_mae_int.json") if folder.exists() else None
-    if data is None:
+    if not folder.exists():
         return MISSING
+
+    strategies = ("sequential", "zpd", "zpd_coverage")
     rows = []
-    for strategy, values in data["summary"].items():
-        steps = f"{values['steps_to_target']:.0f}" if values.get("steps_to_target") else "—"
-        rows.append(f"| {strategy} | {percent(values['accuracy'])} | {values['mastered']:.1f} | "
-                    f"{percent(values['reached_target'], 0)} | {steps} | {values['wrong_streak']:.1f} |")
-    return ("| Chiến lược | Tỉ lệ đúng | Kỹ năng thạo | Đạt mục tiêu | Số bài | Sai liên tiếp |\n"
-            "|---|---|---|---|---|---|\n" + "\n".join(rows))
+    for path in sorted(folder.glob("*.json")):
+        data = load(path)
+        # Bỏ lần quét trọng số và lần ablation không gợi ý: khác cấu hình, không so được.
+        if data is None or data.get("coverage") is not None or not data.get("with_hint", True):
+            continue
+        if not all(name in data["summary"] for name in strategies):
+            continue
+        cells = []
+        for name in strategies:
+            values = data["summary"][name]
+            cells.append(f"{percent(values['accuracy'], 0)} / {values['mastered']:.1f}")
+        rows.append(f"| {data['subject']} · {data['prefix']} | " + " | ".join(cells) + " |")
+
+    if not rows:
+        return MISSING
+    header = ("| Chương | tuần tự | ZPD | ZPD + phủ kỹ năng |\n|---|---|---|---|\n"
+              "| | *đúng / kỹ năng thạo* | | |")
+    return header + "\n" + "\n".join(rows)
 
 
 def table_exp7() -> str:
@@ -218,7 +237,7 @@ def main() -> None:
         ("EXP-3 — phân loại mã lỗi", table_exp3()),
         ("EXP-4 — truy xuất giáo trình (Recall@5)", table_exp4()),
         ("EXP-5 — mô hình theo dõi năng lực", table_exp5()),
-        ("EXP-6 — chiến lược chọn bài (MAE101, chương tích phân)", table_exp6()),
+        ("EXP-6 — chiến lược chọn bài (6 chương, 4 môn)", table_exp6()),
         ("EXP-7a — bỏ tầng kiểm chứng ký hiệu", table_exp7()),
         ("EXP-8 — chống lộ đáp án", table_exp8()),
     ]
