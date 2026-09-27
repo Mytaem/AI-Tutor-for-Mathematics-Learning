@@ -55,8 +55,13 @@ def expected_success(item: Item, tracker: BKTTracker) -> float:
     """
     if not item.skills:
         return 0.5
-    weakest = min(tracker.mastery(skill) for skill in item.skills)
-    base = probability_correct(weakest)
+    weakest = min(item.skills, key=tracker.mastery)
+    # Hỏi thẳng mô hình năng lực, đừng tự áp công thức của BKT: DKT đã trả ra
+    # xác suất đúng rồi, đưa qua slip/guess lần nữa là tính hai lần.
+    if hasattr(tracker, "probability_for"):
+        base = tracker.probability_for(weakest)
+    else:
+        base = probability_correct(tracker.mastery(weakest))
     return _shift_by_difficulty(base, item.difficulty)
 
 

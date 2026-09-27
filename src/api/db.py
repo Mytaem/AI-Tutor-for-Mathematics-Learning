@@ -191,6 +191,19 @@ class Store:
             "SELECT COUNT(*) FROM attempts WHERE user_id = ?" + clause, (user_id, *params)
         ).fetchone()[0]
 
+    def attempt_history(self, user_id: str, subject: str | None = None) -> list[tuple[str, bool]]:
+        """Lịch sử làm bài theo đúng thứ tự thời gian: (mã đề, đúng/sai).
+
+        DKT suy ra năng lực từ CẢ CHUỖI chứ không giữ trạng thái như BKT, nên mỗi
+        lần dựng lại tracker phải phát lại chuỗi này.
+        """
+        clause, params = self._subject_filter(subject)
+        rows = self._connection.execute(
+            "SELECT item_id, is_correct FROM attempts WHERE user_id = ?" + clause
+            + " ORDER BY attempt_id", (user_id, *params)
+        ).fetchall()
+        return [(row["item_id"], bool(row["is_correct"])) for row in rows]
+
     def attempted_item_ids(self, user_id: str, subject: str | None = None) -> set[str]:
         clause, params = self._subject_filter(subject)
         rows = self._connection.execute(

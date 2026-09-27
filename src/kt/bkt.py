@@ -110,6 +110,14 @@ class BKTTracker:
             updated[skill_id] = new_value
         return updated
 
+    def probability_for(self, skill_id: str) -> float:
+        """Xác suất làm đúng kỹ năng này ở lượt kế.
+
+        Có phương thức này để bộ chọn bài hỏi được mà không cần biết đang dùng mô
+        hình nào: BKT phải đi qua slip/guess, còn DKT đã trả thẳng xác suất.
+        """
+        return probability_correct(self.mastery(skill_id), self.params_for(skill_id))
+
     def snapshot(self) -> dict[str, float]:
         return dict(self._mastery)
 

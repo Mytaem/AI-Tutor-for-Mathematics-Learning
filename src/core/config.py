@@ -79,6 +79,9 @@ class AppConfig:
     #: Bật LLM_HINTS=1 để gợi ý do model sinh (có guardrail); mặc định dùng câu
     #: template — tất định, không cần model, nên test và CI không phụ thuộc Ollama.
     llm_hints: bool = field(default_factory=lambda: _env_bool("LLM_HINTS"))
+    #: "bkt" (mặc định, giải thích được cho người học thấy) hoặc "dkt" (mạng hồi
+    #: tiếp, cần models/dkt/<môn>.pt — thiếu file thì tự quay về BKT).
+    kt_model: str = field(default_factory=lambda: _env("KT_MODEL", "bkt").lower())
     subject_default: str = "MAE101"
 
     @property

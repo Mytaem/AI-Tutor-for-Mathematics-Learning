@@ -16,6 +16,7 @@ Biến môi trường đáng chú ý:
 | Biến | Mặc định | Tác dụng |
 |---|---|---|
 | `LLM_HINTS` | tắt | `1` để gợi ý do Qwen diễn đạt (có guardrail); tắt thì dùng câu template |
+| `KT_MODEL` | `bkt` | `dkt` để ước lượng năng lực bằng mạng hồi tiếp (cần `models/dkt/<môn>.pt`; thiếu thì tự quay về BKT) |
 | `OLLAMA_MODEL` | `qwen2.5:3b-instruct` | đổi sang `qwen2.5:7b-instruct` khi cần chất lượng |
 | `VLLM_URL` | trống | endpoint vLLM trên Kaggle; có thì ưu tiên hơn Ollama |
 | `DEMO_MODE` | tắt | `1` để chỉ đọc cache, không gọi model — dùng khi bảo vệ |
@@ -56,6 +57,18 @@ python scripts/build_bank.py all 1200      # sinh đề cho cả 4 môn
 python scripts/build_error_dataset.py MAE101   # và MAI391 / MAS291 / MAD101
 python scripts/build_rag_index.py --dense      # kho giáo trình (cần Ollama cho bge-m3)
 ```
+
+## Huấn luyện DKT để dùng thật
+
+```bash
+python scripts/train_dkt_for_serving.py            # cả 4 môn, ~3 phút, chỉ CPU
+KT_MODEL=dkt python -m uvicorn src.api.app:create_app --factory --port 8000
+```
+
+Khác `scripts/exp5_kt.py` (huấn luyện để ĐO, có chia train/test): script này huấn
+luyện để PHỤC VỤ và lưu ra `models/dkt/<môn>.pt`. Hiện học từ học sinh mô phỏng vì
+mô hình phải nói về đúng tập kỹ năng của môn; khi có log người dùng thật thì huấn
+luyện lại trên đó, đường dẫn và giao diện không đổi.
 
 ## Fine-tune LoRA (cần GPU — chạy trên Kaggle)
 

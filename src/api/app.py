@@ -224,7 +224,35 @@ class TutorService:
         mức thành thạo của các môn không đè lên nhau.
         """
         skills = self.bank_for(subject).skills if subject else self.all_skills()
-        return make_tracker(skills, self.store.load_mastery(user_id))
+        saved = self.store.load_mastery(user_id)
+
+        if self.config.kt_model == "dkt" and subject:
+            tracker = self._dkt_tracker(user_id, subject, skills, saved)
+            if tracker is not None:
+                return tracker
+        return make_tracker(skills, saved)
+
+    def _dkt_tracker(self, user_id: str, subject: str, skills: dict, saved: dict):
+        """Mô hình DKT đã huấn luyện, nạp lại lịch sử làm bài của người này.
+
+        DKT không giữ trạng thái giữa các lần gọi như BKT: nó suy ra năng lực từ
+        CẢ CHUỖI, nên mỗi lần dựng lại phải phát lại lịch sử từ CSDL. Thiếu mô
+        hình của môn thì trả None để quay về BKT — không được hỏng chỉ vì chưa
+        huấn luyện xong.
+        """
+        from src.kt.coldstart import initial_mastery
+        from src.kt.dkt_tracker import load_tracker
+
+        prior = {**initial_mastery(skills), **saved}
+        tracker = load_tracker(subject, prior)
+        if tracker is None:
+            return None
+        bank = self.bank_for(subject)
+        for item_id, correct in self.store.attempt_history(user_id, subject):
+            item = bank.items.get(item_id)
+            if item is not None and item.skills:
+                tracker.observe(list(item.skills), correct)
+        return tracker
 
     def in_placement(self, user_id: str, subject: str) -> bool:
         return not is_placement_done(self.store.attempt_count(user_id, subject))
