@@ -29,6 +29,7 @@ from src.core.schema import Submission  # noqa: E402
 from src.kt.bkt import BKTTracker  # noqa: E402
 from src.kt.coldstart import make_tracker  # noqa: E402
 from src.kt.selector import select_next  # noqa: E402
+from src.kt.simulator import ZPD_COVERAGE  # noqa: E402
 from src.tutor.guardrail import check_leak  # noqa: E402
 from src.tutor.hint_policy import HintLevel  # noqa: E402
 from src.tutor.hints import HintGenerator  # noqa: E402
@@ -179,12 +180,26 @@ def scene_adaptive() -> None:
     first = select_next(items, tracker, bank.skills)
     print(f"  → {first.item_id}: {first.statement_vi[:58]} (độ khó {first.difficulty})")
 
+    # Người học B cố ý dựng để lộ MẶT TRÁI của ZPD, đúng như EXP-6 đo được. Bản
+    # demo đầu nói "hệ thống chọn đúng bài Euler" trong khi thực tế nó chọn bài
+    # khác — demo mà nói sai thì hỏng cả buổi bảo vệ.
     for skill in bank.skills:
         tracker.set_mastery(skill, 0.9)
-    tracker.set_mastery("MAD.GRAPH.EULER", 0.15)
-    print("\nNgười học B — đã vững hầu hết, riêng phần đồ thị Euler còn yếu:")
+    tracker.set_mastery("MAD.GRAPH.EULER", 0.3)
+    print("\nNgười học B — đã vững hầu hết, riêng đồ thị Euler còn yếu (0,30).")
+    print("Chọn theo ZPD thuần:")
     second = select_next(items, tracker, bank.skills)
-    print(f"  → {second.item_id}: {second.statement_vi[:58]} (kỹ năng {', '.join(second.skills)})")
+    print(f"  → {second.item_id} (kỹ năng {', '.join(second.skills)})")
+    print("     ZPD NÉ kỹ năng yếu: bài Euler lúc này quá khó, xác suất đúng xa 0,75")
+
+    practised = {skill: 8 for skill in bank.skills}
+    practised["MAD.GRAPH.EULER"] = 0
+    third = select_next(items, tracker, bank.skills, weights=ZPD_COVERAGE, practised=practised)
+    print("\nThêm tiêu chí PHỦ KỸ NĂNG (ưu tiên kỹ năng ít được luyện):")
+    print(f"  → {third.item_id}: {third.statement_vi[:56]}")
+    print(f"     kỹ năng: {', '.join(third.skills)} — đã quay lại đúng chỗ yếu")
+    print("\n  Đây là đánh đổi đo được ở EXP-6: ZPD cho trải nghiệm tốt nhất (tỉ lệ")
+    print("  đúng cao nhất ở 5/6 chương) nhưng phủ kỹ năng kém nhất cũng ở 5/6.")
 
 
 def scene_ask(use_llm: bool) -> None:
