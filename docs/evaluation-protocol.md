@@ -25,6 +25,7 @@ Nguyên tắc chung:
 | EXP-5 knowledge tracing | **ASSISTments thật**: DKT 0,849 > SAKT 0,792 > BKT 0,729 | xong |
 | EXP-6 chọn bài | ZPD tốt nhất về trải nghiệm, kém nhất về phủ kỹ năng | xong trên mô phỏng |
 | EXP-7a bỏ kiểm chứng ký hiệu | LLM chấm đúng 50%, bộ chấm ký hiệu 100% | xong |
+| EXP-7b bỏ RAG khỏi gợi ý | không đổi gì đo được (bám giáo trình 8% cả hai bên) | xong |
 | EXP-8 chống lộ đáp án | model tự lộ 6,2% → guardrail đưa về 0% | xong |
 | Rubric chất lượng gợi ý | — | chưa chạy |
 
@@ -83,6 +84,41 @@ chấm những ca đó là đúng giá trị rồi gắn mã lỗi riêng. Bản
 chấm ký hiệu trông như "bỏ sót 3,8%" trong khi nó chấm đúng theo đúng thiết kế.
 
 ---
+
+## EXP-7b — bỏ RAG khỏi prompt sinh gợi ý
+
+```
+python scripts/exp8_leakage.py --per-subject 5 --out experiments/exp7/rag_on.json
+python scripts/exp8_leakage.py --per-subject 5 --no-rag --out experiments/exp7/rag_off.json
+python scripts/exp7_rag_ablation.py
+```
+
+80 lượt gợi ý mỗi cấu hình, cùng bộ đề, cùng model (qwen2.5:3b-instruct):
+
+| Cấu hình | Lộ đáp án | Về template | Lượt TB | Độ dài TB | Bám giáo trình |
+|---|---|---|---|---|---|
+| Có RAG | 0,0% | 1,2% | 1,09 | 125 ký tự | 8% |
+| Không RAG | 0,0% | 2,5% | 1,10 | 105 ký tự | 8% |
+
+**Đây là một kết quả âm tính, và nó đáng báo cáo.** Chỉ số "bám giáo trình" đếm tỉ lệ
+gợi ý dùng lại ít nhất một thuật ngữ có trong đoạn được truy xuất. Ở cấu hình *không
+RAG*, đoạn trích được truy xuất lại sau khi đã sinh gợi ý, chỉ để đối chứng — model
+chưa hề nhìn thấy nó. Hai bên bằng nhau ở 8% nghĩa là: **gợi ý sinh khi CÓ đoạn giáo
+trình trong prompt không dùng thuật ngữ của đoạn đó nhiều hơn gợi ý chưa từng thấy
+nó.** Model 3b về cơ bản bỏ qua đoạn trích và viết theo mã lỗi đã chẩn đoán.
+
+Kết luận có phạm vi hẹp: **ở cỡ model này, RAG trong khâu sinh GỢI Ý không đáng giá
+tiền** — vẫn phải trả chi phí truy xuất mỗi lượt. Nó không nói gì về RAG ở khâu `/ask`
+(hỏi lý thuyết), nơi đoạn trích chính là câu trả lời và không có nguồn nào thay được.
+
+Tỉ lệ về template nhích từ 1,2% lên 2,5% khi bỏ RAG, nhưng trên 80 lượt thì chênh lệch
+đó là 1 lượt — không kết luận được gì.
+
+**Độ trễ không so ở đây.** Hai lần chạy cách nhau về thời điểm và tỉ lệ trúng cache
+khác nhau, nên con số 6,2 s với 10,5 s trong `rag_ablation.json` đo tải máy chứ không
+đo cấu hình. Muốn so độ trễ thì phải chạy xen kẽ hai cấu hình trong cùng một phiên.
+
+Chất lượng sư phạm **không đo ở đây** — cần phiếu chấm tay (L2).
 
 ## EXP-2 — chất lượng bộ chấm
 

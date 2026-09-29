@@ -1,6 +1,6 @@
 # Bảng kết quả
 
-*Sinh tự động bằng `python scripts/make_report_tables.py`, ngày 2026-09-27.*
+*Sinh tự động bằng `python scripts/make_report_tables.py`, ngày 2026-09-29.*
 *Đừng sửa tay file này — sửa ở `experiments/` rồi chạy lại script.*
 
 ## EXP-1 — mô hình tự giải toán (chấm bằng verifier)
@@ -65,6 +65,13 @@
 |---|---|---|---|
 | qwen2.5:3b-instruct làm giám khảo | 50,0% | 35,0% | 65,0% |
 | **Kiểm chứng ký hiệu** | **100,0%** | **0,0%** | **0,0%** |
+
+## EXP-7b — bỏ RAG khỏi prompt sinh gợi ý
+
+| Cấu hình | Lộ đáp án | Về template | Lượt TB | Độ dài | Bám giáo trình |
+|---|---|---|---|---|---|
+| có RAG | 0,0% | 1,2% | 1.09 | 125 | 7,5% |
+| không RAG | 0,0% | 2,5% | 1.10 | 105 | 7,5% |
 
 ## EXP-8 — chống lộ đáp án
 

@@ -207,6 +207,22 @@ def table_exp7() -> str:
             "|---|---|---|---|\n" + "\n".join(rows))
 
 
+def table_exp7b() -> str:
+    """Cố ý KHÔNG in độ trễ: hai lần chạy khác thời điểm và khác tỉ lệ trúng cache,
+    nên con số đó đo tải máy chứ không đo cấu hình."""
+    data = load(EXPERIMENTS / "exp7" / "rag_ablation.json")
+    if data is None:
+        return MISSING
+    rows = [
+        f"| {name} | {percent(values['leak_rate'])} | {percent(values['fallback_rate'])} | "
+        f"{values['mean_attempts']:.2f} | {values['mean_length']:.0f} | "
+        f"{percent(values['grounding'])} |"
+        for name, values in data["summary"].items()
+    ]
+    return ("| Cấu hình | Lộ đáp án | Về template | Lượt TB | Độ dài | Bám giáo trình |\n"
+            "|---|---|---|---|---|---|\n" + "\n".join(rows))
+
+
 def table_exp8() -> str:
     """Một dòng cho mỗi (model, cấu hình) — để thấy cả ảnh hưởng của cỡ model."""
     folder = EXPERIMENTS / "exp8"
@@ -239,6 +255,7 @@ def main() -> None:
         ("EXP-5 — mô hình theo dõi năng lực", table_exp5()),
         ("EXP-6 — chiến lược chọn bài (6 chương, 4 môn)", table_exp6()),
         ("EXP-7a — bỏ tầng kiểm chứng ký hiệu", table_exp7()),
+        ("EXP-7b — bỏ RAG khỏi prompt sinh gợi ý", table_exp7b()),
         ("EXP-8 — chống lộ đáp án", table_exp8()),
     ]
 

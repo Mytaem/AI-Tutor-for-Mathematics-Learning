@@ -1,0 +1,23 @@
+{
+ "model": "qwen2.5:3b-instruct",
+ "summary": {
+  "có RAG": {
+   "n": 80,
+   "leak_rate": 0.0,
+   "fallback_rate": 0.0125,
+   "mean_attempts": 1.0875,
+   "mean_length": 125.45,
+   "grounding": 0.075,
+   "median_latency_ms": 6244.513699999516
+  },
+  "không RAG": {
+   "n": 80,
+   "leak_rate": 0.0,
+   "fallback_rate": 0.025,
+   "mean_attempts": 1.1,
+   "mean_length": 104.675,
+   "grounding": 0.075,
+   "median_latency_ms": 10472.143799999913
+  }
+ }
+}
