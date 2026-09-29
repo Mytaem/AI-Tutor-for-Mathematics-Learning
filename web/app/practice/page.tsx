@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import katex from "katex";
 import { api, type AttemptResponse, type Hint, type PublicItem } from "../../lib/api";
 import { loadSession, type StoredSession } from "../../lib/session";
+import type { Scope } from "../../lib/prefs";
 import { ApiDownBanner } from "../api-status";
+import { useApp } from "../providers";
+import { ScopeLine } from "../scope-picker";
 
 /** Công thức trong đề: có LaTeX thì render, không thì hiện nguyên văn tiếng Việt. */
 function Statement({ item }: { item: PublicItem }) {
@@ -62,6 +65,7 @@ function Ladder({ level }: { level: number }) {
 
 export default function PracticePage() {
   const router = useRouter();
+  const { scope, ready } = useApp();
   const [session, setSession] = useState<StoredSession | null>(null);
   const [item, setItem] = useState<PublicItem | null>(null);
   const [answer, setAnswer] = useState("");
@@ -75,11 +79,14 @@ export default function PracticePage() {
   const [solved, setSolved] = useState(0);
   const answerBox = useRef<HTMLInputElement>(null);
 
-  const nextItem = useCallback(async (current: StoredSession) => {
+  // `within` truyền tường minh chứ không lấy từ closure: để deps rỗng mà vẫn
+  // đọc `scope` thì hàm này giữ mãi phạm vi của lần vẽ đầu, và đổi chương ở
+  // cột phải sẽ không có tác dụng gì.
+  const nextItem = useCallback(async (current: StoredSession, within: Scope) => {
     setBusy(true);
     setError(null);
     try {
-      const next = await api.nextItem(current.userId, current.subject);
+      const next = await api.nextItem(current.userId, current.subject, within);
       setItem(next);
       setAnswer("");
       setSteps("");
@@ -98,15 +105,22 @@ export default function PracticePage() {
     }
   }, []);
 
+  // Chờ `ready` mới gọi: chưa đọc xong localStorage thì `scope` còn rỗng, gọi
+  // luôn sẽ lấy một đề ngoài phạm vi rồi đổi ngay — người học thấy đề nhảy một
+  // nhịp và hệ thống tốn một lượt gọi vô ích.
+  //
+  // `scope` nằm trong deps là CỐ Ý: đổi chương ở cột phải thì đổi luôn sang đề
+  // của chương đó, không phải bấm thêm "Bài khác".
   useEffect(() => {
+    if (!ready) return;
     const saved = loadSession();
     if (!saved) {
       router.push("/");
       return;
     }
     setSession(saved);
-    void nextItem(saved);
-  }, [router, nextItem]);
+    void nextItem(saved, scope);
+  }, [ready, scope, router, nextItem]);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -167,6 +181,8 @@ export default function PracticePage() {
       </div>
 
       {down && <ApiDownBanner />}
+
+      <ScopeLine subject={session.subject} />
 
       {result?.placement_mode && (
         <div className="chip accent" style={{ marginBottom: 14 }}>
@@ -257,7 +273,7 @@ export default function PracticePage() {
               <button
                 type="button"
                 className="ghost"
-                onClick={() => void nextItem(session)}
+                onClick={() => void nextItem(session, scope)}
                 disabled={busy}
               >
                 Bài khác
@@ -267,6 +283,13 @@ export default function PracticePage() {
             {error && <p className="error">{error}</p>}
           </form>
         </>
+      ) : error ? (
+        /* Không có đề trong phạm vi đã chọn. Phải nói ra, chứ để khung chờ
+           quay mãi thì người học tưởng hệ thống treo. */
+        <div className="panel empty">
+          <p>{error}</p>
+          <p className="meta">Đổi lại phạm vi ở cột bên phải, hoặc bỏ lọc để luyện cả môn.</p>
+        </div>
       ) : (
         <div className="panel">
           <div className="skeleton tall w60" />
@@ -275,7 +298,7 @@ export default function PracticePage() {
         </div>
       )}
 
-      {result && <Verdict result={result} onNext={() => session && void nextItem(session)} />}
+      {result && <Verdict result={result} onNext={() => session && void nextItem(session, scope)} />}
 
       {hint && (
         <div className="hint">

@@ -64,6 +64,64 @@ export type Progress = {
   correct: number;
 };
 
+export type Topic = { topic_id: string; name_vi: string; items: number };
+
+export type Lesson = {
+  skill_id: string;
+  name_vi: string;
+  items: number;
+  mastery: number | null;
+  topics: Topic[];
+};
+
+export type Chapter = {
+  chapter: string;
+  name_vi: string;
+  items: number;
+  skills: number;
+  mastery: number | null;
+  lessons: Lesson[];
+};
+
+export type Syllabus = { subject: string; items: number; chapters: Chapter[] };
+
+export type SubjectStats = {
+  subject: string;
+  attempts: number;
+  learners: number;
+  correct: number;
+  unreadable: number;
+  accuracy: number | null;
+};
+
+export type LearnerRow = {
+  user_id: string;
+  attempts: number;
+  correct: number;
+  subjects: number;
+  last_seen: number | null;
+};
+
+export type AdminOverview = {
+  totals: Record<string, number>;
+  subjects: SubjectStats[];
+  top_error_codes: { error_code: string; count: number }[];
+  hint_levels: { level: number; count: number }[];
+  learners: LearnerRow[];
+  bank: Record<string, number>;
+};
+
+export type AttemptRow = {
+  attempt_id: number;
+  user_id: string;
+  subject: string | null;
+  item_id: string;
+  answer: string;
+  verdict: string;
+  error_codes: string[];
+  created_at: number | null;
+};
+
 export type Session = {
   session_id: string;
   user_id: string;
@@ -98,8 +156,49 @@ export const api = {
       body: JSON.stringify({ user_id: userId, subject }),
     }),
 
-  nextItem: (userId: string, subject: string) =>
-    call<PublicItem>(`/item/next?user_id=${encodeURIComponent(userId)}&subject=${subject}`),
+  syllabus: (subject: string, userId?: string) =>
+    call<Syllabus>(
+      `/syllabus?subject=${encodeURIComponent(subject)}` +
+        (userId ? `&user_id=${encodeURIComponent(userId)}` : "")
+    ),
+
+  /** `scope` để trống ở tầng nào thì tầng đó không lọc — xem src/core/syllabus.py. */
+  nextItem: (
+    userId: string,
+    subject: string,
+    scope?: { chapter?: string | null; skill?: string | null; topic?: string | null }
+  ) => {
+    const query = new URLSearchParams({ user_id: userId, subject });
+    if (scope?.chapter) query.set("chapter", scope.chapter);
+    if (scope?.skill) query.set("skill", scope.skill);
+    if (scope?.topic) query.set("topic", scope.topic);
+    return call<PublicItem>(`/item/next?${query}`);
+  },
+
+  adminEnabled: () => call<{ enabled: boolean }>("/admin/enabled"),
+
+  adminOverview: (token: string) =>
+    call<AdminOverview>("/admin/overview", { headers: { "X-Admin-Token": token } }),
+
+  adminAttempts: (token: string, limit = 100, subject?: string) => {
+    const query = new URLSearchParams({ limit: String(limit) });
+    if (subject) query.set("subject", subject);
+    return call<AttemptRow[]>(`/admin/attempts?${query}`, {
+      headers: { "X-Admin-Token": token },
+    });
+  },
+
+  /** URL tải CSV — khoá đi qua header nên không nhúng được vào thẻ <a>. */
+  adminExport: async (token: string, subject?: string) => {
+    const query = new URLSearchParams();
+    if (subject) query.set("subject", subject);
+    const response = await fetch(`${API_URL}/admin/export.csv?${query}`, {
+      headers: { "X-Admin-Token": token },
+      cache: "no-store",
+    });
+    if (!response.ok) throw new Error(`Lỗi ${response.status}`);
+    return response.blob();
+  },
 
   submit: (sessionId: string, itemId: string, finalAnswer: string, steps: string[]) =>
     call<AttemptResponse>("/attempt", {
@@ -122,10 +221,14 @@ export const api = {
       }),
     }),
 
-  ask: (question: string, subject?: string) =>
+  ask: (question: string, subject?: string, chapter?: string | null) =>
     call<AskResponse>("/ask", {
       method: "POST",
-      body: JSON.stringify({ question, subject: subject ?? null }),
+      body: JSON.stringify({
+        question,
+        subject: subject ?? null,
+        chapter: chapter ?? null,
+      }),
     }),
 
   progress: (userId: string, subject: string) =>

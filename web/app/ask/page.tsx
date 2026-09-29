@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api, type AskResponse } from "../../lib/api";
+import { loadSession } from "../../lib/session";
 import { ApiDownBanner } from "../api-status";
+import { useApp } from "../providers";
+import { ScopeLine } from "../scope-picker";
 
 const EXAMPLES = [
   "Chu trình Euler là gì?",
@@ -12,12 +15,18 @@ const EXAMPLES = [
 ];
 
 export default function AskPage() {
+  const { scope } = useApp();
+  const [subject, setSubject] = useState<string | null>(null);
   const [question, setQuestion] = useState("");
   const [asked, setAsked] = useState("");
   const [answer, setAnswer] = useState<AskResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [down, setDown] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    setSubject(loadSession()?.subject ?? null);
+  }, []);
 
   async function ask(text: string) {
     if (!text.trim()) return;
@@ -27,7 +36,10 @@ export default function AskPage() {
     setError(null);
     setAnswer(null);
     try {
-      setAnswer(await api.ask(text.trim()));
+      // Chọn chương thì thu hẹp truy xuất về đúng chương đó. Không chọn môn
+      // thì để server tìm trên cả kho — hỏi lý thuyết phải dùng được ngay,
+      // không bắt tạo phiên trước.
+      setAnswer(await api.ask(text.trim(), subject ?? undefined, scope.chapter));
       setDown(false);
     } catch (exc) {
       setError((exc as Error).message);
@@ -47,6 +59,8 @@ export default function AskPage() {
       </p>
 
       {down && <ApiDownBanner />}
+
+      <ScopeLine subject={subject} />
 
       <form
         className="panel"
