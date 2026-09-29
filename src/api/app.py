@@ -13,10 +13,12 @@ dựng server.
 
 from __future__ import annotations
 
+import os
 from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from src.core.config import AppConfig, load_config
@@ -571,6 +573,20 @@ def build_service(config: AppConfig | None = None, store: Store | None = None) -
                         config.subject_default, config)
 
 
+#: Origin được phép gọi API. Mặc định là web chạy ở máy mình; khi đưa lên
+#: tunnel hay máy khác thì thêm qua biến môi trường ``CORS_ORIGINS``
+#: (các origin cách nhau bởi dấu phẩy), chứ không mở "*" — mở toàn bộ thì
+#: `allow_credentials` mất tác dụng và trình duyệt lại chặn lần nữa.
+CORS_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get(
+        "CORS_ORIGINS",
+        "http://localhost:3000,http://127.0.0.1:3000",
+    ).split(",")
+    if origin.strip()
+]
+
+
 def create_app(service: TutorService | None = None) -> FastAPI:
     state: dict[str, Any] = {"service": service}
 
@@ -581,6 +597,21 @@ def create_app(service: TutorService | None = None) -> FastAPI:
         yield
 
     app = FastAPI(title="AI Tutor for Mathematics Learning", version="0.2.0", lifespan=lifespan)
+
+    # Web chạy ở cổng 3000, API ở cổng 8000 — với trình duyệt đó là hai origin
+    # khác nhau, nên THIẾU ĐOẠN NÀY thì mọi nút bấm trên web đều chết im lặng:
+    # giao diện hiện ra đầy đủ nhưng không chức năng nào chạy.
+    #
+    # Lỗi này lọt qua toàn bộ test vì `TestClient` và `curl` không thi hành
+    # same-origin policy — chỉ trình duyệt thật mới chặn. Bài học đáng ghi vào
+    # báo cáo: test xanh không thay được một lần mở thật bằng trình duyệt.
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=CORS_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
     def get_service() -> TutorService:
         if state["service"] is None:

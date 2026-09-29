@@ -37,6 +37,29 @@ def session(client: TestClient) -> dict:
 
 # ==========================================================================
 
+class TestCORS:
+    """Thiếu CORS thì web hiện ra đầy đủ nhưng KHÔNG nút nào chạy.
+
+    Lỗi này từng lọt qua cả bộ test: ``TestClient`` và ``curl`` không thi hành
+    same-origin policy, chỉ trình duyệt thật mới chặn. Test ở đây giả đúng cú
+    preflight mà trình duyệt gửi trước mỗi lời gọi POST.
+    """
+
+    def test_cho_phep_web_o_cong_3000_goi_sang(self, client: TestClient) -> None:
+        response = client.options("/session/start", headers={
+            "Origin": "http://localhost:3000",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        })
+        assert response.status_code == 200
+        assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
+
+    def test_origin_la_thuoc_tinh_cua_phan_hoi_that(self, client: TestClient) -> None:
+        """Không chỉ preflight: phản hồi thật cũng phải mang header đó."""
+        response = client.get("/health", headers={"Origin": "http://localhost:3000"})
+        assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
+
+
 class TestHealth:
     def test_bao_cao_trang_thai(self, client: TestClient) -> None:
         body = client.get("/health").json()
