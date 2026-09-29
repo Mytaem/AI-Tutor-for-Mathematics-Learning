@@ -93,6 +93,30 @@ def _wrapped(text: str, opening: str, closing: str) -> bool:
     return depth == 0
 
 
+#: Một con số thập phân viết theo kiểu Việt Nam: ``0,75``, ``-1,5``.
+_VN_DECIMAL = re.compile(r"^-?\d+,\d+$")
+
+
+def normalize_student_answer(text: str, answer_type: AnswerType | None = None) -> str:
+    """Bỏ những khác biệt hình thức KHÔNG làm đổi nghĩa toán học.
+
+    Đo được trên toàn bộ ngân hàng đề: thiếu bước này thì bộ chấm từ chối
+    **100%** đáp án số viết dấu phẩy thập phân và **69%** đáp án có dấu chấm
+    cuối câu — toàn những bài làm ĐÚNG. Chấm oan người học còn tệ hơn bỏ sót
+    một bài sai, vì nó dạy họ mất tin vào hệ thống.
+
+    Dấu phẩy thập phân chỉ đổi khi đề hỏi ĐÚNG MỘT con số. Ở đáp án dạng tập
+    hợp hay vector, dấu phẩy là dấu ngăn phần tử — ``1,5`` lúc đó vừa có thể là
+    một số vừa có thể là hai số, và đoán bừa thì còn hại hơn hỏi lại.
+    """
+    cleaned = text.strip()
+    # Dấu câu cuối: "x**3/3 + C." hay "0.7." — không có đáp án toán nào cần nó.
+    cleaned = re.sub(r"[.;,\s]+$", "", cleaned) or cleaned
+    if answer_type is AnswerType.NUMBER and _VN_DECIMAL.match(cleaned):
+        cleaned = cleaned.replace(",", ".")
+    return cleaned
+
+
 def parse_matrix(text: str) -> sp.Matrix:
     """Đọc ma trận hoặc vector sinh viên nhập.
 
@@ -191,7 +215,9 @@ class Verifier(ABC):
             return result
 
         try:
-            check, codes = self.check(item, submission.final_answer)
+            check, codes = self.check(
+                item, normalize_student_answer(submission.final_answer, item.answer_type)
+            )
         except ParseError as exc:
             # Lỗi nhập liệu KHÔNG phải lỗi toán học: không kết luận đúng/sai.
             result.final_answer_correct = None
@@ -219,6 +245,11 @@ class Verifier(ABC):
         if not answer or not answer.strip():
             return EquivalenceResult(False, "structural", 1.0, "Chưa có đáp án")
 
+        # Chuẩn hoá ở ĐÂY nữa, không chỉ trong ``verify``: ``CalculusVerifier``
+        # tự viết lại ``verify`` và gọi thẳng vào hàm này, nên nếu chỉ đặt ở một
+        # chỗ thì môn có ngân hàng đề lớn nhất lại là môn duy nhất không được
+        # chuẩn hoá. Hàm chuẩn hoá bất biến nên gọi hai lần vô hại.
+        answer = normalize_student_answer(answer, item.answer_type)
         try:
             return self._dispatch_answer(item, answer)
         except ParseError as exc:

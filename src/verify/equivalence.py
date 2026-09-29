@@ -77,6 +77,23 @@ _ALLOWED_NAMES: dict[str, Any] = {
     if hasattr(sp, name)
 }
 _ALLOWED_NAMES["Infinity"] = sp.oo
+#: Tên HÀM viết kiểu gì cũng nhận, ánh xạ về đúng chính tả mà SymPy hiểu:
+#: ``{"sin": "sin", "abs": "Abs", ...}``. Phải ánh xạ chứ không được hạ chữ
+#: thẳng tay — ``Abs`` mới là tên có trong danh sách trắng, hạ thành ``abs``
+#: là biến một lời gọi hàm hợp lệ thành tích ``a*b*s``.
+#:
+#: Cố ý bỏ constructor ("Matrix", "Symbol", "Integer"...): sinh viên không gõ
+#: chúng, thêm vào chỉ mở thêm đường lạ cho đầu vào.
+_FUNCTION_ALIASES = {
+    name.lower(): name
+    for name in (
+        "Abs", "acos", "acosh", "asin", "asinh", "atan", "atanh", "binomial",
+        "cbrt", "ceiling", "cos", "cosh", "cot", "csc", "exp", "factorial",
+        "floor", "log", "ln", "root", "sec", "sign", "sin", "sinh", "sqrt",
+        "tan", "tanh",
+    )
+    if name in _ALLOWED_NAMES
+}
 # Sinh viên viết "e^x" nhiều hơn "exp(x)". Đổi lại, không dùng được "e" làm tên
 # biến — chấp nhận được trong ngữ cảnh toán đại cương.
 _ALLOWED_NAMES["e"] = sp.E
@@ -183,6 +200,18 @@ def _normalize_input(text: str) -> str:
     # sai hoàn toàn mà không báo lỗi.
     out = re.sub(r"√\s*\(", "sqrt(", out)
     out = re.sub(r"√\s*([A-Za-z0-9_.]+)", r"sqrt(\1)", out)
+
+    # "SIN(x)", "Log(x)" -> "sin(x)", "log(x)". Máy tính Casio hiện tên hàm bằng
+    # chữ hoa, nên sinh viên chép y như vậy vào ô nhập.
+    #
+    # CHỈ đổi khi ngay sau tên là dấu mở ngoặc, tức nó đang được dùng như một
+    # HÀM. Chữ hoa ở TÊN BIẾN phải giữ nguyên nghĩa: "X" và "x" là hai biến khác
+    # nhau, và hằng số tích phân "C" không được lẫn với biến "c".
+    out = re.sub(
+        r"\b([A-Za-z]{2,})\s*\(",
+        lambda m: _FUNCTION_ALIASES.get(m.group(1).lower(), m.group(1)) + "(",
+        out,
+    )
     return out
 
 
