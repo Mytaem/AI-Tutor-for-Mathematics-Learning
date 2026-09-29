@@ -58,6 +58,36 @@ python scripts/build_error_dataset.py MAE101   # và MAI391 / MAS291 / MAD101
 python scripts/build_rag_index.py --dense      # kho giáo trình (cần Ollama cho bge-m3)
 ```
 
+## Thu thập và gán nhãn bài làm sai THẬT
+
+Đây là việc duy nhất không tự động hoá được, và là chỗ đang chặn phần đánh giá:
+mọi con số về chẩn đoán lỗi hiện đo trên lỗi do máy cài vào, tức là **chặn trên**.
+
+**Cách nhanh nhất — để sinh viên tự sinh dữ liệu cho mình:**
+
+```bash
+python -m uvicorn src.api.app:create_app --factory --port 8000   # API
+TELEGRAM_TOKEN=... python -m src.bot.main                        # bot
+```
+
+Nhờ 5–10 bạn, mỗi người làm 20 bài qua bot. Bài làm sai tự vào bảng `attempts`
+kèm chẩn đoán của hệ thống. Sau đó gán nhãn:
+
+```bash
+python scripts/label_real_errors.py --from-db --limit 50
+python scripts/label_real_errors.py --stats
+```
+
+Công cụ tự chấm sẵn và in đề, đáp án đúng, bài làm — người gán nhãn chỉ chọn mã
+lỗi. **Đề xuất của máy phải gõ `may` mới hiện**, cố ý như vậy: nhìn thấy máy đoán
+gì trước khi tự nghĩ thì rất dễ gật theo, mà nhãn đi xác nhận máy thì không còn
+độc lập, và tập test thật mất sạch ý nghĩa.
+
+Không có bot cũng được — chạy không tham số rồi gõ tay từng bài (mã đề + bài làm).
+
+Mục tiêu 200 bài. Kết quả ghi vào `data/errors/real_labeled.jsonl`, cùng định dạng
+với tập lỗi tổng hợp nên các script đo đạc dùng lại được ngay.
+
 ## Huấn luyện DKT để dùng thật
 
 ```bash
