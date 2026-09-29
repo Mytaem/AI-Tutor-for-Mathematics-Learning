@@ -148,9 +148,14 @@ def from_database(limit: int) -> list[tuple[str, str, str]]:
     from src.core.config import load_config
 
     store = Store(load_config().database_path)
+    # Lọc theo final_answer_correct chứ không theo is_correct: bài mà bộ chấm
+    # KHÔNG ĐỌC NỔI cũng có is_correct = 0, và nó không phải lỗi toán — gán nhãn
+    # mã lỗi cho một lỗi gõ định dạng thì tập test "lỗi thật" hỏng ngay từ gốc.
+    # `= 0` trong SQL đã tự loại NULL, tức loại đúng nhóm không đọc được.
     rows = store._connection.execute(
         "SELECT subject, item_id, raw_input FROM attempts "
-        "WHERE is_correct = 0 AND raw_input != '' ORDER BY attempt_id DESC LIMIT ?",
+        "WHERE (final_answer_correct = 0 OR first_wrong_step IS NOT NULL) "
+        "AND raw_input != '' ORDER BY attempt_id DESC LIMIT ?",
         (limit,),
     ).fetchall()
     return [(row["subject"] or "MAE101", row["item_id"], row["raw_input"]) for row in rows]

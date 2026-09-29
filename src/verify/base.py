@@ -109,6 +109,19 @@ def parse_matrix(text: str) -> sp.Matrix:
     if match:
         cleaned = match.group(1).strip()
 
+    # ``x = 2, y = 1`` và ``2, 1`` — cách viết nghiệm hệ phương trình tự nhiên
+    # nhất, và trước đây bị từ chối thẳng. Hậu quả không chỉ là khó dùng: bài
+    # làm không đọc được bị ghi như bài làm SAI, nên sinh viên viết ĐÚNG đáp án
+    # theo kiểu này vẫn bị tụt mức thành thạo.
+    #
+    # Chỉ nhận khi có từ hai phần tử trở lên, hoặc có tiền tố ``biến =``. Nhờ
+    # vậy ``5`` vẫn là một con số chứ không lặng lẽ thành vector một phần tử.
+    if not (_wrapped(cleaned, "[", "]") or _wrapped(cleaned, "(", ")")):
+        parts = split_top_level(cleaned.replace(";", ","))
+        bare = [re.sub(r"^[^\W\d]\w*\s*=\s*", "", part).strip() for part in parts]
+        if len(parts) > 1 or bare != [part.strip() for part in parts]:
+            cleaned = "[" + ", ".join(bare) + "]"
+
     def build(fragment: str):
         fragment = fragment.strip()
         for opening, closing in (("[", "]"), ("(", ")")):

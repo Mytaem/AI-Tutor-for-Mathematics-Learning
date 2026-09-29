@@ -141,6 +141,31 @@ class TestAttempt:
         }).json()
         assert body["message"].strip()
 
+    def test_khong_doc_duoc_bai_lam_thi_khong_dung_toi_mastery(
+        self, client: TestClient, session: dict
+    ) -> None:
+        """Bộ chấm TỪ CHỐI kết luận thì mô hình năng lực phải đứng yên.
+
+        Trước đây bài không đọc được bị cập nhật y hệt bài sai thật: mức thành
+        thạo tụt 0,45 → 0,23 chỉ vì sinh viên gõ sai định dạng. Đó là ghi lỗi
+        gõ phím thành lỗ hổng kiến thức, và nó bẩn đúng cái mô hình mà cả phần
+        chọn bài thích ứng dựa vào.
+        """
+        item_id = session["first_item"]["item_id"]
+        skills = session["first_item"]["skills"]
+
+        def mastery() -> dict[str, float]:
+            body = client.get("/progress", params={"user_id": "sv001", "subject": "MAE101"}).json()
+            return {s["skill_id"]: s["mastery"] for s in body["skills"] if s["skill_id"] in skills}
+
+        before = mastery()
+        body = client.post("/attempt", json={
+            "session_id": session["session_id"], "item_id": item_id, "final_answer": "x = ?",
+        }).json()
+
+        assert body["final_answer_correct"] is None, "đề này đọc được, chọn đề khác để test"
+        assert mastery() == before
+
     @pytest.mark.parametrize("subject", ["MAE101", "MAI391", "MAS291", "MAD101"])
     def test_khong_de_nao_lo_dap_an_qua_api(self, client: TestClient, subject: str) -> None:
         """Quét NHIỀU đề của mọi môn, không chỉ đề đầu tiên của một phiên.
@@ -163,11 +188,18 @@ class TestAttempt:
         assert leaks == [], "\n".join(leaks[:5])
 
     def test_cap_nhat_muc_thanh_thao(self, client: TestClient, session: dict) -> None:
+        """Bài sai THẬT thì phải cập nhật mô hình năng lực.
+
+        Bản cũ nộp ``"x"`` — chuỗi mà bộ chấm không đọc nổi — nên nó vẫn xanh
+        cả khi hệ thống cập nhật năng lực dựa trên một kết luận chưa hề có.
+        Đáp án ở đây cố tình SAI nhưng ĐỌC ĐƯỢC, để phân biệt hai ca đó.
+        """
         body = client.post("/attempt", json={
             "session_id": session["session_id"],
             "item_id": session["first_item"]["item_id"],
-            "final_answer": "x",
+            "final_answer": "[9, 9]",
         }).json()
+        assert body["final_answer_correct"] is False, "đáp án test phải đọc được và sai"
         assert body["mastery_changes"], "Làm bài xong phải cập nhật mô hình năng lực"
 
     def test_phien_khong_ton_tai_thi_404(self, client: TestClient) -> None:

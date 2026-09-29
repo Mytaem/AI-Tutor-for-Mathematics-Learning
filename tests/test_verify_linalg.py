@@ -213,6 +213,27 @@ class TestEigen:
         assert L.ERR_EIG_NOTEIGEN in check(verifier, bank, "MAE101-LA-VEC-001", "[1, 2]").candidate_error_codes
 
 
+class TestCachVietNghiem:
+    """Sinh viên viết nghiệm hệ theo kiểu nào cũng phải chấm được.
+
+    ``x = 2, y = 1`` là cách viết tự nhiên nhất, và nó từng bị từ chối thẳng.
+    Không chỉ khó dùng: bài không đọc được bị ghi như bài SAI, nên sinh viên
+    làm ĐÚNG mà viết kiểu này vẫn bị tụt mức thành thạo.
+    """
+
+    @pytest.mark.parametrize("answer", ["[2, 1]", "x = 2, y = 1", "x=2, y=1", "2, 1", "x = 2; y = 1"])
+    def test_moi_cach_viet_dung_deu_duoc_cham_dung(self, verifier, bank, answer: str) -> None:
+        assert check(verifier, bank, "MAE101-LA-SYS-001", answer).final_answer_correct is True
+
+    def test_viet_kieu_do_nhung_sai_van_la_sai(self, verifier, bank) -> None:
+        """Nới bộ đọc mà thành nới luôn cả bộ chấm thì hỏng hẳn."""
+        assert check(verifier, bank, "MAE101-LA-SYS-001", "x = 9, y = 9").final_answer_correct is False
+
+    def test_mot_so_don_le_van_la_so_khong_phai_vector(self, verifier, bank) -> None:
+        """``5`` không được lặng lẽ thành vector một phần tử."""
+        assert check(verifier, bank, "MAE101-LA-SYS-001", "5").final_answer_correct is None
+
+
 class TestRobustness:
     def test_khong_doc_duoc_thi_hoi_lai(self, verifier, bank) -> None:
         result = check(verifier, bank, "MAE101-LA-INV-001", "[[1, 2], [3")

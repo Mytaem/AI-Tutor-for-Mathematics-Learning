@@ -331,7 +331,14 @@ class TutorService:
             subject=subject,
         )
 
-        changes = tracker.observe(item.skills, response.is_correct)
+        # Bộ chấm trả ``final_answer_correct = None`` nghĩa là nó TỪ CHỐI kết
+        # luận (không đọc nổi bài làm), không phải kết luận "sai". Cập nhật năng
+        # lực ở đây là ghi một lỗi ĐỊNH DẠNG thành lỗ hổng KIẾN THỨC: đo được là
+        # mức thành thạo tụt đúng bằng một bài sai thật (0,45 → 0,23).
+        verification = response.verification
+        reached_verdict = (verification.final_answer_correct is not None
+                           or verification.first_wrong_step is not None)
+        changes = tracker.observe(item.skills, response.is_correct) if reached_verdict else {}
 
         if response.is_correct:
             # Làm đúng bài đổi biến thì đương nhiên đã nắm quy tắc hàm hợp.
