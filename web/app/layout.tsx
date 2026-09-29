@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import "katex/dist/katex.min.css";
 import "./globals.css";
+import { Nav } from "./nav";
+import { ApiStatus } from "./api-status";
 
 export const metadata: Metadata = {
   title: "AI Tutor Toán",
@@ -14,11 +15,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <header className="site">
           <div className="inner">
-            <span className="brand">AI Tutor Toán</span>
-            <Link href="/">Chọn môn</Link>
-            <Link href="/practice">Luyện tập</Link>
-            <Link href="/ask">Hỏi lý thuyết</Link>
-            <Link href="/progress">Tiến độ</Link>
+            <a className="brand" href="/">
+              <span className="mark" aria-hidden="true">∫</span>
+              <span>AI Tutor Toán</span>
+            </a>
+            <Nav />
+            <div className="spacer" />
+            <ApiStatus />
           </div>
         </header>
         {children}
