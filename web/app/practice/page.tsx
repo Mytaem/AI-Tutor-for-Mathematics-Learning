@@ -177,14 +177,19 @@ export default function PracticePage() {
       {item ? (
         <>
           <div className="panel flush">
+            {/* Chip nào cũng phải nói NÓ LÀ GÌ. "MAE101-LA-SYS-001" và "vừa"
+                đứng trơ ra thì người học không biết đang đọc mã đề hay mã kỹ
+                năng, cũng không biết "vừa" là vừa cái gì. */}
             <div className="panel-head">
-              <span className="chip mono">{item.item_id}</span>
-              <span className="chip">{DIFFICULTY(item.difficulty)}</span>
-              {item.skills.map((skill) => (
-                <span className="chip accent" key={skill}>
-                  {skill}
+              <span className="chip">
+                Mã đề <span className="mono">{item.item_id}</span>
+              </span>
+              <span className="chip">Độ khó: {DIFFICULTY(item.difficulty)}</span>
+              {item.skills.length > 0 && (
+                <span className="chip accent">
+                  Kỹ năng: {item.skills.join(", ")}
                 </span>
-              ))}
+              )}
             </div>
             <div className="panel-body">
               <Statement item={item} />

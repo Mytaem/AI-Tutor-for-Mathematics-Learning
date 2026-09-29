@@ -111,7 +111,7 @@ export default function AskPage() {
               <span className={`chip ${answer.in_scope ? "ok" : "warn"}`}>
                 {answer.in_scope ? "Trong phạm vi giáo trình" : "Ngoài phạm vi"}
               </span>
-              <span className="meta">{asked}</span>
+              <span className="meta">Câu hỏi: “{asked}”</span>
             </div>
             <p style={{ whiteSpace: "pre-wrap", margin: 0 }}>{answer.answer}</p>
             <p className="meta" style={{ marginTop: 14 }}>

@@ -6,12 +6,23 @@ import { api, type Progress, type SkillProgress } from "../../lib/api";
 import { loadSession } from "../../lib/session";
 import { ApiDownBanner } from "../api-status";
 
+/**
+ * Bốn mức xếp loại, và chúng được in ra thành chú giải ngay trên bảng.
+ *
+ * Con số 68% một mình không nói cho người học biết nên làm gì tiếp. Mốc chia
+ * thì phải hiện ra chứ không giấu trong code — nếu không, hai người đọc cùng
+ * một bảng sẽ hiểu "đang học" theo hai nghĩa khác nhau.
+ */
+const BANDS = [
+  { min: 0.85, label: "đã vững", range: "≥ 85%", cls: "high", chip: "ok" },
+  { min: 0.6, label: "gần vững", range: "60–85%", cls: "high", chip: "ok" },
+  { min: 0.35, label: "đang học", range: "35–60%", cls: "mid", chip: "warn" },
+  { min: 0, label: "còn yếu", range: "< 35%", cls: "low", chip: "wrong" },
+];
+
 /** Đổi mức thành thạo thành một câu người học hiểu được, không chỉ là con số. */
-function band(mastery: number): { label: string; cls: string; chip: string } {
-  if (mastery >= 0.85) return { label: "đã vững", cls: "high", chip: "ok" };
-  if (mastery >= 0.6) return { label: "gần vững", cls: "high", chip: "ok" };
-  if (mastery >= 0.35) return { label: "đang học", cls: "mid", chip: "warn" };
-  return { label: "còn yếu", cls: "low", chip: "wrong" };
+function band(mastery: number) {
+  return BANDS.find((b) => mastery >= b.min) ?? BANDS[BANDS.length - 1];
 }
 
 export default function ProgressPage() {
@@ -87,11 +98,11 @@ export default function ProgressPage() {
           <div className="tiles">
             <div className="tile">
               <div className="n">{progress.attempts}</div>
-              <div className="k">lượt làm bài</div>
+              <div className="k">Lượt làm bài</div>
             </div>
             <div className="tile">
               <div className="n">{(accuracy * 100).toFixed(0)}%</div>
-              <div className="k">tỉ lệ đúng ({progress.correct} bài)</div>
+              <div className="k">Tỉ lệ làm đúng — {progress.correct}/{progress.attempts} lượt</div>
             </div>
             <div className="tile">
               <div className="n">
@@ -100,7 +111,11 @@ export default function ProgressPage() {
                   /{progress.skills.length}
                 </span>
               </div>
-              <div className="k">kỹ năng từ mức gần vững</div>
+              <div className="k">Kỹ năng đạt từ 60% trở lên</div>
+            </div>
+            <div className="tile">
+              <div className="n">{weak.length}</div>
+              <div className="k">Kỹ năng còn dưới 35%</div>
             </div>
           </div>
 
@@ -125,14 +140,28 @@ export default function ProgressPage() {
 
           <h2>Toàn bộ kỹ năng của môn</h2>
           <div className="panel flush">
+            <div className="panel-head" style={{ justifyContent: "space-between" }}>
+              <span className="meta">Xếp từ kỹ năng yếu nhất lên</span>
+              <span className="row tight">
+                {BANDS.map((b) => (
+                  <span className={`chip ${b.chip}`} key={b.label}>
+                    {b.label} {b.range}
+                  </span>
+                ))}
+              </span>
+            </div>
             <div className="panel-body">
               <table>
+                <caption className="sr-only">
+                  Mức thành thạo từng kỹ năng của môn, do mô hình BKT ước lượng
+                </caption>
                 <thead>
                   <tr>
-                    <th>Kỹ năng</th>
-                    <th>Mức thành thạo</th>
-                    <th />
-                    <th />
+                    <th scope="col">Kỹ năng</th>
+                    <th scope="col">Mức thành thạo (BKT)</th>
+                    <th scope="col" style={{ textAlign: "right" }}>
+                      Xếp loại
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -151,19 +180,24 @@ export default function ProgressPage() {
 
 function Row({ skill }: { skill: SkillProgress }) {
   const b = band(skill.mastery);
+  const percent = Math.round(skill.mastery * 100);
   return (
     <tr>
-      <td className="name">
+      <th scope="row" className="name" style={{ fontWeight: 400, padding: "10px 8px", textTransform: "none", letterSpacing: 0, fontSize: "0.92rem", color: "var(--ink)" }}>
         {skill.name_vi}
         <div className="meta mono">{skill.skill_id}</div>
-      </td>
+      </th>
+      {/* Thanh và con số nằm CÙNG một cột: chúng là một đại lượng, tách ra hai
+          cột thì cột nào cũng phải có tên riêng mà thật ra không có tên riêng. */}
       <td>
-        <div className="bar">
-          <span className={b.cls} style={{ width: `${Math.max(2, Math.round(skill.mastery * 100))}%` }} />
+        <div className="row" style={{ gap: 10, flexWrap: "nowrap" }}>
+          <div className="bar" style={{ flex: 1, minWidth: 80 }}>
+            <span className={b.cls} style={{ width: `${Math.max(2, percent)}%` }} />
+          </div>
+          <span className="value" style={{ width: 42 }}>{percent}%</span>
         </div>
       </td>
-      <td className="value">{(skill.mastery * 100).toFixed(0)}%</td>
-      <td className="value">
+      <td style={{ textAlign: "right" }}>
         <span className={`chip ${b.chip}`}>{b.label}</span>
       </td>
     </tr>
