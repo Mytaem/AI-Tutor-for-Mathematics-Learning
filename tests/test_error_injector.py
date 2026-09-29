@@ -229,10 +229,21 @@ class TestVerifierCatchesInjectedErrors:
         assert "MAE.INT.CONSTFACTOR" in result.candidate_error_codes
 
 
+def _print_console(line: str) -> None:
+    """In ra console thật, chịu được cả terminal không đọc nổi tiếng Việt.
+
+    Console Windows mặc định cp1252; `print` thẳng dấu tiếng Việt ra đó ném
+    UnicodeEncodeError và **cả bộ test đổ chỉ vì cái terminal đang chạy nó**.
+    Thà mất dấu còn hơn mất bộ test.
+    """
+    encoding = getattr(sys.stdout, "encoding", None) or "utf-8"
+    sys.stdout.write(line.encode(encoding, "replace").decode(encoding) + "\n")
+
+
 def test_bao_cao_do_phu(dataset: list[InjectedError], capsys: pytest.CaptureFixture[str]) -> None:
     """In thống kê để đưa vào báo cáo — không phải assertion, chạy với -s để xem."""
     counter = Counter(record.error_code for record in dataset)
     with capsys.disabled():
-        print(f"\n  Tổng số mẫu lỗi sinh ra: {len(dataset)}")
+        _print_console(f"\n  Tổng số mẫu lỗi sinh ra: {len(dataset)}")
         for code, count in counter.most_common():
-            print(f"    {code:<30} {count:>3}")
+            _print_console(f"    {code:<30} {count:>3}")
