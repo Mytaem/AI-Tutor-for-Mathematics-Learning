@@ -16,6 +16,7 @@ from fastapi.testclient import TestClient
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+import src.api.app as app_module  # noqa: E402
 from src.api.app import build_service, create_app  # noqa: E402
 from src.api.db import Store  # noqa: E402
 from src.core.config import AppConfig  # noqa: E402
@@ -58,6 +59,122 @@ class TestCORS:
         """Không chỉ preflight: phản hồi thật cũng phải mang header đó."""
         response = client.get("/health", headers={"Origin": "http://localhost:3000"})
         assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
+
+
+class TestAdmin:
+    """Phần quản trị phải chặn ở TẦNG SERVER, không phải ở giao diện."""
+
+    def test_chua_dat_khoa_thi_tat_han(self, client: TestClient, monkeypatch) -> None:
+        """Mặc định phải là TẮT, không phải mở.
+
+        Dữ liệu ở đây là bài làm của người thật. "Chưa cấu hình" mà mở sẵn là
+        kiểu lỗ hổng tệ nhất vì không ai nhận ra cho tới lúc muộn.
+        """
+        monkeypatch.setattr(app_module, "ADMIN_TOKEN", "")
+        fresh = TestClient(create_app(build_service(AppConfig(), store=Store(":memory:"))))
+        assert fresh.get("/admin/enabled").json() == {"enabled": False}
+        assert fresh.get("/admin/overview").status_code == 403
+
+    def test_khoa_sai_hoac_thieu_thi_tu_choi(self, monkeypatch) -> None:
+        monkeypatch.setattr(app_module, "ADMIN_TOKEN", "khoa-that")
+        guarded = TestClient(create_app(build_service(AppConfig(), store=Store(":memory:"))))
+        assert guarded.get("/admin/overview").status_code == 401
+        # Khoá sai phải là ASCII: giá trị header không mang được dấu tiếng Việt,
+        # httpx chặn ngay ở tầng HTTP nên sẽ không tới được chỗ mình muốn kiểm.
+        assert guarded.get("/admin/overview", headers={"X-Admin-Token": "doan-bua"}).status_code == 401
+        assert guarded.get("/admin/overview", headers={"X-Admin-Token": "khoa-that"}).status_code == 200
+
+    def test_tong_hop_khong_tron_loi_dinh_dang_vao_ti_le_dung(self, monkeypatch) -> None:
+        """Bài KHÔNG ĐỌC ĐƯỢC phải đếm riêng, không kéo tỉ lệ đúng xuống."""
+        monkeypatch.setattr(app_module, "ADMIN_TOKEN", "khoa-that")
+        store = Store(":memory:")
+        service = build_service(AppConfig(), store=store)
+        guarded = TestClient(create_app(service))
+        head = {"X-Admin-Token": "khoa-that"}
+
+        session = guarded.post("/session/start", json={"user_id": "sv9", "subject": "MAE101"}).json()
+        item_id = session["first_item"]["item_id"]
+        correct = service.bank_for("MAE101").items[item_id].answer_text
+        for answer in (correct, "x = ?"):
+            guarded.post("/attempt", json={
+                "session_id": session["session_id"], "item_id": item_id, "final_answer": answer,
+            })
+
+        stats = guarded.get("/admin/overview", headers=head).json()["subjects"][0]
+        assert stats["attempts"] == 2
+        assert stats["unreadable"] == 1
+        assert stats["accuracy"] == 1.0, "1 đúng / 1 chấm được = 100%, bài không đọc được để riêng"
+
+    def test_xuat_csv_co_bom_cho_excel(self, monkeypatch) -> None:
+        """Thiếu BOM thì Excel trên Windows mở ra tiếng Việt thành ký tự lạ."""
+        monkeypatch.setattr(app_module, "ADMIN_TOKEN", "khoa-that")
+        guarded = TestClient(create_app(build_service(AppConfig(), store=Store(":memory:"))))
+        response = guarded.get("/admin/export.csv", headers={"X-Admin-Token": "khoa-that"})
+        assert response.status_code == 200
+        assert response.content.startswith(b"\xef\xbb\xbf")
+        assert "attachment" in response.headers["content-disposition"]
+
+
+class TestSyllabus:
+    """Cây chọn phạm vi: môn → chương → bài → dạng bài."""
+
+    def test_tra_ca_cay_trong_mot_loi_goi(self, client: TestClient) -> None:
+        body = client.get("/syllabus", params={"subject": "MAD101"}).json()
+        assert body["subject"] == "MAD101"
+        assert len(body["chapters"]) >= 5
+        chapter = next(c for c in body["chapters"] if c["lessons"])
+        lesson = next(l for l in chapter["lessons"] if l["topics"])
+        assert lesson["topics"][0]["name_vi"]
+
+    def test_khong_co_user_thi_van_tra_duoc_cay(self, client: TestClient) -> None:
+        """Trang chọn môn cần cây TRƯỚC khi có phiên, nên user_id phải là tuỳ chọn."""
+        body = client.get("/syllabus", params={"subject": "MAE101"}).json()
+        assert all(c["mastery"] is None for c in body["chapters"])
+
+    def test_co_user_thi_kem_muc_thanh_thao(self, client: TestClient, session: dict) -> None:
+        body = client.get(
+            "/syllabus", params={"subject": "MAE101", "user_id": "sv001"}
+        ).json()
+        assert any(c["mastery"] is not None for c in body["chapters"])
+
+    def test_so_de_tren_nut_dung_bang_so_de_bam_vao_nhan_duoc(
+        self, client: TestClient, session: dict
+    ) -> None:
+        """Nút ghi "12 đề" mà bấm vào báo hết đề là kiểu hỏng mất lòng tin nhất."""
+        body = client.get("/syllabus", params={"subject": "MAE101"}).json()
+        for chapter in body["chapters"]:
+            response = client.get("/item/next", params={
+                "user_id": "sv001", "subject": "MAE101", "chapter": chapter["chapter"],
+            })
+            if chapter["items"] == 0:
+                assert response.status_code == 404
+            else:
+                assert response.status_code == 200, chapter["name_vi"]
+
+    def test_loc_den_tan_dang_bai(self, client: TestClient, session: dict) -> None:
+        body = client.get("/syllabus", params={"subject": "MAD101"}).json()
+        chapter = next(c for c in body["chapters"] if any(l["topics"] for l in c["lessons"]))
+        lesson = next(l for l in chapter["lessons"] if l["topics"])
+        topic = lesson["topics"][0]
+
+        response = client.get("/item/next", params={
+            "user_id": "sv001", "subject": "MAD101",
+            "chapter": chapter["chapter"], "skill": lesson["skill_id"],
+            "topic": topic["topic_id"],
+        })
+        assert response.status_code == 200
+        assert lesson["skill_id"] in response.json()["skills"]
+
+    def test_pham_vi_rong_thi_noi_ro_la_chon_hep_qua(
+        self, client: TestClient, session: dict
+    ) -> None:
+        """Không được trả "hết đề": người học vừa tự chọn phạm vi, họ cần biết vì sao."""
+        response = client.get("/item/next", params={
+            "user_id": "sv001", "subject": "MAD101",
+            "chapter": "Ch7 Trees", "topic": "gcd",
+        })
+        assert response.status_code == 404
+        assert "rộng hơn" in response.json()["detail"]
 
 
 class TestHealth:

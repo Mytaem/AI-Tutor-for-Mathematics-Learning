@@ -13,11 +13,14 @@ dựng server.
 
 from __future__ import annotations
 
+import csv
+import io
 import os
+import secrets
 from contextlib import asynccontextmanager
 from typing import Any
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -148,9 +151,87 @@ class ProgressResponse(BaseModel):
     correct: int
 
 
+class TopicOut(BaseModel):
+    """Dạng bài — tầng hẹp nhất người học chọn được."""
+
+    topic_id: str
+    name_vi: str
+    items: int
+
+
+class LessonOut(BaseModel):
+    """Bài — chính là một kỹ năng."""
+
+    skill_id: str
+    name_vi: str
+    items: int
+    mastery: float | None = None
+    topics: list[TopicOut] = Field(default_factory=list)
+
+
+class ChapterOut(BaseModel):
+    chapter: str
+    name_vi: str
+    items: int
+    skills: int
+    mastery: float | None = None
+    lessons: list[LessonOut] = Field(default_factory=list)
+
+
+class SyllabusResponse(BaseModel):
+    """Cả cây nội dung của một môn trong MỘT lời gọi.
+
+    Trả cả cây chứ không để giao diện gọi vòng theo từng chương: cây chỉ cỡ
+    trăm nút, mà gọi vòng thì mỗi lần mở một chương lại chờ mạng một nhịp.
+    """
+
+    subject: str
+    items: int
+    chapters: list[ChapterOut] = Field(default_factory=list)
+
+
+class SubjectStats(BaseModel):
+    subject: str
+    attempts: int
+    learners: int
+    correct: int
+    unreadable: int
+    accuracy: float | None = None
+
+
+class ErrorCodeCount(BaseModel):
+    error_code: str
+    count: int
+
+
+class HintLevelCount(BaseModel):
+    level: int
+    count: int
+
+
+class LearnerRow(BaseModel):
+    user_id: str
+    attempts: int
+    correct: int
+    subjects: int
+    last_seen: float | None = None
+
+
+class AdminOverview(BaseModel):
+    """Bảng điều khiển cho giảng viên: ai đang học, sai ở đâu, xin gợi ý bao nhiêu."""
+
+    totals: dict[str, int]
+    subjects: list[SubjectStats] = Field(default_factory=list)
+    top_error_codes: list[ErrorCodeCount] = Field(default_factory=list)
+    hint_levels: list[HintLevelCount] = Field(default_factory=list)
+    learners: list[LearnerRow] = Field(default_factory=list)
+    bank: dict[str, int] = Field(default_factory=dict)
+
+
 class AskRequest(BaseModel):
     question: str
     subject: str | None = None
+    chapter: str | None = None
 
 
 class AskResponse(BaseModel):
@@ -283,10 +364,72 @@ class TutorService:
                 covered.update(bank.items[item_id].skills)
         return covered
 
-    def pick_item(self, user_id: str, subject: str | None = None) -> Item | None:
+    def syllabus(self, user_id: str | None, subject: str | None = None) -> SyllabusResponse:
+        """Cây môn → chương → bài → dạng bài, kèm số đề và mức thành thạo."""
+        from src.core.syllabus import chapters_of
+
         subject = subject or self.default_subject
         bank = self.bank_for(subject)
         items = list(bank.items.values())
+        tracker = self.tracker_for(user_id, subject) if user_id else None
+
+        def mastery_of(skill_ids) -> float | None:
+            """Mức thành thạo của một nhóm kỹ năng = mức của kỹ năng YẾU NHẤT.
+
+            Lấy min chứ không lấy trung bình: một chương có 3 kỹ năng vững và 1
+            kỹ năng rỗng thì trung bình vẫn đẹp, và người học sẽ bỏ qua đúng
+            chỗ cần luyện.
+            """
+            if tracker is None or not skill_ids:
+                return None
+            return round(min(tracker.mastery(s) for s in skill_ids), 4)
+
+        chapters = [
+            ChapterOut(
+                chapter=chapter.chapter,
+                name_vi=chapter.name_vi,
+                items=chapter.items,
+                skills=chapter.skills,
+                mastery=mastery_of(chapter.skill_ids),
+                lessons=[
+                    LessonOut(
+                        skill_id=lesson.skill_id,
+                        name_vi=lesson.name_vi,
+                        items=lesson.items,
+                        mastery=mastery_of([lesson.skill_id]),
+                        topics=[
+                            TopicOut(topic_id=t.topic_id, name_vi=t.name_vi, items=t.items)
+                            for t in lesson.topics
+                        ],
+                    )
+                    for lesson in chapter.lessons
+                ],
+            )
+            for chapter in chapters_of(bank, items, deep=True)
+        ]
+        return SyllabusResponse(subject=subject, items=len(items), chapters=chapters)
+
+    def pick_item(
+        self,
+        user_id: str,
+        subject: str | None = None,
+        chapter: str | None = None,
+        skill: str | None = None,
+        topic: str | None = None,
+    ) -> Item | None:
+        from src.core.syllabus import filter_items
+
+        subject = subject or self.default_subject
+        bank = self.bank_for(subject)
+        items = filter_items(bank, list(bank.items.values()), chapter, skill, topic)
+        if not items:
+            # Nói rõ phạm vi nào rỗng chứ không trả "hết đề": người học vừa tự
+            # chọn phạm vi đó, họ cần biết là chọn hẹp quá, không phải hệ hỏng.
+            raise LookupError(
+                "Không có đề nào trong phạm vi đã chọn "
+                f"({' / '.join(x for x in (chapter, skill, topic) if x) or subject}). "
+                "Em thử chọn rộng hơn một bậc nhé."
+            )
         tracker = self.tracker_for(user_id, subject)
 
         if self.in_placement(user_id, subject):
@@ -379,7 +522,7 @@ class TutorService:
         self.store.record_hint(request.session_id, item.item_id, response.hint)
         return self._to_hint(response.hint)
 
-    def ask(self, question: str, subject: str | None = None):
+    def ask(self, question: str, subject: str | None = None, chapter: str | None = None):
         """Hỏi đáp lý thuyết. Kho RAG và model đều là tuỳ chọn — thiếu thì vẫn trả lời được."""
         from src.rag.ask import answer_question
         from src.rag.hint_retriever import load_index
@@ -389,7 +532,19 @@ class TutorService:
             from src.llm.client import LLMClient
 
             client = LLMClient.from_config(self.config.llm)
-        return answer_question(question, load_index(), subject=subject, client=client)
+
+        # Chọn chương thì thu hẹp truy xuất về đúng các kỹ năng của chương đó.
+        # Đây là chỗ bộ lọc metadata đáng giá nhất: hỏi "kiểm định" mà không lọc
+        # thì đoạn về hồi quy cũng chen vào vì dùng chung thuật ngữ thống kê.
+        skill_ids = None
+        if chapter and subject:
+            from src.core.syllabus import skills_in_chapter
+
+            skill_ids = sorted(skills_in_chapter(self.bank_for(subject), chapter)) or None
+
+        return answer_question(
+            question, load_index(), subject=subject, skill_ids=skill_ids, client=client
+        )
 
     def progress(self, user_id: str, subject: str | None = None) -> ProgressResponse:
         skills_by_id = self.bank_for(subject).skills if subject else self.all_skills()
@@ -587,6 +742,19 @@ CORS_ORIGINS = [
 ]
 
 
+#: Khoá cho các endpoint quản trị. **Không đặt thì phần quản trị TẮT hoàn toàn.**
+#:
+#: Cố ý chọn mặc định là tắt chứ không phải mở: dữ liệu ở đó là bài làm của
+#: người thật. "Chưa cấu hình" mà lại mở sẵn là kiểu lỗ hổng tệ nhất, vì không
+#: ai nhận ra cho tới lúc muộn.
+#:
+#: Nói thẳng giới hạn của cách này: một khoá dùng chung, không có tài khoản, không
+#: phân quyền nhiều mức. Đủ cho một đồ án chạy trong mạng nội bộ, và đủ để chặn
+#: người tò mò mở đúng đường link. Đưa ra Internet thật thì phải thay bằng đăng
+#: nhập có tài khoản — điều này phải ghi vào mục Hạn chế của báo cáo.
+ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "").strip()
+
+
 def create_app(service: TutorService | None = None) -> FastAPI:
     state: dict[str, Any] = {"service": service}
 
@@ -649,15 +817,36 @@ def create_app(service: TutorService | None = None) -> FastAPI:
 
     @app.get("/item/next", response_model=PublicItem)
     def next_item(
-        user_id: str, subject: str | None = None, service: TutorService = Depends(get_service)
+        user_id: str,
+        subject: str | None = None,
+        chapter: str | None = None,
+        skill: str | None = None,
+        topic: str | None = None,
+        service: TutorService = Depends(get_service),
     ) -> PublicItem:
         try:
-            item = service.pick_item(user_id, subject)
+            item = service.pick_item(user_id, subject, chapter, skill, topic)
         except LookupError as exc:
             raise HTTPException(404, str(exc)) from exc
         if item is None:
             raise HTTPException(404, "Ngân hàng đề trống")
         return PublicItem.of(item)
+
+    @app.get("/syllabus", response_model=SyllabusResponse)
+    def syllabus(
+        subject: str | None = None,
+        user_id: str | None = None,
+        service: TutorService = Depends(get_service),
+    ) -> SyllabusResponse:
+        """Cây môn → chương → bài → dạng bài, để người học chọn dần cho hẹp.
+
+        ``user_id`` là tuỳ chọn: có thì kèm mức thành thạo từng nhánh, không có
+        thì vẫn trả được cây — trang chọn môn cần cây trước khi có phiên.
+        """
+        try:
+            return service.syllabus(user_id, subject)
+        except LookupError as exc:
+            raise HTTPException(404, str(exc)) from exc
 
     @app.post("/attempt", response_model=AttemptResponse)
     def attempt(
@@ -685,9 +874,89 @@ def create_app(service: TutorService | None = None) -> FastAPI:
         """
         if not request.question.strip():
             raise HTTPException(422, "Câu hỏi trống")
-        result = service.ask(request.question, request.subject)
+        result = service.ask(request.question, request.subject, request.chapter)
         return AskResponse(answer=result.text, sources=result.sources,
                            in_scope=result.in_scope, used_llm=result.used_llm)
+
+    # ------------------------------------------------------------------
+    # Quản trị — dành cho giảng viên, không phải cho sinh viên
+    # ------------------------------------------------------------------
+
+    def require_admin(x_admin_token: str = Header(default="")) -> None:
+        """Chặn ở TẦNG SERVER, không phải ở giao diện.
+
+        Phía web có chuyển đổi "sinh viên / quản trị", nhưng đó chỉ là điều
+        hướng cho tiện — bất kỳ ai cũng sửa được biến trong trình duyệt. Chỗ
+        duy nhất chặn được thật là ngay đây.
+        """
+        if not ADMIN_TOKEN:
+            raise HTTPException(
+                403,
+                "Phần quản trị đang tắt. Đặt biến môi trường ADMIN_TOKEN rồi khởi động lại API.",
+            )
+        # compare_digest: so sánh thời gian hằng, không để lộ khoá qua thời gian phản hồi.
+        if not secrets.compare_digest(x_admin_token, ADMIN_TOKEN):
+            raise HTTPException(401, "Khoá quản trị không đúng")
+
+    @app.get("/admin/enabled")
+    def admin_enabled() -> dict[str, bool]:
+        """Phần quản trị có được bật hay không — KHÔNG cần khoá.
+
+        Giao diện cần biết để ẩn hẳn mục quản trị khi chưa cấu hình, thay vì
+        hiện ra rồi bắt người dùng bấm vào mới nhận lỗi 403.
+        """
+        return {"enabled": bool(ADMIN_TOKEN)}
+
+    @app.get("/admin/overview", response_model=AdminOverview)
+    def admin_overview(
+        _: None = Depends(require_admin), service: TutorService = Depends(get_service)
+    ) -> AdminOverview:
+        store = service.store
+        return AdminOverview(
+            totals=store.stats(),
+            subjects=[SubjectStats(**row) for row in store.per_subject_stats()],
+            top_error_codes=[ErrorCodeCount(**row) for row in store.top_error_codes()],
+            hint_levels=[HintLevelCount(**row) for row in store.hint_level_usage()],
+            learners=[LearnerRow(**row) for row in store.learners()],
+            bank={code: len(bank.items) for code, bank in sorted(service.banks.items())},
+        )
+
+    @app.get("/admin/attempts")
+    def admin_attempts(
+        limit: int = 50,
+        subject: str | None = None,
+        _: None = Depends(require_admin),
+        service: TutorService = Depends(get_service),
+    ) -> list[dict]:
+        return service.store.recent_attempts(min(max(limit, 1), 500), subject)
+
+    @app.get("/admin/export.csv")
+    def admin_export(
+        subject: str | None = None,
+        _: None = Depends(require_admin),
+        service: TutorService = Depends(get_service),
+    ) -> Response:
+        """Xuất bài làm ra CSV để phân tích ngoài hệ thống.
+
+        Có endpoint này vì phần đánh giá của đồ án cần dữ liệu thô: đây là
+        đường ngắn nhất từ log người dùng thật sang `scripts/label_real_errors.py`.
+        """
+        rows = service.store.recent_attempts(500, subject)
+        buffer = io.StringIO()
+        writer = csv.DictWriter(
+            buffer,
+            fieldnames=["attempt_id", "user_id", "subject", "item_id", "answer",
+                        "verdict", "error_codes", "created_at"],
+        )
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({**row, "error_codes": " ".join(row["error_codes"])})
+        # utf-8-sig: thiếu BOM thì Excel trên Windows mở ra tiếng Việt thành ký tự lạ.
+        return Response(
+            content=buffer.getvalue().encode("utf-8-sig"),
+            media_type="text/csv; charset=utf-8",
+            headers={"Content-Disposition": 'attachment; filename="attempts.csv"'},
+        )
 
     @app.get("/progress", response_model=ProgressResponse)
     def progress(

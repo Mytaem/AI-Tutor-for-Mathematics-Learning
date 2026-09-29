@@ -59,17 +59,35 @@ class Answer:
     used_llm: bool = False
 
 
-def retrieve(index: RagIndex, question: str, subject: str | None = None, top_k: int = 3):
+def retrieve(
+    index: RagIndex,
+    question: str,
+    subject: str | None = None,
+    top_k: int = 3,
+    skill_ids: list[str] | None = None,
+):
     """Các đoạn liên quan, đã bỏ đề bài và bẫy thường gặp.
 
     Trả rỗng khi câu hỏi nằm ngoài phạm vi giáo trình. Kho chưa có embedding thì
     không chặn được gì (không có thang tương đồng), khi đó cứ trả kết quả BM25 —
     thà trả lời hơi lạc còn hơn từ chối mọi câu hỏi.
+
+    ``skill_ids`` thu hẹp về đúng một chương. Nếu lọc chặt đến mức không còn
+    đoạn nào thì **nới ra cả môn** rồi tìm lại: người học hỏi đúng chủ đề mà bị
+    trả lời "ngoài phạm vi" chỉ vì đoạn tương ứng chưa gắn kỹ năng là sai — kho
+    giáo trình gắn kỹ năng còn thưa, đó là hạn chế của dữ liệu chứ không phải
+    câu hỏi của họ sai.
     """
     similarity = index.best_similarity(question, subject)
     if similarity is not None and similarity < MIN_SIMILARITY:
         return []
     types = [kind for kind in ChunkType if kind not in EXCLUDED]
+    if skill_ids:
+        narrowed = index.search(
+            question, top_k=top_k, subject=subject, types=types, skill_ids=skill_ids
+        )
+        if narrowed:
+            return narrowed
     return index.search(question, top_k=top_k, subject=subject, types=types)
 
 
@@ -94,6 +112,7 @@ def answer_question(
     index: RagIndex | None,
     *,
     subject: str | None = None,
+    skill_ids: list[str] | None = None,
     client=None,
     top_k: int = 3,
 ) -> Answer:
@@ -101,7 +120,7 @@ def answer_question(
         return Answer("Kho giáo trình chưa được dựng — chạy scripts/build_rag_index.py.",
                       in_scope=False)
 
-    hits = retrieve(index, question, subject, top_k)
+    hits = retrieve(index, question, subject, top_k, skill_ids)
     if not hits:
         return Answer(OUT_OF_SCOPE, in_scope=False)
 

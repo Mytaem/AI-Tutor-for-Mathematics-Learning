@@ -240,6 +240,123 @@ class Store:
 
     # ------------------------------------------------------------------
 
+    # ------------------------------------------------------------------
+    # Tổng hợp cho trang quản trị
+    # ------------------------------------------------------------------
+
+    def per_subject_stats(self) -> list[dict]:
+        """Số lượt, số người, tỉ lệ đúng theo từng môn.
+
+        ``final_answer_correct`` chứ không phải ``is_correct``: bài mà bộ chấm
+        KHÔNG ĐỌC ĐƯỢC cũng có ``is_correct = 0``, tính nó vào tỉ lệ đúng là
+        trộn lỗi định dạng vào lỗi kiến thức. ``unreadable`` đếm riêng, và con
+        số đó chính là thước đo xem ô nhập đáp án có khó dùng hay không.
+        """
+        rows = self._connection.execute(
+            """
+            SELECT subject,
+                   COUNT(*)                                        AS attempts,
+                   COUNT(DISTINCT user_id)                         AS learners,
+                   SUM(CASE WHEN final_answer_correct = 1 THEN 1 ELSE 0 END) AS correct,
+                   SUM(CASE WHEN final_answer_correct IS NULL AND first_wrong_step IS NULL
+                            THEN 1 ELSE 0 END)                     AS unreadable
+            FROM attempts
+            GROUP BY subject
+            ORDER BY attempts DESC
+            """
+        ).fetchall()
+        out = []
+        for row in rows:
+            graded = (row["attempts"] or 0) - (row["unreadable"] or 0)
+            out.append({
+                "subject": row["subject"] or "(không rõ)",
+                "attempts": row["attempts"] or 0,
+                "learners": row["learners"] or 0,
+                "correct": row["correct"] or 0,
+                "unreadable": row["unreadable"] or 0,
+                "accuracy": round((row["correct"] or 0) / graded, 4) if graded else None,
+            })
+        return out
+
+    def top_error_codes(self, limit: int = 15) -> list[dict]:
+        """Mã lỗi hay gặp nhất. Đây là thứ giảng viên cần để biết dạy lại chỗ nào."""
+        counter: dict[str, int] = {}
+        rows = self._connection.execute(
+            "SELECT error_codes FROM attempts WHERE error_codes IS NOT NULL AND error_codes != '[]'"
+        ).fetchall()
+        for row in rows:
+            try:
+                for code in json.loads(row["error_codes"]):
+                    counter[code] = counter.get(code, 0) + 1
+            except (TypeError, ValueError):
+                continue
+        ordered = sorted(counter.items(), key=lambda kv: (-kv[1], kv[0]))[:limit]
+        return [{"error_code": code, "count": count} for code, count in ordered]
+
+    def learners(self, limit: int = 100) -> list[dict]:
+        rows = self._connection.execute(
+            """
+            SELECT user_id,
+                   COUNT(*)                                        AS attempts,
+                   SUM(CASE WHEN final_answer_correct = 1 THEN 1 ELSE 0 END) AS correct,
+                   COUNT(DISTINCT subject)                         AS subjects,
+                   MAX(created_at)                                 AS last_seen
+            FROM attempts
+            GROUP BY user_id
+            ORDER BY last_seen DESC
+            LIMIT ?
+            """,
+            (limit,),
+        ).fetchall()
+        return [
+            {
+                "user_id": row["user_id"],
+                "attempts": row["attempts"],
+                "correct": row["correct"] or 0,
+                "subjects": row["subjects"],
+                "last_seen": row["last_seen"],
+            }
+            for row in rows
+        ]
+
+    def recent_attempts(self, limit: int = 50, subject: str | None = None) -> list[dict]:
+        clause, params = self._subject_filter(subject)
+        rows = self._connection.execute(
+            f"""
+            SELECT attempt_id, user_id, subject, item_id, raw_input,
+                   is_correct, final_answer_correct, first_wrong_step, error_codes, created_at
+            FROM attempts
+            WHERE 1 = 1 {clause}
+            ORDER BY attempt_id DESC
+            LIMIT ?
+            """,
+            (*params, limit),
+        ).fetchall()
+        return [
+            {
+                "attempt_id": row["attempt_id"],
+                "user_id": row["user_id"],
+                "subject": row["subject"],
+                "item_id": row["item_id"],
+                "answer": row["raw_input"],
+                "verdict": (
+                    "đúng" if row["final_answer_correct"] == 1
+                    else "không đọc được" if row["final_answer_correct"] is None
+                    and row["first_wrong_step"] is None
+                    else "sai"
+                ),
+                "error_codes": json.loads(row["error_codes"] or "[]"),
+                "created_at": row["created_at"],
+            }
+            for row in rows
+        ]
+
+    def hint_level_usage(self) -> list[dict]:
+        rows = self._connection.execute(
+            "SELECT level, COUNT(*) AS n FROM hints GROUP BY level ORDER BY level"
+        ).fetchall()
+        return [{"level": row["level"], "count": row["n"]} for row in rows]
+
     def stats(self) -> dict[str, int]:
         def count(table: str) -> int:
             return self._connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
