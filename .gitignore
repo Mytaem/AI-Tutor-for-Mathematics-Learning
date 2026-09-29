@@ -55,3 +55,4 @@ Thumbs.db
 
 # Thư mục tạm khi đẩy dữ liệu lên Kaggle — không commit
 .kaggle_tmp/
+web/tsconfig.tsbuildinfo
