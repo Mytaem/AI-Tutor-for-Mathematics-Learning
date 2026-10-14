@@ -16,9 +16,9 @@ ollama serve                                                     # cửa sổ 3 
 ```
 
 **Đọc kết quả `rag_coverage.py` trước khi quay.** Nó in ra chương nào chưa có giáo
-trình. Hiện MAS291 thiếu 6/8 chương, nên nếu hỏi về chúng thì hệ thống trả lời "chưa
-có tài liệu" — đúng hành vi, nhưng phải biết trước để chọn câu hỏi, chứ đừng phát
-hiện lúc đang quay. Script này tồn tại vì một buổi demo đã thất bại đúng vì chuyện đó.
+trình. Hiện script in "Mọi chương đều có tài liệu để trả lời. Demo được." Vẫn phải đọc nó
+trước mỗi lần quay: thêm hay bớt tài liệu là độ phủ đổi, và phát hiện lúc đang quay
+thì muộn. Script này tồn tại vì một buổi demo đã thất bại đúng vì chuyện đó.
 
 Phóng to chữ terminal lên cỡ 16–18pt, tắt thông báo hệ thống, dùng cửa sổ 1600×900.
 Trên web, chọn chủ đề **Trắng** ở cột phải — nền đen quay video hay bị nhiễu khối.
@@ -117,7 +117,7 @@ liệu tốt hơn là để bị hỏi.
 
 ---
 
-## Cảnh 6 — Hỏi lý thuyết và BA cách từ chối khác nhau (55 giây)
+## Cảnh 6 — Hỏi lý thuyết: ba tình huống khác nhau (60 giây)
 
 Mở web, trang **Hỏi lý thuyết**. Ba câu, theo đúng thứ tự này — chúng cho thấy hệ
 thống phân biệt được ba tình huống mà một chatbot thường gộp làm một.
@@ -131,21 +131,27 @@ thống phân biệt được ba tình huống mà một chatbot thường gộp
 > "Ngoài bốn môn thì nói thẳng là không có, không đoán bừa. Ngưỡng nhận biết lấy
 > theo độ tương đồng thật với kho giáo trình, không phải một luật từ khoá."
 
-**3. Đúng chủ đề nhưng kho chưa có tài liệu** — chọn môn MAS291, gõ "khoảng tin
-cậy là gì?"
+**3. Đúng chủ đề, chương từng KHÔNG có tài liệu** — môn MAS291, gõ "khoảng tin
+cậy là gì?" rồi "p-value nghĩa là gì?"
 
-> "Câu này nằm trong chương trình, nhưng kho giáo trình của em chưa có chương đó.
-> Hệ thống nói đúng như vậy, **và nói rõ đây là thiếu sót của hệ thống chứ không
-> phải sinh viên hỏi sai**.
+> "Hai câu này trước đây hệ thống không trả lời được: kho MAS291 chỉ có 2 trong 8
+> chương, và nó là môn duy nhất không có sách giáo trình nào để bù. Em bổ sung
+> OpenStax *Introductory Statistics 2e* — sách mở giấy phép Creative Commons, phủ
+> đúng sáu chương còn thiếu. Nguồn và giấy phép ghi trong báo cáo."
+
+Nhấn vào hai điểm, vì đây là chỗ hội đồng sẽ hỏi:
+
+> "Thứ nhất: **trước khi có sách, hệ thống nói thẳng là chưa có tài liệu chương
+> đó**, chứ không trả về một đoạn của chương khác. Em đo được tỉ lệ 'trả lời trôi
+> chảy nhưng sai chủ đề' là 20%, và đưa về 0%. Với một gia sư thì trả bừa là hành
+> vi tệ nhất, vì người học không có cách nào biết mà đề phòng.
 >
-> Đây là chỗ em muốn nhấn. Trước khi có cơ chế này, hệ thống trả về một đoạn của
-> chương Xác suất — trôi chảy, đúng môn, sai chủ đề. Với một gia sư thì đó là hành
-> vi tệ nhất, vì người học không có cách nào biết mà đề phòng. Em đo được tỉ lệ
-> 'trả bừa' là 20%, và đưa về 0%."
+> Thứ hai: **truy xuất đúng đoạn vẫn chưa đủ**. Model 3b từng viết 'p-value là xác
+> suất để H₀ đúng' — sai thống kê kinh điển, mà câu đọc rất trôi. Em phải chốt bảng
+> thuật ngữ Việt–Anh và hai luật miền vào prompt mới hết lỗi đó."
 
-Nếu bị hỏi vì sao thiếu: trả lời thẳng là kho MAS291 hiện có 2/8 chương và môn này
-không có sách giáo trình chung để bù, khác ba môn còn lại — có script
-`rag_coverage.py` in ra đúng danh sách chương thiếu.
+Nếu còn thời gian, mở `scripts/rag_coverage.py` chạy trước mặt hội đồng — nó in ra
+chương nào có tài liệu, chương nào không. Cho thấy mình **biết** chỗ trống của mình.
 
 ---
 

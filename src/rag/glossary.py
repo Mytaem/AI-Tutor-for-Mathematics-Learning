@@ -266,3 +266,72 @@ def expand(question: str) -> str:
 def coverage(question: str) -> bool:
     """Câu hỏi có nhận ra được thuật ngữ nào không — dùng để đo độ phủ từ điển."""
     return bool(english_terms(question))
+
+
+#: Thuật ngữ mà model 3b hay dịch sai thành chữ nghe-như-tiếng-Việt nhưng sai
+#: nghĩa chuyên môn. Quan sát thật từ bản trả lời trước khi có bảng này:
+#:
+#:   "null hypothesis"      -> "giả thuyết đầu tiên"        (phải là H₀)
+#:   "significance level α" -> "mức độ không chắc chắn"     (phải là mức ý nghĩa)
+#:   "error bound"          -> "độ tin cậy"                 (lẫn với confidence level)
+#:
+#: Dịch sai thuật ngữ nguy hiểm hơn dịch lủng củng: câu vẫn đọc trôi, mà sinh
+#: viên học vào đúng cái sai. Bảng này được nhồi vào prompt để chốt cách gọi.
+TERM_PINS: dict[str, str] = {
+    "null hypothesis": "giả thuyết không (H₀)",
+    "alternative hypothesis": "giả thuyết đối (H₁)",
+    "significance level": "mức ý nghĩa (α)",
+    "p-value": "giá trị p (p-value)",
+    "confidence level": "độ tin cậy",
+    "confidence interval": "khoảng tin cậy",
+    "error bound": "sai số biên",
+    "margin of error": "sai số biên",
+    "point estimate": "ước lượng điểm",
+    "population": "tổng thể",
+    "sample": "mẫu",
+    "sample mean": "trung bình mẫu",
+    "sample size": "cỡ mẫu",
+    "standard deviation": "độ lệch chuẩn",
+    "standard error": "sai số chuẩn",
+    "variance": "phương sai",
+    "expected value": "kỳ vọng",
+    "random variable": "biến ngẫu nhiên",
+    "probability density function": "hàm mật độ xác suất",
+    "cumulative distribution function": "hàm phân phối tích luỹ",
+    "normal distribution": "phân phối chuẩn",
+    "binomial distribution": "phân phối nhị thức",
+    "central limit theorem": "định lý giới hạn trung tâm",
+    "degrees of freedom": "số bậc tự do",
+    "regression": "hồi quy",
+    "correlation": "tương quan",
+    "slope": "hệ số góc",
+    "intercept": "hệ số chặn",
+    "eigenvalue": "trị riêng",
+    "eigenvector": "vector riêng",
+    "determinant": "định thức",
+    "derivative": "đạo hàm",
+    "antiderivative": "nguyên hàm",
+    "chain rule": "quy tắc hàm hợp",
+    "integration by parts": "tích phân từng phần",
+    "limit": "giới hạn",
+    "euler circuit": "chu trình Euler",
+    "spanning tree": "cây khung",
+    "inclusion exclusion": "nguyên lý bù trừ",
+    "pigeonhole": "nguyên lý chuồng bồ câu",
+}
+
+
+def pinned_terms(text: str, limit: int = 12) -> list[tuple[str, str]]:
+    """Các cặp (thuật ngữ Anh, cách gọi tiếng Việt đúng) xuất hiện trong ``text``.
+
+    Quét trên ĐOẠN TRÍCH chứ không trên câu hỏi: câu hỏi tiếng Việt vốn đã dùng
+    đúng từ, còn chỗ model dịch sai là lúc nó đọc đoạn tiếng Anh.
+
+    Giới hạn số cặp để prompt không phình: nhồi 40 thuật ngữ vào thì model 3b
+    bắt đầu lạc, và phần đoạn trích bị đẩy ra xa khỏi câu hỏi.
+    """
+    lowered = text.lower()
+    found = [(en, vi) for en, vi in TERM_PINS.items() if en in lowered]
+    # Cụm dài trước: "sample mean" có nghĩa riêng, không phải "sample" + "mean".
+    found.sort(key=lambda pair: -len(pair[0]))
+    return found[:limit]

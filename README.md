@@ -56,11 +56,11 @@ Phần huấn luyện (LoRA, knowledge tracing) cài riêng trên Colab/Kaggle:
 | Tập lỗi có nhãn | ✅ 7.978 mẫu / 97 mã lỗi, trung vị 63 mẫu mỗi mã |
 | Thang gợi ý + guardrail | ✅ có cả bản template lẫn bản do model sinh |
 | Chọn phạm vi luyện | ✅ môn → chương → bài → dạng bài, mỗi nhánh hiện số đề |
-| Hỏi đáp lý thuyết (RAG) | ✅ 10.566 đoạn; **100% câu hỏi được trả lời đúng chủ đề hoặc nói thẳng là chưa có tài liệu** |
+| Hỏi đáp lý thuyết (RAG) | ✅ **12.633 đoạn; 28/28 câu hỏi kiểm được trả lời ĐÚNG CHỦ ĐỀ**, 0 trả bừa, 0 chặn oan |
 | Knowledge tracing | ✅ BKT, DKT, SAKT — đo trên cả học sinh mô phỏng lẫn ASSISTments thật |
 | API, web app, Telegram bot | ✅ web có chủ đề trắng/đen và phân vai sinh viên / quản trị |
 | Fine-tune LoRA | ✅ macro-F1 0,098 → 0,921 (Qwen 1.5B, QLoRA trên Kaggle T4) |
-| Kho giáo trình MAS291 | ⚠️ **thiếu 6/8 chương** và không có sách bù — xem `scripts/rag_coverage.py` |
+| Kho giáo trình | ✅ mọi chương của 4 môn đều có tài liệu; MAS291 bù bằng OpenStax *Introductory Statistics 2e* |
 | Thực nghiệm người dùng thật | ⬜ chờ dữ liệu bài làm sai thật |
 | Báo cáo, slide, video demo | ⬜ |
 
@@ -78,10 +78,14 @@ Hướng dẫn chạy: [docs/running.md](docs/running.md).
   nằm đúng khoảng các bài báo gốc báo cáo, tức là phần cài đặt không có lỗi ẩn.
 - Phân loại mã lỗi: model **1.5B sau fine-tune đạt macro-F1 0,921**, vượt xa model
   7B chỉ prompting (0,415) — cùng một tập test.
-- Hỏi đáp lý thuyết: **60% → 100% đạt** nhờ mở rộng truy vấn bằng từ điển thuật ngữ
-  Việt–Anh. Quan trọng hơn con số: **"trả bừa" từ 20% về 0%** — trả lời trôi chảy,
-  đúng môn, sai chủ đề là hành vi tệ nhất của một gia sư, vì người học không có cách
-  nào biết mà đề phòng.
+- Hỏi đáp lý thuyết: **60% → 100% đạt** qua ba bước — từ điển thuật ngữ Việt–Anh,
+  từ chối trung thực khi chương chưa có tài liệu, và nạp thêm giáo trình mở cho MAS291.
+  Quan trọng hơn con số: **"trả bừa" từ 20% về 0%** — trả lời trôi chảy, đúng môn,
+  sai chủ đề là hành vi tệ nhất của một gia sư, vì người học không có cách nào biết
+  mà đề phòng.
+- Truy xuất đúng đoạn **vẫn chưa đủ**: model 3b từng viết "p-value là xác suất để H₀
+  đúng" — sai thống kê kinh điển, mà câu đọc rất trôi. Phải chốt thuật ngữ và luật
+  miền trong prompt mới hết.
 
 ### Ba kết quả NGƯỢC với giả định ban đầu
 
@@ -112,6 +116,10 @@ python scripts/build_rag_index.py --ask "tích phân từng phần là gì"
 
 Hỗ trợ `.pdf`, `.docx`, `.pptx`, `.txt`, `.md`. File hỏng bị bỏ qua chứ không làm
 chết cả lần nạp.
+
+Nguồn và **giấy phép** của mọi tài liệu trong kho: [docs/nguon-tai-lieu.md](docs/nguon-tai-lieu.md).
+Bản thân các PDF không được commit (`.gitignore` chặn `data/raw/` và `*.pdf`) nên kho
+git không phát tán lại tài liệu của ai; file đó ghi đường dẫn để tải lại.
 
 ## Chạy API và web
 

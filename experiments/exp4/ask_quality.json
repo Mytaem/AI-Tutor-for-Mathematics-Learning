@@ -1,10 +1,10 @@
 {
  "không từ điển": {
-  "n": 25,
-  "good": 15,
+  "n": 28,
+  "good": 23,
   "honest_no_material": 0,
-  "usable_rate": 0.6,
-  "wrong_topic": 5,
+  "usable_rate": 0.8214285714285714,
+  "wrong_topic": 0,
   "false_refusal": 5,
   "out_of_scope_leaked": 0,
   "details": {
@@ -15,6 +15,7 @@
     "MAD101: «Cây khung nhỏ nhất là gì?»",
     "MAD101: «Luật De Morgan phát biểu thế nào?»",
     "MAD101: «Thuật toán Euclid tìm gì?»",
+    "MAE101: «Tích phân từng phần là gì?»",
     "MAE101: «Định nghĩa đạo hàm»",
     "MAE101: «Ma trận nghịch đảo tính thế nào?»",
     "MAE101: «Định thức của ma trận là gì?»",
@@ -23,14 +24,14 @@
     "MAI391: «Gradient là gì?»",
     "MAS291: «Phân phối chuẩn có tính chất gì?»",
     "MAS291: «Xác suất có điều kiện là gì?»",
-    "MAS291: «Định lý Bayes phát biểu thế nào?»"
-   ],
-   "wrong": [
-    "MAE101: «Tích phân từng phần là gì?»",
+    "MAS291: «Định lý Bayes phát biểu thế nào?»",
     "MAS291: «Khoảng tin cậy là gì?»",
     "MAS291: «p-value nghĩa là gì?»",
     "MAS291: «Hồi quy tuyến tính là gì?»",
-    "MAS291: «Thống kê mô tả gồm những gì?»"
+    "MAS291: «Thống kê mô tả gồm những gì?»",
+    "MAS291: «Định lý giới hạn trung tâm nói gì?»",
+    "MAS291: «Phân phối nhị thức dùng khi nào?»",
+    "MAS291: «Khi nào dùng kiểm định t thay vì z?»"
    ],
    "false_refusal": [
     "MAD101: «Nguyên lý chuồng bồ câu nói gì?»",
@@ -43,9 +44,9 @@
   "out_of_scope_leaked_list": []
  },
  "có từ điển": {
-  "n": 25,
-  "good": 21,
-  "honest_no_material": 4,
+  "n": 28,
+  "good": 28,
+  "honest_no_material": 0,
   "usable_rate": 1.0,
   "wrong_topic": 0,
   "false_refusal": 0,
@@ -72,13 +73,14 @@
     "MAI391: «Phép chiếu trực giao là gì?»",
     "MAS291: «Phân phối chuẩn có tính chất gì?»",
     "MAS291: «Xác suất có điều kiện là gì?»",
-    "MAS291: «Định lý Bayes phát biểu thế nào?»"
-   ],
-   "honest": [
+    "MAS291: «Định lý Bayes phát biểu thế nào?»",
     "MAS291: «Khoảng tin cậy là gì?»",
     "MAS291: «p-value nghĩa là gì?»",
     "MAS291: «Hồi quy tuyến tính là gì?»",
-    "MAS291: «Thống kê mô tả gồm những gì?»"
+    "MAS291: «Thống kê mô tả gồm những gì?»",
+    "MAS291: «Định lý giới hạn trung tâm nói gì?»",
+    "MAS291: «Phân phối nhị thức dùng khi nào?»",
+    "MAS291: «Khi nào dùng kiểm định t thay vì z?»"
    ]
   },
   "out_of_scope_leaked_list": []

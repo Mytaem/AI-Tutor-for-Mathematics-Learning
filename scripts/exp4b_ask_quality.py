@@ -65,10 +65,18 @@ QUESTIONS: list[tuple[str, str, list[str], bool]] = [
     ("MAS291", "Phân phối chuẩn có tính chất gì?", ["normal"], True),
     ("MAS291", "Xác suất có điều kiện là gì?", ["conditional probability"], True),
     ("MAS291", "Định lý Bayes phát biểu thế nào?", ["bayes"], True),
-    ("MAS291", "Khoảng tin cậy là gì?", [], False),
-    ("MAS291", "p-value nghĩa là gì?", [], False),
-    ("MAS291", "Hồi quy tuyến tính là gì?", [], False),
-    ("MAS291", "Thống kê mô tả gồm những gì?", [], False),
+    # Bảy câu dưới thuộc các chương MAS291 từng KHÔNG có tài liệu nào. Sau khi
+    # nạp OpenStax *Introductory Statistics 2e* (xem docs/nguon-tai-lieu.md),
+    # chúng phải được trả lời thật, không còn là "chưa có tài liệu".
+    ("MAS291", "Khoảng tin cậy là gì?", ["confidence interval"], True),
+    ("MAS291", "p-value nghĩa là gì?", ["p-value", "p value"], True),
+    ("MAS291", "Hồi quy tuyến tính là gì?", ["regression"], True),
+    ("MAS291", "Thống kê mô tả gồm những gì?",
+     ["descriptive statistic", "mean", "median", "standard deviation"], True),
+    ("MAS291", "Định lý giới hạn trung tâm nói gì?", ["central limit"], True),
+    ("MAS291", "Phân phối nhị thức dùng khi nào?", ["binomial"], True),
+    ("MAS291", "Khi nào dùng kiểm định t thay vì z?",
+     ["t-distribution", "t distribution", "student", "degrees of freedom"], True),
 ]
 
 #: Câu hỏi NGOÀI bốn môn — hệ thống phải từ chối, không được đoán.

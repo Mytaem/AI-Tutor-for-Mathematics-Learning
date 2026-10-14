@@ -61,11 +61,32 @@ def no_material(chapter_vi: str) -> str:
         "xem trực tiếp slide của chương này nhé."
     )
 
+#: Số đoạn trích đưa vào prompt.
+#:
+#: Tăng từ 3 lên 5 để câu trả lời đầy đủ hơn — một câu hỏi lý thuyết thường cần
+#: cả định nghĩa, công thức và điều kiện áp dụng, mà ba thứ đó hay nằm ở ba đoạn
+#: khác nhau của giáo trình. Đổi con số này thì PHẢI chạy lại EXP-4b: thêm đoạn
+#: cũng là thêm cơ hội cho đoạn lạc chủ đề chen vào.
+ASK_TOP_K = 5
+
 SYSTEM_PROMPT = (
-    "Bạn là trợ giảng toán đại học, trả lời bằng tiếng Việt, ngắn gọn, chính xác. "
+    "Bạn là trợ giảng toán đại học, trả lời bằng tiếng Việt, chính xác và đầy đủ. "
     "CHỈ được dùng thông tin trong các đoạn trích giáo trình được cung cấp. "
     "Không có trong đoạn trích thì nói thẳng là giáo trình không nhắc tới, "
-    "TUYỆT ĐỐI không bịa thêm. Trả lời tối đa 5 câu."
+    "TUYỆT ĐỐI không bịa thêm.\n"
+    "Khi đoạn trích có đủ thông tin, hãy trả lời theo thứ tự: (1) định nghĩa hoặc "
+    "ý chính, (2) công thức nếu có, (3) khi nào dùng hoặc điều kiện áp dụng. "
+    "Thiếu phần nào trong đoạn trích thì bỏ phần đó, không tự suy diễn. "
+    "Tối đa 8 câu.\n"
+    # Lỗi quan sát được thật ở model 3b: "nếu p-value lớn hơn α thì giả thuyết
+    # được chấp nhận". Đây là lỗi thống kê kinh điển, và nó nguy hiểm vì câu văn
+    # đọc rất trôi. Chốt thẳng vào prompt.
+    "Về kiểm định giả thuyết: KHÔNG được viết 'chấp nhận giả thuyết không'. "
+    "Khi p-value lớn hơn mức ý nghĩa thì nói 'chưa đủ cơ sở để bác bỏ H₀'.\n"
+    # Lỗi quan sát được thật ở model 3b: "p-value là xác suất mà H₀ là đúng".
+    # Đây là cách hiểu sai kinh điển nhất về p-value, và nó đọc rất thuyết phục.
+    "p-value KHÔNG phải xác suất để H₀ đúng. Nó là xác suất quan sát được dữ liệu "
+    "cực đoan như vậy hoặc hơn, VỚI ĐIỀU KIỆN H₀ đúng."
 )
 
 
@@ -82,7 +103,7 @@ def retrieve(
     index: RagIndex,
     question: str,
     subject: str | None = None,
-    top_k: int = 3,
+    top_k: int = ASK_TOP_K,
     skill_ids: list[str] | None = None,
 ):
     """Các đoạn liên quan, đã bỏ đề bài và bẫy thường gặp.
@@ -131,14 +152,31 @@ def retrieve(
 
 
 def build_messages(question: str, hits) -> list[dict]:
+    from src.rag.glossary import pinned_terms
+
     passages = "\n\n".join(
         f"[{position}] ({hit.source_label}) {' '.join(hit.chunk.text.split())[:700]}"
         for position, hit in enumerate(hits, start=1)
     )
+
+    # Chốt cách gọi thuật ngữ. Không có phần này, model 3b dịch "null hypothesis"
+    # thành "giả thuyết đầu tiên" và "significance level" thành "mức độ không
+    # chắc chắn" — câu vẫn đọc trôi nên sinh viên học vào đúng cái sai. Dịch sai
+    # thuật ngữ nguy hiểm hơn dịch lủng củng.
+    pins = pinned_terms(passages)
+    glossary_block = ""
+    if pins:
+        pairs = "; ".join(f"{en} = {vi}" for en, vi in pins)
+        glossary_block = (
+            "\nBẮT BUỘC dùng đúng các thuật ngữ tiếng Việt sau, không tự dịch khác:\n"
+            f"{pairs}\n"
+        )
+
     return [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": (
-            f"ĐOẠN TRÍCH GIÁO TRÌNH:\n{passages}\n\n"
+            f"ĐOẠN TRÍCH GIÁO TRÌNH:\n{passages}\n"
+            f"{glossary_block}\n"
             f"CÂU HỎI: {question}\n\n"
             "Trả lời dựa trên các đoạn trích trên. Giáo trình bằng tiếng Anh, "
             "hãy diễn đạt lại bằng tiếng Việt."
@@ -153,7 +191,7 @@ def answer_question(
     subject: str | None = None,
     skill_ids: list[str] | None = None,
     client=None,
-    top_k: int = 3,
+    top_k: int = ASK_TOP_K,
 ) -> Answer:
     if index is None:
         return Answer("Kho giáo trình chưa được dựng — chạy scripts/build_rag_index.py.",

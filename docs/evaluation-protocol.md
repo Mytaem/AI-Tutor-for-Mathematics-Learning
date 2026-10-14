@@ -369,16 +369,29 @@ bộ câu hỏi viết tay độc lập.
 python scripts/exp4b_ask_quality.py --compare
 ```
 
-25 câu hỏi viết tay theo cách sinh viên thật sẽ hỏi, từ khoá chấp nhận được cũng viết
+28 câu hỏi viết tay theo cách sinh viên thật sẽ hỏi, từ khoá chấp nhận được cũng viết
 tay — không lấy từ bảng kỹ năng. Đo **cả đường trả lời**, không chỉ truy xuất.
 
 | Cấu hình | Đúng chủ đề | Nói thật "chưa có tài liệu" | **Đạt** | Trả bừa | Chặn oan |
 |---|---|---|---|---|---|
-| Không từ điển | 60% | 0% | **60%** | 20% | 20% |
-| **Có từ điển** | 84% | 16% | **100%** | **0%** | **0%** |
+| Không từ điển | 82% | 0% | **82%** | 0% | 18% |
+| **Có từ điển** | **100%** | 0% | **100%** | **0%** | **0%** |
 
 Cả hai cấu hình đều từ chối đúng 3/3 câu ngoài phạm vi, nên mức tăng này không đến từ
 việc nới lỏng phần chống bịa.
+
+**Ba mốc, đo trên cùng bộ câu hỏi**, để thấy phần nào đóng góp bao nhiêu:
+
+| Mốc | Đạt | Trả bừa | Chặn oan | Nói thật "chưa có tài liệu" |
+|---|---|---|---|---|
+| Ban đầu (chưa có gì) | 60% | 20% | 20% | 0% |
+| + từ điển, + từ chối trung thực | 100% | 0% | 0% | 16% |
+| + nạp sách OpenStax cho MAS291 | **100%** | **0%** | **0%** | **0%** |
+
+Mốc hai và mốc ba đều 100%, nhưng **khác nhau về bản chất**: ở mốc hai, 16% câu hỏi
+nhận câu "chưa có tài liệu chương này" — đúng hành vi nhưng không giúp được người học.
+Ở mốc ba chúng được trả lời thật, nhờ bổ sung giáo trình chứ không nhờ sửa thuật toán.
+Hai việc khác nhau, và bảng này cố ý tách ra để không nhập nhằng công của từng việc.
 
 **Vì sao gộp "nói thật" vào Đạt.** Với một gia sư, thừa nhận không có tài liệu là hành
 vi ĐÚNG. Cái sai là **trả bừa**: trả lời trôi chảy, đúng môn, sai chủ đề — người học
@@ -409,7 +422,41 @@ là loại rác nguy hiểm nhất cho BM25: đặc kín thuật ngữ nên kh�
 chứa một câu giải thích nào. Đoạn hạng nhất cho "Chu trình Euler là gì?" từng là dòng
 «Euler circuit of, 694 Euler path of, 698 orientation of, 740».
 
-### Độ phủ kho giáo trình — và chỗ còn thiếu thật
+### Thuật ngữ tiếng Việt phải được CHỐT trong prompt
+
+Truy xuất đúng đoạn rồi vẫn chưa xong: model 3b dịch thuật ngữ sai theo cách đọc rất
+trôi, nên sinh viên học vào đúng cái sai. Quan sát thật trên bản trả lời:
+
+| Model viết | Đúng phải là |
+|---|---|
+| "giả thuyết đầu tiên" | giả thuyết không (H₀) |
+| "mức độ không chắc chắn (α)" | mức ý nghĩa (α) |
+| "error bound là độ tin cậy" | sai số biên ≠ độ tin cậy |
+| "nếu p-value lớn hơn α thì giả thuyết được **chấp nhận**" | chưa đủ cơ sở để **bác bỏ** H₀ |
+| "p-value là **xác suất để H₀ đúng**" | xác suất quan sát được dữ liệu cực đoan như vậy **với điều kiện** H₀ đúng |
+
+Hai dòng cuối là **sai về thống kê**, không phải sai văn phong. Bản sửa gồm hai phần
+trong `src/rag/ask.py` và `src/rag/glossary.py`:
+
+1. **Chốt thuật ngữ theo đoạn trích.** Quét các thuật ngữ tiếng Anh có trong đoạn được
+   lấy ra, rồi nhồi vào prompt danh sách `thuật ngữ Anh = cách gọi tiếng Việt đúng`
+   (`TERM_PINS`, 40 cặp, tối đa 12 cặp mỗi lần để prompt không phình). Đây là từ điển
+   VI→EN đã có, dùng **theo chiều ngược lại**.
+2. **Hai luật miền** chống đúng hai lỗi thống kê ở trên.
+
+Sau khi sửa, **cả 3b lẫn 7b đều cho 0 lỗi thuật ngữ** trên bộ 4 câu kiểm.
+
+**Phải nói rõ giới hạn của cách này**: model đang đọc lại luật ta cung cấp, không tự
+suy ra từ giáo trình. Nó đúng cho một nhúm lỗi kinh điển đã biết, nhưng **không nhân
+rộng được** — gặp một cách hiểu sai mới thì phải thêm luật mới.
+
+Một bài học về PHÉP ĐO, đáng ghi hơn cả con số: bản đầu của phép đếm lỗi thuật ngữ
+chấm **3b và 7b bằng nhau** (0 lỗi, 16 vs 17 lượt dùng đúng từ), trong khi đọc tay thì
+3b sai nặng ở chỗ "p-value là xác suất để H₀ đúng". Phép đo chỉ đếm **sự có mặt của
+từ khoá** nên mù với câu dùng đủ từ đúng mà sai nghĩa. Đếm từ khoá không thay được
+đọc tay.
+
+### Độ phủ kho giáo trình
 
 ```
 python scripts/rag_coverage.py
@@ -417,15 +464,23 @@ python scripts/rag_coverage.py
 
 | Môn | Chương có slide riêng | Sách giáo trình chung |
 |---|---|---|
-| MAE101 | 7/7 | OpenStax, 3.160 đoạn |
+| MAE101 | 7/7 | OpenStax Calculus 1–2, 3.160 đoạn |
 | MAD101 | 7/7 | Rosen, 4.730 đoạn |
 | MAI391 | 2/8 | Deisenroth, 1.253 đoạn — đủ bù |
-| **MAS291** | **2/8** | **không có (2 đoạn lẻ)** |
+| MAS291 | 2/8 | **OpenStax *Introductory Statistics 2e*, 2.061 đoạn** — đủ bù |
 
-**MAS291 là lỗ thật**, phải ghi vào mục Hạn chế: thiếu slide 6 chương (biến ngẫu nhiên
-rời rạc, thống kê mô tả, khoảng tin cậy, kiểm định giả thuyết, so sánh hai mẫu, hồi
-quy) và không có sách nào bù. Mọi câu hỏi về sáu chương đó hiện nhận câu trả lời
-"chưa có tài liệu" — đúng hành vi, nhưng vẫn là trống dữ liệu.
+MAS291 **từng là lỗ thật**: 2/8 chương có slide và không có sách nào bù, nên sáu
+chương (biến ngẫu nhiên rời rạc, thống kê mô tả, khoảng tin cậy, kiểm định giả thuyết,
+so sánh hai mẫu, hồi quy) không có tài liệu nào để truy xuất. Đã bổ sung OpenStax
+*Introductory Statistics 2e* (847 trang, CC BY-NC-SA 4.0) — sách này phủ đúng cả sáu
+chương, cộng chương Định lý giới hạn trung tâm. Nguồn và giấy phép ghi ở
+`docs/nguon-tai-lieu.md`.
+
+Kho từ 10.566 lên **12.633 đoạn**; riêng MAS291 từ 148 lên **2.207 đoạn**.
+
+**Vẫn còn hạn chế về nguồn, phải ghi vào báo cáo:** sáu chương đó hiện dựa vào sách
+ngoài, chưa có slide của chính giảng viên. Sách phủ được nội dung nhưng slide sát đề
+thi của môn hơn.
 
 Một cái bẫy khi đo độ phủ, đáng ghi lại: nhãn chương trong kho lấy từ tiêu đề file
 PDF ("Graph Theory", "Chapter 2: Probability") còn khoá chương trong `data/skills` là

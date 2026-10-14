@@ -119,39 +119,31 @@ tốt nghiệp dừng ở mức đó, hội đồng chấp nhận. Che giấu m�
 
 ---
 
-## Việc 4 — Slide MAS291 ⭐ việc nhanh nhất mà đáng giá nhất
+## Việc 4 — Slide MAS291 (không còn gấp)
 
-**10 phút của bạn, và nó mở lại 6/8 chương của một môn.**
+**Kho đã được bù bằng sách mở, nên sáu chương thiếu giờ trả lời được.** Việc này
+chuyển từ "chặn demo" sang "nên có".
 
-Kiểm bằng: `python scripts/rag_coverage.py`
+Kiểm bằng: `python scripts/rag_coverage.py` — hiện in *"Mọi chương đều có tài liệu
+để trả lời. Demo được."*
 
-Kho giáo trình MAS291 chỉ có **2/8 chương** (Xác suất, Biến ngẫu nhiên liên tục) và
-**không có sách giáo trình chung nào** để bù — khác ba môn kia, mỗi môn có một quyển
-dày hàng nghìn đoạn (Rosen 4.730, OpenStax 3.160, Deisenroth 1.253).
+Cụ thể: đã nạp **OpenStax *Introductory Statistics 2e*** (847 trang, CC BY-NC-SA 4.0),
+phủ đúng sáu chương từng trống — biến ngẫu nhiên rời rạc, thống kê mô tả, khoảng tin
+cậy, kiểm định giả thuyết, so sánh hai mẫu, hồi quy — cộng chương Định lý giới hạn
+trung tâm. Kho MAS291 từ 148 lên 2.207 đoạn.
 
-Sáu chương đang trống:
-
-| Chương |
-|---|
-| Biến ngẫu nhiên rời rạc |
-| Thống kê mô tả |
-| Khoảng tin cậy |
-| Kiểm định giả thuyết |
-| So sánh hai mẫu |
-| Hồi quy |
-
-Hỏi về sáu chương này, hệ thống nói thẳng *"chưa có tài liệu chương đó"* — đúng hành
-vi, nhưng vẫn là trống. **Không kỹ thuật truy xuất nào bù được chuyện thiếu dữ liệu.**
+**Vẫn nên xin slide của chính giảng viên.** Sách phủ được nội dung, nhưng slide của
+môn sát đề thi hơn và dùng đúng ký hiệu thầy cô dạy. Khi có:
 
 ```bash
-# thả file vào đây rồi chạy:
-#   data/raw/MAS291/slides/
+# thả vào data/raw/MAS291/slides/  (.pdf, .docx, .pptx đều được)
 python scripts/build_rag_index.py --dense
-python scripts/rag_coverage.py        # kiểm lại
+python scripts/rag_coverage.py
+# rồi KHỞI ĐỘNG LẠI API — kho nạp một lần lúc khởi động
 ```
 
-Tiện thì xin thêm **slide MAI391 chương 3, 6, 7, 9, 10, 12** — môn này có sách
-Deisenroth bù nên không gấp, nhưng có slide thì câu trả lời sát bài giảng hơn.
+Tiện thì xin thêm slide MAI391 chương 3, 6, 7, 9, 10, 12 — môn này có sách Deisenroth
+bù nên cũng không gấp.
 
 ## Việc 5 — Mấy thứ nhỏ (5 phút)
 
@@ -171,6 +163,9 @@ Ghi lại để bạn không mất thời gian vào những việc này:
   kỹ năng.
 - ~~Hỏi lý thuyết trả lời sai chủ đề~~ → từ điển thuật ngữ Việt–Anh, 60% → 100% đạt.
 - ~~Web hiện ra mà không nút nào chạy~~ → API thiếu CORS.
+- ~~MAS291 thiếu 6/8 chương giáo trình~~ → nạp OpenStax *Introductory Statistics 2e*
+  (tài liệu mở, có ghi nguồn ở `docs/nguon-tai-lieu.md`).
+- ~~Model dịch sai thuật ngữ thống kê~~ → chốt thuật ngữ và luật miền trong prompt.
 
 ---
 
