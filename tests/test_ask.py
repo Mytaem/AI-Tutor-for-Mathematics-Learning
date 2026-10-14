@@ -61,8 +61,11 @@ class FakeClient:
 @pytest.fixture
 def index() -> RagIndex:
     chunks = [
+        # Có nhãn chương: cần nó để phép kiểm "chương đã có tài liệu chưa" hoạt
+        # động. Kho không mang nhãn chương thì hệ thống cố ý KHÔNG kết luận gì.
         Chunk(text="An Euler circuit is a circuit that uses every edge exactly once.",
-              chunk_type=ChunkType.DEFINITION, subject="MAD101", source="rosen.pdf", page=10),
+              chunk_type=ChunkType.DEFINITION, subject="MAD101",
+              chapter="Chapter 6: Graph Theory", source="rosen.pdf", page=10),
         Chunk(text="Bài tập: tìm chu trình Euler của đồ thị sau.",
               chunk_type=ChunkType.EXERCISE, subject="MAD101", source="baitap.pdf"),
         Chunk(text="Quên kiểm tra bậc lẻ khi xét chu trình Euler.",
@@ -95,6 +98,67 @@ class TestScope:
         plain = RagIndex([Chunk(text="Chu trình Euler đi qua mỗi cạnh đúng một lần.",
                                 chunk_type=ChunkType.DEFINITION, subject="MAD101")])
         assert answer_question("chu trình Euler", plain).in_scope is True
+
+
+class TestChuongChuaCoTaiLieu:
+    """Chương không có tài liệu thì phải NÓI THẲNG, không trả đoạn chương khác.
+
+    Đây là lỗi làm một buổi demo thất bại: hỏi "khoảng tin cậy là gì?", kho
+    MAS291 không có chương đó, hệ thống trả về một đoạn của chương Xác suất —
+    trôi chảy, đúng môn, sai chủ đề. Với gia sư thì đó là hành vi tệ nhất, vì
+    người học không có cách nào biết mà đề phòng.
+    """
+
+    @pytest.fixture
+    def thieu_chuong(self) -> RagIndex:
+        """Kho MAS291 CÓ chương Xác suất nhưng KHÔNG có chương Khoảng tin cậy.
+
+        Phải dựng đúng tình huống đó: chương khác có nhãn hẳn hoi mới chứng tỏ
+        việc gắn nhãn hoạt động, và sự vắng mặt của chương này là thật.
+        """
+        chunks = [
+            Chunk(text="The probability of an event E is the ratio of favourable outcomes.",
+                  chunk_type=ChunkType.DEFINITION, subject="MAS291",
+                  chapter="Chapter 2: Probability", source="02_probability.pdf", page=18),
+        ]
+        encoder = FakeEncoder()
+        return RagIndex(chunks, embeddings=encoder.encode([c.text for c in chunks]),
+                        encoder=encoder)
+
+    def test_noi_thang_la_chua_co_tai_lieu(self, thieu_chuong: RagIndex) -> None:
+        answer = answer_question("Khoảng tin cậy là gì?", thieu_chuong, subject="MAS291")
+        assert "chưa có tài liệu" in answer.text.lower()
+        assert answer.sources == []
+
+    def test_khong_phai_la_ngoai_pham_vi(self, thieu_chuong: RagIndex) -> None:
+        """Phân biệt hẳn hai ca: lỗi ở dữ liệu của hệ thống, không phải người hỏi sai."""
+        answer = answer_question("Khoảng tin cậy là gì?", thieu_chuong, subject="MAS291")
+        assert answer.in_scope is True
+        assert answer.text != OUT_OF_SCOPE
+
+    def test_chuong_co_tai_lieu_trong_cung_kho_thi_khong_tu_choi(
+        self, thieu_chuong: RagIndex
+    ) -> None:
+        """Cùng kho đó, chương Xác suất có tài liệu nên không được từ chối."""
+        answer = answer_question("Xác suất có điều kiện là gì?", thieu_chuong, subject="MAS291")
+        assert "chưa có tài liệu" not in answer.text.lower()
+
+    def test_chuong_co_tai_lieu_thi_tra_loi_binh_thuong(self, index: RagIndex) -> None:
+        answer = answer_question("Euler circuit là gì", index, subject="MAD101")
+        assert "chưa có tài liệu" not in answer.text.lower()
+        assert answer.sources
+
+
+class TestMoRongTruyVan:
+    def test_cau_tieng_viet_duoc_noi_thuat_ngu_tieng_anh(self, index: RagIndex) -> None:
+        """Câu hỏi thuần Việt phải tìm được đoạn tiếng Anh.
+
+        Kho giả chỉ chứa câu tiếng Anh "An Euler circuit is…". Không mở rộng
+        truy vấn thì "chu trình Euler" không khớp từ nào — chính khoảng cách
+        40% / 100% đo được ở EXP-4b.
+        """
+        answer = answer_question("Chu trình Euler là gì?", index, subject="MAD101")
+        assert answer.sources and "rosen.pdf" in answer.sources[0]
 
 
 class TestSources:

@@ -200,6 +200,36 @@ def looks_vietnamese(text: str) -> bool:
     return len(words & _VIETNAMESE_WORDS) >= 2
 
 
+#: Dấu chấm dẫn của mục lục: «Chương 3 ........ 45».
+_LEADER_DOTS = re.compile(r"\.{3,}\s*\d+")
+#: Một dòng chỉ mục: «thuật ngữ, 694» — tên rồi số trang.
+_INDEX_ENTRY = re.compile(r"[A-Za-zÀ-ỹ][^,\n]{2,40},\s*\d{1,4}")
+
+
+def looks_like_boilerplate(text: str) -> bool:
+    """Đoạn này là mục lục / chỉ mục chứ không phải nội dung?
+
+    Ba dấu hiệu, cố ý đặt ngưỡng cao để không cắt oan nội dung thật:
+
+    * nhiều dấu chấm dẫn  → mục lục
+    * nhiều dòng "tên, số trang" → trang chỉ mục cuối sách
+    * dày đặc chữ số mà thưa dấu câu → bảng tra, danh sách trang
+
+    Một định lý có trích dẫn trang ("xem tr. 45") chỉ khớp một lần nên không bị
+    cắt; phải từ bốn dòng kiểu chỉ mục trở lên mới tính.
+    """
+    stripped = text.strip()
+    if len(stripped) < 60:
+        return False
+    if len(_LEADER_DOTS.findall(stripped)) >= 2:
+        return True
+    if len(_INDEX_ENTRY.findall(stripped)) >= 4:
+        return True
+    digits = sum(character.isdigit() for character in stripped)
+    sentences = stripped.count(".") + stripped.count("!") + stripped.count("?")
+    return digits / len(stripped) > 0.22 and sentences < len(stripped) / 220
+
+
 class RagIndex:
     """Kho chunk có thể tìm kiếm."""
 
@@ -213,6 +243,7 @@ class RagIndex:
         self.embeddings = embeddings
         self.encoder = encoder
         self.bm25 = BM25().fit([chunk.text for chunk in chunks])
+        self._boilerplate: set[int] | None = None
 
     def __len__(self) -> int:
         return len(self.chunks)
@@ -253,6 +284,26 @@ class RagIndex:
 
     # ------------------------------------------------------------------
 
+    @property
+    def boilerplate(self) -> set[int]:
+        """Các đoạn là TRANG MỤC LỤC hoặc TRANG CHỈ MỤC, tính một lần rồi giữ.
+
+        Đây là loại rác nguy hiểm nhất cho BM25: trang chỉ mục đặc kín thuật
+        ngữ nên khớp rất cao với mọi truy vấn, mà không chứa một câu giải thích
+        nào. Hỏi "Chu trình Euler là gì?" thì đoạn hạng nhất từng là dòng
+        «Euler circuit of, 694 Euler path of, 698 orientation of, 740» — tệ hơn
+        là không trả lời, vì nó trông như một câu trả lời.
+
+        Lọc ở đây chứ không lọc lúc dựng kho: không cần dựng lại 10.566 đoạn và
+        43 MB embedding, mà vẫn chặn được ở mọi đường truy xuất.
+        """
+        if self._boilerplate is None:
+            self._boilerplate = {
+                index for index, chunk in enumerate(self.chunks)
+                if looks_like_boilerplate(chunk.text)
+            }
+        return self._boilerplate
+
     def candidates(
         self,
         subject: str | None = None,
@@ -266,9 +317,12 @@ class RagIndex:
         """
         wanted_types = {t.value for t in types} if types else None
         wanted_skills = set(skill_ids) if skill_ids else None
+        junk = self.boilerplate
 
         selected: set[int] = set()
         for index, chunk in enumerate(self.chunks):
+            if index in junk:
+                continue
             if subject and chunk.subject and chunk.subject != subject:
                 continue
             if wanted_types and chunk.chunk_type.value not in wanted_types:

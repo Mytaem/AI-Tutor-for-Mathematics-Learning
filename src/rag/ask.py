@@ -42,6 +42,25 @@ OUT_OF_SCOPE = (
     "Em thử hỏi lại bằng thuật ngữ trong môn, hoặc hỏi thầy cô nhé."
 )
 
+
+def no_material(chapter_vi: str) -> str:
+    """Câu hỏi ĐÚNG chủ đề nhưng kho chưa có tài liệu chương đó.
+
+    Phải phân biệt hẳn với "ngoài phạm vi": câu hỏi này nằm trong chương trình,
+    lỗi ở phía dữ liệu của hệ thống chứ không phải ở người hỏi. Nói sai chỗ đó
+    là đẩy lỗi của mình sang cho sinh viên.
+
+    Và tuyệt đối không được trả về một đoạn của chương khác cho qua chuyện: với
+    một gia sư, trả lời trôi chảy mà sai chủ đề là hành vi tệ nhất — người học
+    không có cách nào biết mà đề phòng.
+    """
+    return (
+        f"Câu hỏi này thuộc chương «{chapter_vi}», nhưng kho giáo trình của hệ thống "
+        "hiện CHƯA có tài liệu của chương đó, nên thầy không trả lời chắc chắn được. "
+        "Đây là thiếu sót của hệ thống, không phải em hỏi sai. Em hỏi thầy cô hoặc "
+        "xem trực tiếp slide của chương này nhé."
+    )
+
 SYSTEM_PROMPT = (
     "Bạn là trợ giảng toán đại học, trả lời bằng tiếng Việt, ngắn gọn, chính xác. "
     "CHỈ được dùng thông tin trong các đoạn trích giáo trình được cung cấp. "
@@ -78,17 +97,37 @@ def retrieve(
     giáo trình gắn kỹ năng còn thưa, đó là hạn chế của dữ liệu chứ không phải
     câu hỏi của họ sai.
     """
-    similarity = index.best_similarity(question, subject)
+    from src.rag.glossary import english_terms
+
+    # Nối thuật ngữ tiếng Anh vào truy vấn TRƯỚC khi làm bất cứ việc gì khác.
+    # Giáo trình là tiếng Anh, câu hỏi là tiếng Việt: không có bước này thì
+    # BM25 đóng góp đúng bằng không và chỉ còn vector dày gánh — mà vector đa
+    # ngữ cho điểm na ná nhau với mọi đoạn cùng môn, nên kết quả là "đúng môn,
+    # sai chủ đề". Đo được: 40% dùng được trước bước này.
+    terms = english_terms(question)
+    query = f"{question} {' '.join(terms)}" if terms else question
+
+    # Và phải NÓI RÕ dùng hybrid khi đã mở rộng được.
+    #
+    # ``_fusion_mode`` tự chọn theo ngôn ngữ, mà truy vấn mở rộng vẫn còn tiếng
+    # Việt ở đầu nên nó ép về dense và BỎ HẲN BM25 — đúng những từ tiếng Anh
+    # vừa nối vào lại không được dùng. Quy tắc đó đo ở EXP-4 trên truy vấn CHƯA
+    # mở rộng, khi BM25 thật sự không có gì để khớp; giờ nó có, nên quy tắc cũ
+    # không còn áp dụng. Không nhận ra thuật ngữ nào thì vẫn để dense như cũ.
+    fusion = "hybrid" if terms else "auto"
+
+    similarity = index.best_similarity(query, subject)
     if similarity is not None and similarity < MIN_SIMILARITY:
         return []
     types = [kind for kind in ChunkType if kind not in EXCLUDED]
     if skill_ids:
         narrowed = index.search(
-            question, top_k=top_k, subject=subject, types=types, skill_ids=skill_ids
+            query, top_k=top_k, subject=subject, types=types,
+            skill_ids=skill_ids, fusion=fusion,
         )
         if narrowed:
             return narrowed
-    return index.search(question, top_k=top_k, subject=subject, types=types)
+    return index.search(query, top_k=top_k, subject=subject, types=types, fusion=fusion)
 
 
 def build_messages(question: str, hits) -> list[dict]:
@@ -119,6 +158,18 @@ def answer_question(
     if index is None:
         return Answer("Kho giáo trình chưa được dựng — chạy scripts/build_rag_index.py.",
                       in_scope=False)
+
+    # Kiểm TRƯỚC khi truy xuất: nếu câu hỏi nhắm một chương mà kho không có tài
+    # liệu, thì mọi đoạn tìm được đều là của chương khác. Trả chúng ra là trả
+    # lời trôi chảy mà sai chủ đề — chính cái làm buổi demo thất bại.
+    if subject:
+        from src.core.syllabus import display_name
+        from src.rag.coverage import chapter_for_terms, has_material_for
+        from src.rag.glossary import english_terms
+
+        target = chapter_for_terms(subject, english_terms(question))
+        if target and not has_material_for(index, subject, target):
+            return Answer(no_material(display_name(subject, target)), in_scope=True)
 
     hits = retrieve(index, question, subject, top_k, skill_ids)
     if not hits:

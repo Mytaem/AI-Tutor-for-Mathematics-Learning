@@ -1,6 +1,6 @@
 # Bảng kết quả
 
-*Sinh tự động bằng `python scripts/make_report_tables.py`, ngày 2026-09-29.*
+*Sinh tự động bằng `python scripts/make_report_tables.py`, ngày 2026-10-14.*
 *Đừng sửa tay file này — sửa ở `experiments/` rồi chạy lại script.*
 
 ## EXP-1 — mô hình tự giải toán (chấm bằng verifier)
@@ -37,6 +37,13 @@
 |---|---|---|---|
 | tiếng Việt | 0,167 | 0,595 | 0,310 |
 | tiếng Anh | 0,929 | 0,833 | 0,976 |
+
+## EXP-4b — hỏi đáp lý thuyết (bộ câu hỏi độc lập)
+
+| Cấu hình | Đúng chủ đề | Nói thật chưa có tài liệu | Đạt | Trả bừa | Chặn oan |
+|---|---|---|---|---|---|
+| không từ điển | 60,0% | 0,0% | **60,0%** | 20,0% | 20,0% |
+| có từ điển | 84,0% | 16,0% | **100,0%** | 0,0% | 0,0% |
 
 ## EXP-5 — mô hình theo dõi năng lực
 

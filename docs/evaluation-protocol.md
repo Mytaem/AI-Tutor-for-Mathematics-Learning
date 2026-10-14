@@ -22,6 +22,7 @@ Nguyên tắc chung:
 | EXP-2 chất lượng bộ chấm | phát hiện 100%; gán đúng mã 72–100% tuỳ môn | xong trên lỗi tổng hợp |
 | EXP-3 phân loại mã lỗi | prompting 7b 0,415 → **LoRA 1.5B 0,921** macro-F1 | xong |
 | EXP-4 truy xuất | Recall@5: 0,595 (hỏi tiếng Việt) / 0,976 (tiếng Anh) | xong |
+| EXP-4b hỏi đáp lý thuyết | **60% → 100% đạt** nhờ từ điển thuật ngữ; trả bừa 20% → 0% | xong |
 | EXP-5 knowledge tracing | **ASSISTments thật**: DKT 0,849 > SAKT 0,792 > BKT 0,729 | xong |
 | EXP-6 chọn bài | ZPD tốt nhất về trải nghiệm, kém nhất về phủ kỹ năng | xong trên mô phỏng |
 | EXP-7a bỏ kiểm chứng ký hiệu | LLM chấm đúng 50%, bộ chấm ký hiệu 100% | xong |
@@ -330,6 +331,88 @@ nhất hai nhánh.
 Nhãn ở đây dựa trên khớp thuật ngữ tiếng Anh nên là **chặn dưới**: một đoạn giải
 thích đúng khái niệm nhưng dùng từ khác ("u-substitution" thay vì "integration by
 substitution") bị tính là sai. Bộ 100 cặp gán nhãn tay vẫn còn phải làm.
+
+### EXP-4 KHÔNG đo được từ điển thuật ngữ — và vì sao
+
+Bộ câu hỏi của EXP-4 sinh từ `skill.name_vi`, nhãn đúng tính bằng `skill.name_en`.
+Từ điển thuật ngữ (`src/rag/glossary.py`) cũng suy ra từ đúng cặp `name_vi → name_en`
+đó. Dùng EXP-4 để đo từ điển là **đo vòng tròn**: truy vấn được dịch thành đúng cái
+nhãn đang tìm, Recall vọt lên gần 1 mà không nói gì về chất lượng thật.
+
+Con số đó **không được trích vào báo cáo**. Thay vào đó là EXP-4b dưới đây, chạy trên
+bộ câu hỏi viết tay độc lập.
+
+---
+
+## EXP-4b — chất lượng hỏi đáp lý thuyết (bộ câu hỏi độc lập)
+
+```
+python scripts/exp4b_ask_quality.py --compare
+```
+
+25 câu hỏi viết tay theo cách sinh viên thật sẽ hỏi, từ khoá chấp nhận được cũng viết
+tay — không lấy từ bảng kỹ năng. Đo **cả đường trả lời**, không chỉ truy xuất.
+
+| Cấu hình | Đúng chủ đề | Nói thật "chưa có tài liệu" | **Đạt** | Trả bừa | Chặn oan |
+|---|---|---|---|---|---|
+| Không từ điển | 60% | 0% | **60%** | 20% | 20% |
+| **Có từ điển** | 84% | 16% | **100%** | **0%** | **0%** |
+
+Cả hai cấu hình đều từ chối đúng 3/3 câu ngoài phạm vi, nên mức tăng này không đến từ
+việc nới lỏng phần chống bịa.
+
+**Vì sao gộp "nói thật" vào Đạt.** Với một gia sư, thừa nhận không có tài liệu là hành
+vi ĐÚNG. Cái sai là **trả bừa**: trả lời trôi chảy, đúng môn, sai chủ đề — người học
+không có cách nào biết mà đề phòng. Chính 20% đó làm một buổi demo thất bại.
+
+### Ba thay đổi tạo ra mức tăng
+
+1. **Mở rộng truy vấn bằng từ điển thuật ngữ** (`src/rag/glossary.py`, 199 mục). Giáo
+   trình tiếng Anh, sinh viên hỏi tiếng Việt: "chu trình Euler" không khớp từ nào
+   trong "Euler circuit", nên BM25 đóng góp bằng không và chỉ còn vector dày gánh —
+   mà vector đa ngữ cho điểm na ná nhau với mọi đoạn cùng môn. Phần lớn từ điển
+   **không phải viết tay**: 70 kỹ năng trong `data/skills` đã có cả `name_vi` lẫn
+   `name_en`.
+
+2. **Phải nói rõ dùng hybrid sau khi mở rộng.** `_fusion_mode` tự chọn theo ngôn ngữ,
+   mà truy vấn mở rộng vẫn còn tiếng Việt ở đầu nên nó ép về dense và **bỏ hẳn BM25**
+   — đúng những từ tiếng Anh vừa nối vào lại không được dùng. Quy tắc trong EXP-4 đo
+   trên truy vấn CHƯA mở rộng, khi BM25 thật sự không có gì để khớp; giờ nó có, nên
+   quy tắc cũ không còn áp dụng ở đường `/ask`.
+
+3. **Từ chối trung thực khi chương chưa có tài liệu** (`src/rag/coverage.py`). Hỏi
+   "khoảng tin cậy là gì?" mà kho MAS291 không có chương đó thì mọi đoạn tìm được đều
+   của chương khác. Nay hệ thống nói thẳng, và nói rõ đây là thiếu sót của hệ thống
+   chứ không phải người hỏi sai.
+
+Thêm 485 đoạn bị loại khỏi mọi đường truy xuất vì là **trang mục lục / chỉ mục**. Đó
+là loại rác nguy hiểm nhất cho BM25: đặc kín thuật ngữ nên khớp rất cao, mà không
+chứa một câu giải thích nào. Đoạn hạng nhất cho "Chu trình Euler là gì?" từng là dòng
+«Euler circuit of, 694 Euler path of, 698 orientation of, 740».
+
+### Độ phủ kho giáo trình — và chỗ còn thiếu thật
+
+```
+python scripts/rag_coverage.py
+```
+
+| Môn | Chương có slide riêng | Sách giáo trình chung |
+|---|---|---|
+| MAE101 | 7/7 | OpenStax, 3.160 đoạn |
+| MAD101 | 7/7 | Rosen, 4.730 đoạn |
+| MAI391 | 2/8 | Deisenroth, 1.253 đoạn — đủ bù |
+| **MAS291** | **2/8** | **không có (2 đoạn lẻ)** |
+
+**MAS291 là lỗ thật**, phải ghi vào mục Hạn chế: thiếu slide 6 chương (biến ngẫu nhiên
+rời rạc, thống kê mô tả, khoảng tin cậy, kiểm định giả thuyết, so sánh hai mẫu, hồi
+quy) và không có sách nào bù. Mọi câu hỏi về sáu chương đó hiện nhận câu trả lời
+"chưa có tài liệu" — đúng hành vi, nhưng vẫn là trống dữ liệu.
+
+Một cái bẫy khi đo độ phủ, đáng ghi lại: nhãn chương trong kho lấy từ tiêu đề file
+PDF ("Graph Theory", "Chapter 2: Probability") còn khoá chương trong `data/skills` là
+"Ch6 Graph Theory", "Ch2 Probability". So chuỗi thẳng thì **ba trong bốn môn báo
+"thiếu toàn bộ"** trong khi tài liệu nằm ngay đó. Bản đầu của phép đo này đã mắc đúng
+lỗi đó.
 
 ---
 

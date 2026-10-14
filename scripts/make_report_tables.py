@@ -207,6 +207,22 @@ def table_exp7() -> str:
             "|---|---|---|---|\n" + "\n".join(rows))
 
 
+def table_exp4b() -> str:
+    """Gộp "nói thật chưa có tài liệu" vào ĐẠT — thừa nhận thiếu tài liệu là
+    hành vi đúng của một gia sư; trả bừa mới là lỗi."""
+    data = load(EXPERIMENTS / "exp4" / "ask_quality.json")
+    if data is None:
+        return MISSING
+    rows = [
+        f"| {name} | {percent(v['good'] / v['n'])} | "
+        f"{percent(v['honest_no_material'] / v['n'])} | **{percent(v['usable_rate'])}** | "
+        f"{percent(v['wrong_topic'] / v['n'])} | {percent(v['false_refusal'] / v['n'])} |"
+        for name, v in data.items()
+    ]
+    return ("| Cấu hình | Đúng chủ đề | Nói thật chưa có tài liệu | Đạt | Trả bừa | Chặn oan |\n"
+            "|---|---|---|---|---|---|\n" + "\n".join(rows))
+
+
 def table_exp7b() -> str:
     """Cố ý KHÔNG in độ trễ: hai lần chạy khác thời điểm và khác tỉ lệ trúng cache,
     nên con số đó đo tải máy chứ không đo cấu hình."""
@@ -252,6 +268,7 @@ def main() -> None:
         ("EXP-2b — chỉ đúng bước sai đầu tiên", table_exp2()),
         ("EXP-3 — phân loại mã lỗi", table_exp3()),
         ("EXP-4 — truy xuất giáo trình (Recall@5)", table_exp4()),
+        ("EXP-4b — hỏi đáp lý thuyết (bộ câu hỏi độc lập)", table_exp4b()),
         ("EXP-5 — mô hình theo dõi năng lực", table_exp5()),
         ("EXP-6 — chiến lược chọn bài (6 chương, 4 môn)", table_exp6()),
         ("EXP-7a — bỏ tầng kiểm chứng ký hiệu", table_exp7()),
