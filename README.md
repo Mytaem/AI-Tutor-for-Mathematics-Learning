@@ -141,6 +141,16 @@ Biến môi trường chính (xem `src/core/config.py` và `src/api/app.py`):
 
 Hướng dẫn đầy đủ: [docs/running.md](docs/running.md).
 
+### Người demo đọc gì
+
+Nếu bạn là **người demo chứ không phải người viết code**:
+[docs/cho-nguoi-demo.md](docs/cho-nguoi-demo.md) — `git pull` một mình KHÔNG đủ, vì
+284 MB dữ liệu (giáo trình, kho vector đã dựng) cố ý không nằm trong git.
+
+```bash
+python scripts/check_demo_ready.py    # in ra từng thứ còn thiếu kèm lệnh xử lý
+```
+
 ### Kiểm tra trước khi demo
 
 ```bash

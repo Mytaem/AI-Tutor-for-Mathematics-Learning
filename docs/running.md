@@ -110,10 +110,14 @@ chứng dễ gây hoang mang: script báo chương đã có 187 đề, mà `/syl
 ## Kiểm tra TRƯỚC khi demo
 
 ```bash
+python scripts/check_demo_ready.py    # máy đã sẵn sàng demo chưa (gộp mọi phép kiểm)
 python scripts/rag_coverage.py        # chương nào chưa có giáo trình
 python scripts/demo_full.py           # 6 cảnh, không cần model, không cần mạng
 python -m pytest -q                   # 784 test, ~75 giây
 ```
+
+**Người demo không phải người viết code** thì đọc [cho-nguoi-demo.md](cho-nguoi-demo.md):
+`git pull` một mình không đủ, vì 284 MB dữ liệu cố ý không nằm trong git.
 
 `rag_coverage.py` là bước quan trọng nhất trong ba bước trên, và nó tồn tại vì một
 buổi demo thất bại: sinh viên hỏi "khoảng tin cậy là gì?", kho MAS291 không có chương
