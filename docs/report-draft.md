@@ -112,12 +112,30 @@ bài làm → kiểm chứng → chẩn đoán mã lỗi → chọn mức gợi 
 
 | Loại | Số lượng |
 |---|---|
-| Kỹ năng (knowledge component) | 70, có đồ thị tiên quyết |
-| Mã lỗi | 91 (mã `LA.*` dùng chung MAE101 và MAI391) |
+| Kỹ năng (knowledge component) | 70, có đồ thị tiên quyết, **phủ 70/70 bằng đề** |
+| Mã lỗi | 97 (mã `LA.*` dùng chung MAE101 và MAI391) |
 | Đề chép tay từ giáo trình | 155 |
-| Đề sinh tự động | 3.900 |
-| Mẫu lỗi có nhãn | 6.042 |
-| Đoạn giáo trình trong kho RAG | 10.566 |
+| Đề sinh tự động | 4.800 |
+| Mẫu lỗi có nhãn | 7.978 (trung vị 63 mẫu mỗi mã, mỏng nhất 12) |
+| Đoạn giáo trình trong kho RAG | 10.566, trong đó 485 đoạn mục lục/chỉ mục bị loại |
+
+Độ phủ kỹ năng đạt 70/70 sau **hai** lần bịt lỗ, và cả hai lần đều do một phép đo
+phát hiện chứ không do đọc code: lần đầu là mảng đại số tuyến tính của MAE101 (8/21 →
+16/21), lần sau là hai chương giới hạn và đạo hàm (16/21 → 21/21) mà cây nội dung phơi
+ra khi nó hiện số đề từng chương.
+
+**Độ phủ kho giáo trình thì chưa đều, và phải nói rõ:**
+
+| Môn | Chương có slide riêng | Sách giáo trình chung |
+|---|---|---|
+| MAE101 | 7/7 | OpenStax Calculus 1–2, 3.160 đoạn |
+| MAD101 | 7/7 | Rosen 7th ed., 4.730 đoạn |
+| MAI391 | 2/8 | Deisenroth, 1.253 đoạn — đủ bù |
+| MAS291 | **2/8** | **không có** (2 đoạn lẻ) |
+
+MAS291 là lỗ thật: sáu chương không có tài liệu nào để truy xuất. Hệ thống trả lời
+"chưa có tài liệu chương này" thay vì đoán, nhưng đó vẫn là trống dữ liệu, không phải
+một tính năng.
 
 ## 4.2. Sinh đề tự động có kiểm chứng
 
@@ -256,10 +274,22 @@ hình 7 tỉ tham số chỉ prompting.
 2. **Chưa có bài làm sai thật.** Mọi con số chẩn đoán là chặn trên.
 3. **macro-F1 0,921 của LoRA là chặn trên**: tập test là lỗi máy cài vào với dấu
    hiệu cố định. Khoảng cách với prompting thì đáng tin vì cùng tập test.
-4. **Kho giáo trình chưa phủ hết syllabus**, MAS291 thiếu nhiều chương.
+4. **Kho giáo trình chưa phủ hết syllabus.** MAS291 chỉ có 2/8 chương và không có
+   sách giáo trình chung để bù; sáu chương còn lại không có tài liệu nào. Hệ thống
+   nói thẳng điều đó thay vì đoán, nhưng mọi câu hỏi về sáu chương ấy hiện không
+   trả lời được. Đo bằng `scripts/rag_coverage.py`.
 5. **Chứng minh hình thức** chỉ kiểm được cấu trúc, không kiểm được lập luận.
 6. **Nguyên hàm sai khác hằng số nhân với hàm mũ** không phân biệt được bằng đạo
    hàm ngược, vì `e^x` là hàm riêng của phép đạo hàm.
+7. **Từ điển thuật ngữ là bảng tra tay, không phải dịch máy.** 199 mục phủ các khái
+   niệm cốt lõi của bốn môn; câu hỏi dùng thuật ngữ ngoài bảng sẽ quay về đúng hành
+   vi cũ (dense đơn thuần, dễ lệch chủ đề). Mở rộng sang môn khác cần bổ sung bảng.
+8. **Phân quyền quản trị dùng MỘT khoá dùng chung**, không có tài khoản, không có
+   nhiều mức quyền, không ghi vết ai đã xem gì. Đủ cho mạng nội bộ của một đồ án;
+   đưa ra Internet thật thì phải thay bằng đăng nhập có tài khoản.
+9. **Lỗi ở mức BƯỚC chưa đo được trên dữ liệu thật**, vì đề sinh tự động phần lớn
+   chỉ có đáp án cuối. Một mã lỗi đã phải bỏ vì lý do này: `MAE.LIM.NOSIMPLIFY`
+   không phân biệt được với `MAE.LIM.INDET_ZERO` nếu chỉ nhìn đáp án cuối.
 
 ## 8.3. Hướng phát triển
 

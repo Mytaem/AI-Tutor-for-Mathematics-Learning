@@ -46,19 +46,21 @@ Phần huấn luyện (LoRA, knowledge tracing) cài riêng trên Colab/Kaggle:
 
 ## Tình trạng
 
-Đủ 4/4 môn, chạy được end-to-end từ web và Telegram. **633 test**, chạy hết trong
-~100 giây, không cần GPU, không cần mạng, không cần model.
+Đủ 4/4 môn, chạy được end-to-end từ web và Telegram. **784 test**, chạy hết trong
+~75 giây, không cần GPU, không cần mạng, không cần model.
 
 | Phần | Trạng thái |
 |---|---|
 | Kiểm chứng ký hiệu 4 môn | ✅ có kiểm chéo độc lập (Monte Carlo, liệt kê vét cạn, tính lặp) |
-| Ngân hàng đề | ✅ 155 bài chép tay + 4.800 bài tự sinh, mỗi bài verifier tự chấm lại mới nhận |
-| Tập lỗi có nhãn | ✅ 8.732 mẫu / 91 mã lỗi |
+| Ngân hàng đề | ✅ 155 bài chép tay + 4.800 bài tự sinh, **phủ 70/70 kỹ năng**, mỗi bài verifier tự chấm lại mới nhận |
+| Tập lỗi có nhãn | ✅ 7.978 mẫu / 97 mã lỗi, trung vị 63 mẫu mỗi mã |
 | Thang gợi ý + guardrail | ✅ có cả bản template lẫn bản do model sinh |
-| RAG | ✅ 10.566 đoạn, định tuyến BM25/dense theo ngôn ngữ câu hỏi |
+| Chọn phạm vi luyện | ✅ môn → chương → bài → dạng bài, mỗi nhánh hiện số đề |
+| Hỏi đáp lý thuyết (RAG) | ✅ 10.566 đoạn; **100% câu hỏi được trả lời đúng chủ đề hoặc nói thẳng là chưa có tài liệu** |
 | Knowledge tracing | ✅ BKT, DKT, SAKT — đo trên cả học sinh mô phỏng lẫn ASSISTments thật |
-| API, web app, Telegram bot | ✅ |
+| API, web app, Telegram bot | ✅ web có chủ đề trắng/đen và phân vai sinh viên / quản trị |
 | Fine-tune LoRA | ✅ macro-F1 0,098 → 0,921 (Qwen 1.5B, QLoRA trên Kaggle T4) |
+| Kho giáo trình MAS291 | ⚠️ **thiếu 6/8 chương** và không có sách bù — xem `scripts/rag_coverage.py` |
 | Thực nghiệm người dùng thật | ⬜ chờ dữ liệu bài làm sai thật |
 | Báo cáo, slide, video demo | ⬜ |
 
@@ -76,6 +78,23 @@ Hướng dẫn chạy: [docs/running.md](docs/running.md).
   nằm đúng khoảng các bài báo gốc báo cáo, tức là phần cài đặt không có lỗi ẩn.
 - Phân loại mã lỗi: model **1.5B sau fine-tune đạt macro-F1 0,921**, vượt xa model
   7B chỉ prompting (0,415) — cùng một tập test.
+- Hỏi đáp lý thuyết: **60% → 100% đạt** nhờ mở rộng truy vấn bằng từ điển thuật ngữ
+  Việt–Anh. Quan trọng hơn con số: **"trả bừa" từ 20% về 0%** — trả lời trôi chảy,
+  đúng môn, sai chủ đề là hành vi tệ nhất của một gia sư, vì người học không có cách
+  nào biết mà đề phòng.
+
+### Ba kết quả NGƯỢC với giả định ban đầu
+
+Ghi lại vì chúng đáng giá hơn các con số đẹp:
+
+1. **Hybrid không phải lúc nào cũng tốt nhất.** Hỏi tiếng Việt trên kho tiếng Anh,
+   hybrid (0,310) kém hẳn dense đơn thuần (0,595) — RRF trộn kết quả rác của BM25 vào
+   làm loãng. Nhưng sau khi mở rộng truy vấn bằng thuật ngữ tiếng Anh thì kết luận này
+   **đảo ngược**, vì lúc đó BM25 mới có cái để khớp.
+2. **Đưa đoạn giáo trình vào prompt gợi ý không đổi gì đo được.** Model 3b bỏ qua đoạn
+   trích và viết theo mã lỗi đã chẩn đoán (EXP-7b).
+3. **ZPD cho trải nghiệm tốt nhất nhưng phủ kỹ năng kém nhất** — nó né đúng chỗ người
+   học yếu. Phải thêm tiêu chí phủ mới cân lại (EXP-6).
 
 ## Nạp giáo trình
 
@@ -94,20 +113,36 @@ python scripts/build_rag_index.py --ask "tích phân từng phần là gì"
 Hỗ trợ `.pdf`, `.docx`, `.pptx`, `.txt`, `.md`. File hỏng bị bỏ qua chứ không làm
 chết cả lần nạp.
 
-## Chạy API
+## Chạy API và web
 
 ```bash
-uvicorn src.api.app:app --reload
-# http://localhost:8000/docs
+uvicorn src.api.app:app --reload          # API — http://localhost:8000/docs
+cd web && npm install && npm run dev      # web — http://localhost:3000
 ```
 
-Biến môi trường chính (xem `src/core/config.py`):
+Biến môi trường chính (xem `src/core/config.py` và `src/api/app.py`):
 
 | Biến | Ý nghĩa |
 |---|---|
 | `VLLM_URL` | endpoint vLLM trên Kaggle qua tunnel — đổi mỗi lần khởi động lại |
 | `OLLAMA_URL` | Ollama local, lớp dự phòng bắt buộc |
+| `LLM_HINTS=1` | gợi ý do model diễn đạt; tắt thì dùng câu template |
 | `DEMO_MODE=1` | chỉ đọc cache, không gọi mạng — dùng khi bảo vệ |
+| `CORS_ORIGINS` | origin được phép gọi API, mặc định `localhost:3000`. **Thiếu đúng biến này thì web dựng ra đầy đủ mà không nút nào chạy** |
+| `ADMIN_TOKEN` | bật phần quản trị. **Không đặt thì phần quản trị tắt hoàn toàn** — dữ liệu ở đó là bài làm của người thật |
+
+Hướng dẫn đầy đủ: [docs/running.md](docs/running.md).
+
+### Kiểm tra trước khi demo
+
+```bash
+python scripts/rag_coverage.py        # chương nào chưa có giáo trình
+python scripts/demo_full.py           # 6 cảnh, không cần model, không cần mạng
+```
+
+Chạy `rag_coverage.py` trước mỗi lần demo. Nó tồn tại vì một buổi demo thất bại:
+sinh viên hỏi về một chương mà kho không có tài liệu, và hệ thống khi đó trả về một
+đoạn của chương khác. Thiếu dữ liệu thì phải biết **trước** khi đứng trước hội đồng.
 
 ## Ba nguyên tắc thiết kế không được vi phạm
 

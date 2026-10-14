@@ -9,6 +9,8 @@ còn đạo hàm ngược thì chấp nhận đúng tất cả.
 
 from __future__ import annotations
 
+from contextlib import suppress
+
 import sympy as sp
 
 from src.core.schema import (
@@ -40,6 +42,14 @@ ERR_DEF_SWAPBOUNDS = "MAE.INT.DEF.SWAPBOUNDS"  # thế cận ngược: F(a) − 
 ERR_DERIV_INSTEAD = "MAE.INT.DERIV_INSTEAD"  # lấy đạo hàm thay vì nguyên hàm
 ERR_SUBST_NOFACTOR = "MAE.INT.SUBST.NOFACTOR"  # đổi biến nhưng quên nhân du
 ERR_LINEARITY = "MAE.INT.LINEARITY"        # tưởng ∫f·g = (∫f)(∫g)
+ERR_LIM_INDET_ZERO = "MAE.LIM.INDET_ZERO"      # thay 0/0 rồi kết luận bằng 0
+ERR_LIM_INF_CONSTTERM = "MAE.LIM.INF_CONSTTERM"  # x->oo: lấy tỉ số hạng tự do
+ERR_LIM_SIGN = "MAE.LIM.SIGN"                  # sai dấu khi thay giá trị
+ERR_DER_POWER_NODEC = "MAE.DER.POWER_NODEC"    # nhân số mũ, quên giảm bậc
+ERR_DER_POWER_NOMULT = "MAE.DER.POWER_NOMULT"  # giảm bậc, quên nhân số mũ
+ERR_DER_PRODUCT_SEPARATE = "MAE.DER.PRODUCT_SEPARATE"  # (u.v)' = u'.v'
+ERR_DER_QUOTIENT_SIGN = "MAE.DER.QUOTIENT_SIGN"  # sai dấu quy tắc thương
+ERR_DER_CHAIN_NOINNER = "MAE.DER.CHAIN_NOINNER"  # quên nhân đạo hàm hàm trong
 
 
 class CalculusVerifier(Verifier):
@@ -102,8 +112,151 @@ class CalculusVerifier(Verifier):
             codes.extend(self._diagnose_antiderivative(item, raw, answer_check))
         elif item.answer_type is AnswerType.NUMBER and item.bounds:
             codes.extend(self._diagnose_definite_integral(item, raw))
+        elif item.meta.get("task") == "limit":
+            codes.extend(self._diagnose_limit(item, raw))
+        elif item.meta.get("task") == "derivative":
+            codes.extend(self._diagnose_derivative(item, raw))
 
         return codes
+
+    # ------------------------------------------------------------------
+    # Giới hạn
+    # ------------------------------------------------------------------
+
+    def _diagnose_limit(self, item: Item, raw: str) -> list[str]:
+        """Gọi tên lỗi bằng cách DỰNG LẠI đúng đáp án mà từng lỗi sẽ cho ra.
+
+        Cách này đáng tin hơn so khớp mẫu trên chuỗi: nó trả lời đúng câu hỏi
+        "bài làm này khớp với lỗi nào", và không bao giờ gắn nhãn cho một đáp án
+        mà lỗi đó không thể sinh ra.
+        """
+        try:
+            given = parse_math(raw)
+        except ParseError:
+            return []
+
+        indeterminate = item.meta.get("indeterminate")
+        expression = self._limit_expression(item)
+        variable = sp.Symbol(item.variable or "x")
+
+        # Dạng vô định mà trả 0 — lỗi khái niệm nặng nhất của chương này.
+        if indeterminate and given == 0:
+            return [ERR_LIM_INDET_ZERO]
+
+        if expression is not None and indeterminate == "oo/oo":
+            wrong = self._constant_term_ratio(expression, variable)
+            if wrong is not None and expr_equal(given, wrong, domain=self.domain).equal:
+                return [ERR_LIM_INF_CONSTTERM]
+
+        # Sai dấu: xét cuối cùng vì nó khớp rộng nhất.
+        if item.answer is not None:
+            with suppress(ParseError):
+                correct = parse_math(str(item.answer))
+                if correct != 0 and expr_equal(given, -correct, domain=self.domain).equal:
+                    return [ERR_LIM_SIGN]
+        return []
+
+    def _limit_expression(self, item: Item):
+        with suppress(ParseError, KeyError):
+            return parse_math(str(item.meta["expr"]))
+        return None
+
+    @staticmethod
+    def _constant_term_ratio(expression, variable):
+        """Tỉ số HẠNG TỰ DO của tử và mẫu — đáp án mà lỗi `INF_CONSTTERM` cho ra."""
+        numerator, denominator = sp.fraction(expression)
+        with suppress(sp.PolynomialError, TypeError, ZeroDivisionError):
+            top = sp.Poly(numerator, variable).coeff_monomial(1)
+            bottom = sp.Poly(denominator, variable).coeff_monomial(1)
+            if bottom:
+                return sp.Rational(int(top), int(bottom))
+        return None
+
+    # ------------------------------------------------------------------
+    # Đạo hàm
+    # ------------------------------------------------------------------
+
+    def _diagnose_derivative(self, item: Item, raw: str) -> list[str]:
+        try:
+            given = parse_math(raw)
+        except ParseError:
+            return []
+
+        expression = self._limit_expression(item)      # cùng khoá meta["expr"]
+        if expression is None:
+            return []
+        variable = sp.Symbol(item.variable or "x")
+        rule = item.meta.get("rule")
+
+        def matches(candidate) -> bool:
+            if candidate is None:
+                return False
+            with suppress(TypeError, ValueError, sp.SympifyError):
+                return expr_equal(given, candidate, domain=self.domain).equal
+            return False
+
+        if rule == "product" and matches(self._product_as_product(expression, variable)):
+            return [ERR_DER_PRODUCT_SEPARATE]
+        if rule == "quotient" and matches(self._quotient_wrong_sign(expression, variable)):
+            return [ERR_DER_QUOTIENT_SIGN]
+        if rule == "chain" and matches(self._chain_without_inner(expression, variable)):
+            return [ERR_DER_CHAIN_NOINNER]
+        if matches(self._power_no_decrement(expression, variable)):
+            return [ERR_DER_POWER_NODEC]
+        if matches(self._power_no_multiply(expression, variable)):
+            return [ERR_DER_POWER_NOMULT]
+        return []
+
+    @staticmethod
+    def _power_no_decrement(expression, variable):
+        """``(a·xⁿ)' = a·n·xⁿ`` — nhân số mũ nhưng quên giảm bậc."""
+        with suppress(TypeError, ValueError):
+            terms = sp.Add.make_args(sp.expand(expression))
+            return sp.simplify(sum(
+                coefficient * exponent * variable**exponent
+                for coefficient, exponent in (t.as_coeff_exponent(variable) for t in terms)
+            ))
+        return None
+
+    @staticmethod
+    def _power_no_multiply(expression, variable):
+        """``(a·xⁿ)' = a·xⁿ⁻¹`` — giảm bậc nhưng quên nhân số mũ."""
+        with suppress(TypeError, ValueError):
+            terms = sp.Add.make_args(sp.expand(expression))
+            return sp.simplify(sum(
+                coefficient * variable ** (exponent - 1)
+                for coefficient, exponent in (t.as_coeff_exponent(variable) for t in terms)
+            ))
+        return None
+
+    @staticmethod
+    def _product_as_product(expression, variable):
+        """``(u·v)' = u'·v'``."""
+        factors = sp.Mul.make_args(expression)
+        if len(factors) < 2:
+            return None
+        return sp.simplify(sp.Mul(*[sp.diff(f, variable) for f in factors]))
+
+    @staticmethod
+    def _quotient_wrong_sign(expression, variable):
+        """Tử là ``u'v + uv'`` thay vì ``u'v − uv'``."""
+        u, v = sp.fraction(expression)
+        if v == 1:
+            return None
+        return sp.simplify((sp.diff(u, variable) * v + u * sp.diff(v, variable)) / v**2)
+
+    @staticmethod
+    def _chain_without_inner(expression, variable):
+        """Đúng hàm ngoài, quên nhân đạo hàm hàm trong."""
+        if isinstance(expression, sp.Pow) and expression.exp.is_Integer:
+            inner, exponent = expression.base, expression.exp
+            return sp.simplify(exponent * inner ** (exponent - 1))
+        if isinstance(expression, sp.Function) and len(expression.args) == 1:
+            inner = expression.args[0]
+            return sp.simplify(
+                sp.diff(expression.func(variable), variable).subs(variable, inner)
+            )
+        return None
 
     def _diagnose_antiderivative(self, item: Item, raw: str, answer_check: EquivalenceResult) -> list[str]:
         codes: list[str] = []

@@ -1,119 +1,191 @@
 [
-  {
-    "code": "MAE.INT.NOCONST",
-    "tier": "E-INCOMPLETE",
-    "subject": "MAE101",
-    "skill_id": "MAE.INT.BASIC",
-    "name_vi": "Quên hằng số tích phân C",
-    "description_vi": "Tìm đúng nguyên hàm nhưng không viết '+ C'. Nguyên hàm là một HỌ hàm số, không phải một hàm duy nhất.",
-    "hint_vi": "Em xem lại: nguyên hàm của một hàm số là bao nhiêu hàm? Có duy nhất một đáp án không?"
-  },
-  {
-    "code": "MAE.SIGN",
-    "tier": "E-COMPUTE",
-    "subject": "MAE101",
-    "skill_id": "MAE.INT.TRIG",
-    "name_vi": "Sai dấu toàn cục",
-    "description_vi": "Kết quả đúng về dạng nhưng ngược dấu. Hay gặp nhất ở nguyên hàm sin/cos.",
-    "hint_vi": "Em thử lấy đạo hàm đáp án của mình xem có ra đúng biểu thức ban đầu không, chú ý dấu nhé."
-  },
-  {
-    "code": "MAE.INT.CONSTFACTOR",
-    "tier": "E-PROCEDURE",
-    "subject": "MAE101",
-    "skill_id": "MAE.INT.BASIC",
-    "name_vi": "Sai một hệ số hằng",
-    "description_vi": "Đáp án đúng dạng nhưng lệch đúng một hệ số nhân. Thường do quên chia hệ số ở đâu đó.",
-    "hint_vi": "Dạng đáp án của em đúng rồi. Em thử đạo hàm ngược lại xem có khớp hệ số không?"
-  },
-  {
-    "code": "MAE.INT.SUBST.NOFACTOR",
-    "tier": "E-PROCEDURE",
-    "subject": "MAE101",
-    "skill_id": "MAE.INT.SUBST",
-    "name_vi": "Quên hệ số khi đổi biến (du)",
-    "description_vi": "Đặt u = f(x) nhưng khi thay dx bằng du thì quên hệ số f'(x). Ví dụ u = x²+1 thì du = 2x dx, nên x dx = du/2 chứ không phải du.",
-    "hint_vi": "Em đặt u = f(x) rồi thì du bằng gì? Nhớ là du = f'(x)dx, nên phải thay dx cho đúng."
-  },
-  {
-    "code": "MAE.INT.SUBST.NODX",
-    "tier": "E-PROCEDURE",
-    "subject": "MAE101",
-    "skill_id": "MAE.INT.SUBST",
-    "name_vi": "Đổi biến nhưng quên đổi vi phân",
-    "description_vi": "Thay u vào biểu thức nhưng vẫn giữ nguyên dx, dẫn tới tích phân hỗn hợp hai biến.",
-    "hint_vi": "Sau khi đặt u, tích phân của em còn chứa cả u lẫn dx — em kiểm tra lại phần vi phân nhé."
-  },
-  {
-    "code": "MAE.INT.POWER.NODIV",
-    "tier": "E-PROCEDURE",
-    "subject": "MAE101",
-    "skill_id": "MAE.INT.BASIC",
-    "name_vi": "Quy tắc luỹ thừa: tăng bậc nhưng quên chia",
-    "description_vi": "Viết ∫xⁿdx = xⁿ⁺¹ mà quên chia cho (n+1).",
-    "hint_vi": "Công thức ∫xⁿdx đầy đủ là gì? Sau khi tăng bậc thì còn phải làm gì nữa?"
-  },
-  {
-    "code": "MAE.INT.POWER.WRONGEXP",
-    "tier": "E-CONCEPT",
-    "subject": "MAE101",
-    "skill_id": "MAE.INT.BASIC",
-    "name_vi": "Giảm bậc thay vì tăng bậc",
-    "description_vi": "Áp dụng quy tắc đạo hàm cho bài tích phân: viết ∫xⁿdx = xⁿ⁻¹/(n−1).",
-    "hint_vi": "Tích phân và đạo hàm là hai phép ngược nhau. Đạo hàm thì bậc giảm, vậy tích phân thì bậc thế nào?"
-  },
-  {
-    "code": "MAE.INT.DERIV_INSTEAD",
-    "tier": "E-CONCEPT",
-    "subject": "MAE101",
-    "skill_id": "MAE.INT.BASIC",
-    "name_vi": "Lấy đạo hàm thay vì tính nguyên hàm",
-    "description_vi": "Hiểu nhầm yêu cầu đề bài, thực hiện phép đạo hàm.",
-    "hint_vi": "Đề bài yêu cầu tìm nguyên hàm hay đạo hàm? Em đọc lại đề giúp cô/thầy nhé."
-  },
-  {
-    "code": "MAE.INT.LINEARITY",
-    "tier": "E-CONCEPT",
-    "subject": "MAE101",
-    "skill_id": "MAE.INT.PARTS",
-    "name_vi": "Tưởng tích phân của tích bằng tích các tích phân",
-    "description_vi": "Viết ∫f(x)g(x)dx = (∫f dx)(∫g dx). Tích phân tuyến tính với phép cộng, KHÔNG tuyến tính với phép nhân.",
-    "hint_vi": "Tích phân có 'tách' qua phép nhân được không? Em thử kiểm tra với ∫x·x dx xem hai cách có ra cùng kết quả không."
-  },
-  {
-    "code": "MAE.INT.DEF.NOEVAL",
-    "tier": "E-INCOMPLETE",
-    "subject": "MAE101",
-    "skill_id": "MAE.INT.DEF",
-    "name_vi": "Quên thế cận",
-    "description_vi": "Tìm được nguyên hàm nhưng dừng lại, không áp dụng công thức Newton–Leibniz F(b) − F(a).",
-    "hint_vi": "Tích phân xác định cho ra một hàm số hay một con số? Em còn thiếu bước nào không?"
-  },
-  {
-    "code": "MAE.INT.DEF.SWAPBOUNDS",
-    "tier": "E-PROCEDURE",
-    "subject": "MAE101",
-    "skill_id": "MAE.INT.DEF",
-    "name_vi": "Thế cận ngược thứ tự",
-    "description_vi": "Tính F(a) − F(b) thay vì F(b) − F(a), kết quả đúng độ lớn nhưng ngược dấu.",
-    "hint_vi": "Công thức Newton–Leibniz là F(b) − F(a), em xem lại thứ tự cận trên cận dưới nhé."
-  },
-  {
-    "code": "MAE.INT.DEF.NOLIMIT",
-    "tier": "E-PROCEDURE",
-    "subject": "MAE101",
-    "skill_id": "MAE.INT.DEF.SUBST",
-    "name_vi": "Đổi biến nhưng quên đổi cận",
-    "description_vi": "Trong tích phân xác định, đổi sang biến u nhưng vẫn giữ nguyên cận theo x.",
-    "hint_vi": "Em đã đổi sang biến u rồi thì cận tích phân có còn tính theo x được không?"
-  },
-  {
-    "code": "MAE.ALG.STEP",
-    "tier": "E-COMPUTE",
-    "subject": "MAE101",
-    "skill_id": "MAE.INT.BASIC",
-    "name_vi": "Sai biến đổi đại số giữa chừng",
-    "description_vi": "Một bước biến đổi đại số không tương đương với bước trước đó.",
-    "hint_vi": "Em kiểm tra lại bước này xem có thực sự bằng bước trên không nhé."
-  }
+ {
+  "code": "MAE.INT.NOCONST",
+  "tier": "E-INCOMPLETE",
+  "subject": "MAE101",
+  "skill_id": "MAE.INT.BASIC",
+  "name_vi": "Quên hằng số tích phân C",
+  "description_vi": "Tìm đúng nguyên hàm nhưng không viết '+ C'. Nguyên hàm là một HỌ hàm số, không phải một hàm duy nhất.",
+  "hint_vi": "Em xem lại: nguyên hàm của một hàm số là bao nhiêu hàm? Có duy nhất một đáp án không?"
+ },
+ {
+  "code": "MAE.SIGN",
+  "tier": "E-COMPUTE",
+  "subject": "MAE101",
+  "skill_id": "MAE.INT.TRIG",
+  "name_vi": "Sai dấu toàn cục",
+  "description_vi": "Kết quả đúng về dạng nhưng ngược dấu. Hay gặp nhất ở nguyên hàm sin/cos.",
+  "hint_vi": "Em thử lấy đạo hàm đáp án của mình xem có ra đúng biểu thức ban đầu không, chú ý dấu nhé."
+ },
+ {
+  "code": "MAE.INT.CONSTFACTOR",
+  "tier": "E-PROCEDURE",
+  "subject": "MAE101",
+  "skill_id": "MAE.INT.BASIC",
+  "name_vi": "Sai một hệ số hằng",
+  "description_vi": "Đáp án đúng dạng nhưng lệch đúng một hệ số nhân. Thường do quên chia hệ số ở đâu đó.",
+  "hint_vi": "Dạng đáp án của em đúng rồi. Em thử đạo hàm ngược lại xem có khớp hệ số không?"
+ },
+ {
+  "code": "MAE.INT.SUBST.NOFACTOR",
+  "tier": "E-PROCEDURE",
+  "subject": "MAE101",
+  "skill_id": "MAE.INT.SUBST",
+  "name_vi": "Quên hệ số khi đổi biến (du)",
+  "description_vi": "Đặt u = f(x) nhưng khi thay dx bằng du thì quên hệ số f'(x). Ví dụ u = x²+1 thì du = 2x dx, nên x dx = du/2 chứ không phải du.",
+  "hint_vi": "Em đặt u = f(x) rồi thì du bằng gì? Nhớ là du = f'(x)dx, nên phải thay dx cho đúng."
+ },
+ {
+  "code": "MAE.INT.SUBST.NODX",
+  "tier": "E-PROCEDURE",
+  "subject": "MAE101",
+  "skill_id": "MAE.INT.SUBST",
+  "name_vi": "Đổi biến nhưng quên đổi vi phân",
+  "description_vi": "Thay u vào biểu thức nhưng vẫn giữ nguyên dx, dẫn tới tích phân hỗn hợp hai biến.",
+  "hint_vi": "Sau khi đặt u, tích phân của em còn chứa cả u lẫn dx — em kiểm tra lại phần vi phân nhé."
+ },
+ {
+  "code": "MAE.INT.POWER.NODIV",
+  "tier": "E-PROCEDURE",
+  "subject": "MAE101",
+  "skill_id": "MAE.INT.BASIC",
+  "name_vi": "Quy tắc luỹ thừa: tăng bậc nhưng quên chia",
+  "description_vi": "Viết ∫xⁿdx = xⁿ⁺¹ mà quên chia cho (n+1).",
+  "hint_vi": "Công thức ∫xⁿdx đầy đủ là gì? Sau khi tăng bậc thì còn phải làm gì nữa?"
+ },
+ {
+  "code": "MAE.INT.POWER.WRONGEXP",
+  "tier": "E-CONCEPT",
+  "subject": "MAE101",
+  "skill_id": "MAE.INT.BASIC",
+  "name_vi": "Giảm bậc thay vì tăng bậc",
+  "description_vi": "Áp dụng quy tắc đạo hàm cho bài tích phân: viết ∫xⁿdx = xⁿ⁻¹/(n−1).",
+  "hint_vi": "Tích phân và đạo hàm là hai phép ngược nhau. Đạo hàm thì bậc giảm, vậy tích phân thì bậc thế nào?"
+ },
+ {
+  "code": "MAE.INT.DERIV_INSTEAD",
+  "tier": "E-CONCEPT",
+  "subject": "MAE101",
+  "skill_id": "MAE.INT.BASIC",
+  "name_vi": "Lấy đạo hàm thay vì tính nguyên hàm",
+  "description_vi": "Hiểu nhầm yêu cầu đề bài, thực hiện phép đạo hàm.",
+  "hint_vi": "Đề bài yêu cầu tìm nguyên hàm hay đạo hàm? Em đọc lại đề giúp cô/thầy nhé."
+ },
+ {
+  "code": "MAE.INT.LINEARITY",
+  "tier": "E-CONCEPT",
+  "subject": "MAE101",
+  "skill_id": "MAE.INT.PARTS",
+  "name_vi": "Tưởng tích phân của tích bằng tích các tích phân",
+  "description_vi": "Viết ∫f(x)g(x)dx = (∫f dx)(∫g dx). Tích phân tuyến tính với phép cộng, KHÔNG tuyến tính với phép nhân.",
+  "hint_vi": "Tích phân có 'tách' qua phép nhân được không? Em thử kiểm tra với ∫x·x dx xem hai cách có ra cùng kết quả không."
+ },
+ {
+  "code": "MAE.INT.DEF.NOEVAL",
+  "tier": "E-INCOMPLETE",
+  "subject": "MAE101",
+  "skill_id": "MAE.INT.DEF",
+  "name_vi": "Quên thế cận",
+  "description_vi": "Tìm được nguyên hàm nhưng dừng lại, không áp dụng công thức Newton–Leibniz F(b) − F(a).",
+  "hint_vi": "Tích phân xác định cho ra một hàm số hay một con số? Em còn thiếu bước nào không?"
+ },
+ {
+  "code": "MAE.INT.DEF.SWAPBOUNDS",
+  "tier": "E-PROCEDURE",
+  "subject": "MAE101",
+  "skill_id": "MAE.INT.DEF",
+  "name_vi": "Thế cận ngược thứ tự",
+  "description_vi": "Tính F(a) − F(b) thay vì F(b) − F(a), kết quả đúng độ lớn nhưng ngược dấu.",
+  "hint_vi": "Công thức Newton–Leibniz là F(b) − F(a), em xem lại thứ tự cận trên cận dưới nhé."
+ },
+ {
+  "code": "MAE.INT.DEF.NOLIMIT",
+  "tier": "E-PROCEDURE",
+  "subject": "MAE101",
+  "skill_id": "MAE.INT.DEF.SUBST",
+  "name_vi": "Đổi biến nhưng quên đổi cận",
+  "description_vi": "Trong tích phân xác định, đổi sang biến u nhưng vẫn giữ nguyên cận theo x.",
+  "hint_vi": "Em đã đổi sang biến u rồi thì cận tích phân có còn tính theo x được không?"
+ },
+ {
+  "code": "MAE.ALG.STEP",
+  "tier": "E-COMPUTE",
+  "subject": "MAE101",
+  "skill_id": "MAE.INT.BASIC",
+  "name_vi": "Sai biến đổi đại số giữa chừng",
+  "description_vi": "Một bước biến đổi đại số không tương đương với bước trước đó.",
+  "hint_vi": "Em kiểm tra lại bước này xem có thực sự bằng bước trên không nhé."
+ },
+ {
+  "code": "MAE.LIM.INDET_ZERO",
+  "tier": "E-CONCEPT",
+  "subject": "MAE101",
+  "skill_id": "MAE.LIM.INDET",
+  "name_vi": "Kết luận 0/0 bằng 0",
+  "description_vi": "Thay giá trị vào thấy tử và mẫu đều bằng 0 rồi kết luận giới hạn bằng 0. 0/0 là DẠNG VÔ ĐỊNH, chưa phải một giá trị — phải khử trước khi kết luận.",
+  "hint_vi": "Em thay x vào thì tử và mẫu ra bao nhiêu? Ra 0/0 thì đó là kết quả hay là một dạng cần khử tiếp?"
+ },
+ {
+  "code": "MAE.LIM.INF_CONSTTERM",
+  "tier": "E-PROCEDURE",
+  "subject": "MAE101",
+  "skill_id": "MAE.LIM.INDET",
+  "name_vi": "Lấy tỉ số hạng tự do thay vì hệ số bậc cao nhất",
+  "description_vi": "Với x→∞ và hai đa thức cùng bậc, giới hạn là tỉ số HỆ SỐ BẬC CAO NHẤT. Lấy tỉ số hạng tự do là nhầm sang quy tắc của x→0.",
+  "hint_vi": "Khi x rất lớn thì hạng nào trong đa thức áp đảo các hạng còn lại?"
+ },
+ {
+  "code": "MAE.LIM.SIGN",
+  "tier": "E-COMPUTE",
+  "subject": "MAE101",
+  "skill_id": "MAE.LIM.BASIC",
+  "name_vi": "Sai dấu khi thay giá trị",
+  "description_vi": "Thay đúng chỗ nhưng sai dấu, hay gặp khi điểm lấy giới hạn là số âm.",
+  "hint_vi": "Em thay lại x vào từng hạng và để ý dấu, nhất là chỗ x âm nâng lên lũy thừa chẵn."
+ },
+ {
+  "code": "MAE.DER.POWER_NODEC",
+  "tier": "E-PROCEDURE",
+  "subject": "MAE101",
+  "skill_id": "MAE.DER.BASIC",
+  "name_vi": "Nhân số mũ nhưng quên giảm bậc",
+  "description_vi": "Viết (x^n)' = n·x^n thay vì n·x^(n-1). Nhớ một nửa công thức lũy thừa.",
+  "hint_vi": "Công thức đạo hàm lũy thừa có hai việc: nhân số mũ ra trước, và... việc thứ hai là gì?"
+ },
+ {
+  "code": "MAE.DER.POWER_NOMULT",
+  "tier": "E-PROCEDURE",
+  "subject": "MAE101",
+  "skill_id": "MAE.DER.BASIC",
+  "name_vi": "Giảm bậc nhưng quên nhân số mũ",
+  "description_vi": "Viết (x^n)' = x^(n-1) thay vì n·x^(n-1). Nhớ nửa còn lại của công thức.",
+  "hint_vi": "Em giảm bậc đúng rồi. Số mũ cũ đi đâu mất?"
+ },
+ {
+  "code": "MAE.DER.PRODUCT_SEPARATE",
+  "tier": "E-CONCEPT",
+  "subject": "MAE101",
+  "skill_id": "MAE.DER.PRODUCT",
+  "name_vi": "Đạo hàm tích bằng tích hai đạo hàm",
+  "description_vi": "Viết (u·v)' = u'·v' thay vì u'·v + u·v'. Đây là lỗi khái niệm phổ biến nhất của chương đạo hàm.",
+  "hint_vi": "Em thử với u = v = x: (x·x)' = (x²)' = 2x. Còn u'·v' = 1·1 = 1. Hai kết quả khác nhau, vậy công thức nào đúng?"
+ },
+ {
+  "code": "MAE.DER.QUOTIENT_SIGN",
+  "tier": "E-PROCEDURE",
+  "subject": "MAE101",
+  "skill_id": "MAE.DER.PRODUCT",
+  "name_vi": "Sai dấu trong quy tắc thương",
+  "description_vi": "Viết tử là u'·v + u·v' thay vì u'·v − u·v'. Quy tắc thương có dấu TRỪ.",
+  "hint_vi": "Quy tắc thương: tử là u'v ... u v'. Dấu ở giữa là cộng hay trừ?"
+ },
+ {
+  "code": "MAE.DER.CHAIN_NOINNER",
+  "tier": "E-PROCEDURE",
+  "subject": "MAE101",
+  "skill_id": "MAE.DER.CHAIN",
+  "name_vi": "Quên nhân đạo hàm hàm trong",
+  "description_vi": "Đạo hàm đúng hàm ngoài nhưng không nhân với đạo hàm hàm trong. Ví dụ (sin(3x))' = cos(3x) thay vì 3·cos(3x).",
+  "hint_vi": "Em đạo hàm hàm ngoài đúng rồi. Còn hàm bên trong dấu ngoặc thì sao, nó có đạo hàm bằng 1 không?"
+ }
 ]

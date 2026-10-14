@@ -126,20 +126,39 @@ Chất lượng sư phạm **không đo ở đây** — cần phiếu chấm tay
 Đo trên tập lỗi có nhãn `data/errors/*_injected.jsonl` (nhãn sạch 100% vì lỗi do máy
 cài vào), và sau này trên bài làm sai THẬT do sinh viên nộp.
 
-Quy mô dữ liệu hiện tại — **8.732 mẫu lỗi có nhãn trên 91 mã lỗi**, sinh từ 4.955 đề
-(155 chép tay + 4.800 sinh tự động):
+Quy mô dữ liệu hiện tại — **7.978 mẫu lỗi có nhãn trên 97 mã lỗi**, sinh từ 4.955 đề
+(155 chép tay + 4.800 sinh tự động), **phủ 70/70 kỹ năng**:
 
 | Môn | Đề chép tay | Đề sinh tự động | Kỹ năng được phủ | Mẫu lỗi có nhãn | Gán đúng mã |
 |---|---|---|---|---|---|
-| MAE101 | 41 | 1.200 | 16/21 | 4.350 | 97,2% |
+| MAE101 | 41 | 1.200 | **21/21** | 3.596 | 97,2% |
 | MAI391 | 35 | 1.200 | 16/16 | 1.951 | 99,7% |
 | MAS291 | 36 | 1.200 | 15/15 | 1.432 | 100% |
-| MAD101 | 43 | 1.200 | 17/18 | 999 | 100% |
+| MAD101 | 43 | 1.200 | **18/18** | 999 | 100% |
 
-MAE101 ban đầu chỉ sinh được đề giải tích (8/21 kỹ năng), phần đại số tuyến tính chỉ
-có 20 bài chép tay. Tách các dạng bài đại số tuyến tính thành module dùng chung cho
-cả MAE101 lẫn MAI391 — hai môn vốn đã dùng chung bảng mã lỗi `LA.*` — thì phủ lên
-16/21 kỹ năng và mã `LA.*` mỏng nhất từ 1–2 mẫu lên 53 mẫu.
+Trung vị 63 mẫu mỗi mã lỗi; mã mỏng nhất còn 12 mẫu.
+
+### Độ phủ kỹ năng được kéo lên qua hai lần, và lần nào cũng do một phép đo phát hiện
+
+**Lần 1 — đại số tuyến tính (8/21 → 16/21).** MAE101 ban đầu chỉ sinh được đề giải
+tích; phần đại số tuyến tính chỉ có 20 bài chép tay. Tách các dạng bài đó thành module
+dùng chung cho cả MAE101 lẫn MAI391 — hai môn vốn đã dùng chung bảng mã lỗi `LA.*` —
+thì mã `LA.*` mỏng nhất tăng từ 1–2 mẫu lên 53 mẫu.
+
+**Lần 2 — giới hạn và đạo hàm (16/21 → 21/21).** Cây nội dung (`src/core/syllabus.py`)
+phơi ra rằng hai chương **ĐẦU TIÊN** của MAE101 có **0 đề**: sinh viên chọn chương
+"Giới hạn và liên tục" thì không luyện được gì. `src/data_gen/calculus_items.py` thêm
+11 dạng bài, và bảng mã lỗi MAE101 thêm 8 mã cho hai chương này.
+
+Lần 2 có một bài học đáng ghi: thêm đề mới **làm tụt** tỉ lệ gán đúng mã từ 97,2%
+xuống **78,8%**, vì bộ chấm nhận ra bài sai nhưng chưa có luật chẩn đoán để gọi tên
+lỗi. Phải viết luật chẩn đoán cho cả 8 mã mới thì mới về lại 97,2% — lần này với 21
+mã lỗi thay vì 13, và 21/21 kỹ năng thay vì 16/21.
+
+Một mã bị **bỏ** trong quá trình đó: `MAE.LIM.NOSIMPLIFY` ("thay thẳng vào dạng 0/0
+mà chưa rút gọn"). Ở dạng 0/0, thay thẳng cho ra đúng **0** — trùng khít với
+`MAE.LIM.INDET_ZERO`, nên không phân biệt được từ đáp án cuối. Giữ nó chỉ thêm 34 mẫu
+gán nhãn sai. Đây là lỗi mức BƯỚC, muốn đo thì phải yêu cầu sinh viên trình bày bước.
 
 MAE101 từng chỉ đạt 72,3%; phần phân tích lỗi ở dưới nói rõ nó được kéo lên bằng
 cách nào.

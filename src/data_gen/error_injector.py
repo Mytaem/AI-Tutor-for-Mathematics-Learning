@@ -38,6 +38,16 @@ from src.verify.equivalence import ParseError, expr_equal, parse_math
 CONSTANT = sp.Symbol("C")
 
 
+def var_of(item: Item) -> sp.Symbol:
+    """Biến chính của đề.
+
+    Đọc từ ``item.variable`` chứ không giả định luôn là ``x``: mọi đề hiện tại
+    dùng x, nhưng một đề theo biến ``t`` thêm vào sau sẽ làm các bộ sinh lỗi
+    dưới đây lặng lẽ sinh ra đáp án vô nghĩa thay vì báo lỗi.
+    """
+    return sp.Symbol(item.variable or "x")
+
+
 @dataclass
 class InjectedError:
     """Một bài làm sai được sinh ra, kèm nhãn chính xác."""
@@ -102,6 +112,30 @@ def pure_power_exponent(integrand: sp.Expr, var: sp.Symbol) -> sp.Rational | Non
 
 def with_constant(expr: sp.Expr) -> str:
     return f"{expr} + C"
+
+
+def limit_parts(item: Item) -> tuple[sp.Expr, object] | None:
+    """``(biểu thức, điểm lấy giới hạn)`` của một bài giới hạn, hoặc None.
+
+    Điểm có thể là chuỗi ``"oo"``; trả nguyên để nơi gọi tự quyết định, vì các
+    lỗi ở x→∞ khác hẳn các lỗi ở điểm hữu hạn.
+    """
+    if item.meta.get("task") != "limit":
+        return None
+    try:
+        return parse_math(str(item.meta["expr"])), item.meta.get("point")
+    except (ParseError, KeyError):
+        return None
+
+
+def derivative_target(item: Item) -> sp.Expr | None:
+    """Biểu thức f(x) của một bài đạo hàm, hoặc None nếu không phải bài đạo hàm."""
+    if item.meta.get("task") != "derivative":
+        return None
+    try:
+        return parse_math(str(item.meta["expr"]))
+    except (ParseError, KeyError):
+        return None
 
 
 # --------------------------------------------------------------------------
@@ -245,6 +279,139 @@ def _swap_bounds(item: Item) -> str | None:
 
 StepInjector = Callable[[Item], "InjectedError | None"]
 _STEP_REGISTRY: list[StepInjector] = []
+
+
+# --------------------------------------------------------------------------
+# Lỗi của chương GIỚI HẠN
+# --------------------------------------------------------------------------
+
+@register("MAE.LIM.INDET_ZERO")
+def _indeterminate_is_zero(item: Item) -> str | None:
+    """Thấy 0/0 rồi kết luận giới hạn bằng 0.
+
+    Chỉ áp dụng cho bài THẬT SỰ là dạng vô định — bài thay thẳng được thì lỗi
+    này không có nghĩa, và sinh ra sẽ thành một nhãn vô nghĩa trong tập test.
+    """
+    if not item.meta.get("indeterminate"):
+        return None
+    return "0"
+
+
+@register("MAE.LIM.INF_CONSTTERM")
+def _infinity_wrong_ratio(item: Item) -> str | None:
+    """x→∞ nhưng lấy tỉ số HẠNG TỰ DO thay vì hệ số bậc cao nhất."""
+    parts = limit_parts(item)
+    var = var_of(item)
+    if parts is None or item.meta.get("indeterminate") != "oo/oo":
+        return None
+    expr, _ = parts
+    numerator, denominator = sp.fraction(expr)
+    try:
+        top = sp.Poly(numerator, var).coeff_monomial(1)
+        bottom = sp.Poly(denominator, var).coeff_monomial(1)
+    except sp.PolynomialError:
+        return None
+    if not bottom:
+        return None
+    return str(sp.nsimplify(sp.Rational(int(top), int(bottom))))
+
+
+@register("MAE.LIM.SIGN")
+def _limit_flip_sign(item: Item) -> str | None:
+    if item.meta.get("task") != "limit" or item.answer is None:
+        return None
+    try:
+        value = parse_math(str(item.answer))
+    except ParseError:
+        return None
+    return None if value == 0 else str(sp.nsimplify(-value))
+
+
+# --------------------------------------------------------------------------
+# Lỗi của chương ĐẠO HÀM
+# --------------------------------------------------------------------------
+
+@register("MAE.DER.POWER_NODEC")
+def _power_forget_decrement(item: Item) -> str | None:
+    """``(a·x**n)' = a·n·x**n`` — nhân số mũ ra nhưng quên giảm bậc."""
+    expr = derivative_target(item)
+    var = var_of(item)
+    if expr is None or item.meta.get("point") is not None:
+        return None
+    wrong = sum(
+        term.as_coeff_exponent(var)[0] * term.as_coeff_exponent(var)[1] * var
+        ** term.as_coeff_exponent(var)[1]
+        for term in sp.Add.make_args(sp.expand(expr))
+    )
+    return str(sp.simplify(wrong)) if wrong != 0 else None
+
+
+@register("MAE.DER.POWER_NOMULT")
+def _power_forget_multiply(item: Item) -> str | None:
+    """``(a·x**n)' = a·x**(n-1)`` — giảm bậc nhưng quên nhân số mũ."""
+    expr = derivative_target(item)
+    var = var_of(item)
+    if expr is None or item.meta.get("point") is not None:
+        return None
+    wrong = sum(
+        coefficient * var ** (exponent - 1)
+        for coefficient, exponent in (
+            term.as_coeff_exponent(var) for term in sp.Add.make_args(sp.expand(expr))
+        )
+    )
+    return str(sp.simplify(wrong)) if wrong != 0 else None
+
+
+@register("MAE.DER.PRODUCT_SEPARATE")
+def _product_rule_as_product(item: Item) -> str | None:
+    """``(u·v)' = u'·v'`` — lỗi khái niệm phổ biến nhất của chương này."""
+    expr = derivative_target(item)
+    var = var_of(item)
+    if expr is None or item.meta.get("rule") != "product":
+        return None
+    factors = sp.Mul.make_args(expr)
+    if len(factors) < 2:
+        return None
+    wrong = sp.Mul(*[sp.diff(factor, var) for factor in factors])
+    return str(sp.simplify(wrong)) if wrong != 0 else None
+
+
+@register("MAE.DER.QUOTIENT_SIGN")
+def _quotient_rule_wrong_sign(item: Item) -> str | None:
+    """Tử là ``u'v + uv'`` thay vì ``u'v − uv'``."""
+    expr = derivative_target(item)
+    var = var_of(item)
+    if expr is None or item.meta.get("rule") != "quotient":
+        return None
+    u, v = sp.fraction(expr)
+    if v == 1:
+        return None
+    wrong = (sp.diff(u, var) * v + u * sp.diff(v, var)) / v**2
+    return str(sp.simplify(wrong))
+
+
+@register("MAE.DER.CHAIN_NOINNER")
+def _chain_rule_forget_inner(item: Item) -> str | None:
+    """``(sin(3x))' = cos(3x)`` — đúng hàm ngoài, quên nhân đạo hàm hàm trong."""
+    expr = derivative_target(item)
+    var = var_of(item)
+    if expr is None or item.meta.get("rule") != "chain":
+        return None
+
+    if isinstance(expr, sp.Pow) and expr.exp.is_Integer:
+        inner, exponent = expr.base, expr.exp
+        wrong = exponent * inner ** (exponent - 1)
+    elif isinstance(expr, sp.Function) and len(expr.args) == 1:
+        inner = expr.args[0]
+        wrong = sp.diff(expr.func(var), var).subs(var, inner)
+    else:
+        return None
+
+    # Hàm trong có đạo hàm bằng 1 thì lỗi này KHÔNG làm đổi đáp án — bỏ, chứ
+    # giữ lại thì tập test có một nhãn "sai" mà đáp án vẫn đúng.
+    if sp.simplify(sp.diff(inner, var) - 1) == 0:
+        return None
+    return str(sp.simplify(wrong))
 
 
 def register_step(function: StepInjector) -> StepInjector:

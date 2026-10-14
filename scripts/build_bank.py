@@ -24,13 +24,19 @@ from src.core.itembank import ITEMS_DIR, write_items
 DEFAULT_COUNT = 300
 SEED = 20260923
 
-#: Mỗi môn một module sinh đề riêng; tất cả cùng giao diện generate/template_ids.
 #: Mỗi môn một hay nhiều module sinh đề, tất cả cùng giao diện generate/template_ids.
-#: MAE101 có hai mảng kiến thức tách biệt (giải tích và đại số tuyến tính) nên dùng
-#: hai bộ sinh, chia đôi số lượng — chỉ dùng bộ giải tích thì cả chương ma trận
-#: không có đề sinh tự động nào để bộ chọn bài chọn.
+#:
+#: MAE101 có ba mảng kiến thức tách biệt nên dùng ba bộ sinh, chia đều số lượng.
+#: Thiếu bộ nào thì cả mảng đó không có đề sinh tự động để bộ chọn bài chọn —
+#: và đó đúng là chuyện đã xảy ra: trước khi có `calculus_items`, hai chương ĐẦU
+#: TIÊN của MAE101 (giới hạn, đạo hàm) có 0 đề, nên sinh viên chọn chương "Giới
+#: hạn và liên tục" thì không luyện được gì. Cây nội dung mới phơi ra lỗ đó.
 GENERATORS = {
-    "MAE101": ["src.data_gen.item_generator", "src.data_gen.linalg_items"],
+    "MAE101": [
+        "src.data_gen.item_generator",     # tích phân
+        "src.data_gen.linalg_items",       # đại số tuyến tính
+        "src.data_gen.calculus_items",     # giới hạn và đạo hàm
+    ],
     "MAD101": ["src.data_gen.discrete_items"],
     "MAS291": ["src.data_gen.probstat_items"],
     "MAI391": ["src.data_gen.mml_items"],
@@ -43,10 +49,14 @@ def build(subject: str, count: int) -> None:
     modules = [import_module(name) for name in GENERATORS[subject]]
     templates = [name for module in modules for name in module.template_ids()]
     share = count // len(modules)
-    print(f"\n=== {subject}: sinh {count} bài từ {len(templates)} template "
-          f"({len(modules)} bộ sinh, seed={SEED})")
 
     seed = SEED if subject != "MAE101" else 20260921  # giữ nguyên seed cũ của MAE101
+
+    # In SEED THẬT, không in hằng số mặc định: MAE101 dùng seed riêng, nên bản
+    # cũ in ra một con số mà nó không hề dùng. Mọi số trong báo cáo phải tái lập
+    # được, mà tái lập thì cần đúng seed.
+    print(f"\n=== {subject}: sinh {count} bài từ {len(templates)} template "
+          f"({len(modules)} bộ sinh, seed={seed})")
     items = []
     for position, module in enumerate(modules):
         # Bộ cuối nhận phần dư để tổng đúng bằng count.

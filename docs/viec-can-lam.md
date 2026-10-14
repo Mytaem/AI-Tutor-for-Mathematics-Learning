@@ -119,16 +119,58 @@ tốt nghiệp dừng ở mức đó, hội đồng chấp nhận. Che giấu m�
 
 ---
 
-## Việc 4 — Mấy thứ nhỏ (10 phút)
+## Việc 4 — Slide MAS291 ⭐ việc nhanh nhất mà đáng giá nhất
 
-- **Slide MAS291 còn thiếu**: chương biến ngẫu nhiên rời rạc, ước lượng khoảng,
-  kiểm định giả thuyết, hồi quy. Thả vào `data/raw/MAS291/slides/` rồi chạy
-  `python scripts/build_rag_index.py --dense`.
-- **Slide MAI391** chương 1–3.
+**10 phút của bạn, và nó mở lại 6/8 chương của một môn.**
+
+Kiểm bằng: `python scripts/rag_coverage.py`
+
+Kho giáo trình MAS291 chỉ có **2/8 chương** (Xác suất, Biến ngẫu nhiên liên tục) và
+**không có sách giáo trình chung nào** để bù — khác ba môn kia, mỗi môn có một quyển
+dày hàng nghìn đoạn (Rosen 4.730, OpenStax 3.160, Deisenroth 1.253).
+
+Sáu chương đang trống:
+
+| Chương |
+|---|
+| Biến ngẫu nhiên rời rạc |
+| Thống kê mô tả |
+| Khoảng tin cậy |
+| Kiểm định giả thuyết |
+| So sánh hai mẫu |
+| Hồi quy |
+
+Hỏi về sáu chương này, hệ thống nói thẳng *"chưa có tài liệu chương đó"* — đúng hành
+vi, nhưng vẫn là trống. **Không kỹ thuật truy xuất nào bù được chuyện thiếu dữ liệu.**
+
+```bash
+# thả file vào đây rồi chạy:
+#   data/raw/MAS291/slides/
+python scripts/build_rag_index.py --dense
+python scripts/rag_coverage.py        # kiểm lại
+```
+
+Tiện thì xin thêm **slide MAI391 chương 3, 6, 7, 9, 10, 12** — môn này có sách
+Deisenroth bù nên không gấp, nhưng có slide thì câu trả lời sát bài giảng hơn.
+
+## Việc 5 — Mấy thứ nhỏ (5 phút)
+
 - **Huỷ token Kaggle cũ** (nó đã lộ trong ảnh chụp màn hình gửi qua chat): vào
   Kaggle → Settings → API → Expire Token, rồi tạo token mới.
+- **Đổi `ADMIN_TOKEN`** nếu còn dùng khoá thử trong lúc phát triển.
 - **Xác nhận phạm vi với giảng viên hướng dẫn**: 4 môn có rộng quá không, thầy cô
   muốn trọng tâm ở verifier hay ở knowledge tracing.
+
+---
+
+## Đã xong, không cần bạn làm nữa
+
+Ghi lại để bạn không mất thời gian vào những việc này:
+
+- ~~MAE101 chương Giới hạn và Đạo hàm không có đề~~ → đã thêm 11 dạng bài, phủ 21/21
+  kỹ năng.
+- ~~Hỏi lý thuyết trả lời sai chủ đề~~ → từ điển thuật ngữ Việt–Anh, 60% → 100% đạt.
+- ~~Web hiện ra mà không nút nào chạy~~ → API thiếu CORS.
 
 ---
 

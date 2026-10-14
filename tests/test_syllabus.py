@@ -130,19 +130,31 @@ class TestDemDe:
 
 
 class TestNhanhRong:
-    def test_chi_ra_dung_nhung_chuong_khong_co_de(self, trees) -> None:
-        """MAE101 chưa sinh được đề giới hạn và đạo hàm — phải lộ ra, không giấu.
+    @pytest.mark.parametrize("subject", SUBJECTS)
+    def test_khong_mon_nao_con_chuong_rong(self, subject: str, trees) -> None:
+        """Mọi chương của mọi môn đều phải có đề.
 
-        Giao diện dựa vào con số này để chặn không cho bấm vào nhánh rỗng.
+        Test này từng khẳng định MAE101 có ĐÚNG hai chương rỗng (giới hạn, đạo
+        hàm) — 5 kỹ năng không bài nào, nên chọn chương "Giới hạn và liên tục"
+        thì không luyện được gì. `src/data_gen/calculus_items.py` bịt lỗ đó.
+        Giữ test ở dạng này để nếu ai thêm chương mới mà quên thêm bộ sinh đề
+        thì nó đỏ ngay, chứ không lặng lẽ thành một nhánh chết.
         """
-        _, _, chapters = trees["MAE101"]
-        empty = sorted(c.chapter for c in chapters if c.items == 0)
-        assert empty == ["Derivatives", "Limits"]
-
-    @pytest.mark.parametrize("subject", ["MAD101", "MAI391", "MAS291"])
-    def test_ba_mon_con_lai_khong_co_chuong_rong(self, subject: str, trees) -> None:
         _, _, chapters = trees[subject]
-        assert [c.chapter for c in chapters if c.items == 0] == []
+        empty = sorted(c.chapter for c in chapters if c.items == 0)
+        assert empty == [], f"{subject} còn chương không có đề: {empty}"
+
+    @pytest.mark.parametrize("subject", SUBJECTS)
+    def test_khong_bai_nao_rong(self, subject: str, trees) -> None:
+        """Chương có đề mà một BÀI trong đó rỗng thì vẫn là nhánh chết."""
+        _, _, chapters = trees[subject]
+        empty = [
+            f"{chapter.name_vi} / {lesson.name_vi}"
+            for chapter in chapters
+            for lesson in chapter.lessons
+            if lesson.items == 0
+        ]
+        assert empty == [], f"{subject} còn bài không có đề: {empty}"
 
 
 class TestLocCongDon:

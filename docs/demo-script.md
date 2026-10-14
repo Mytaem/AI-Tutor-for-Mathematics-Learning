@@ -7,13 +7,21 @@ hệ thống chạy thật ở máy như phương án hai.
 Chuẩn bị trước khi quay:
 
 ```bash
-python -m uvicorn src.api.app:create_app --factory --port 8000   # cửa sổ 1
+python scripts/rag_coverage.py                                   # ĐỌC TRƯỚC, xem bên dưới
+python -m pytest -q                                              # 784 test, ~75 giây
+
+LLM_HINTS=1 python -m uvicorn src.api.app:create_app --factory --port 8000   # cửa sổ 1
 cd web && npm run dev                                            # cửa sổ 2
 ollama serve                                                     # cửa sổ 3 (tuỳ chọn)
-python -m pytest -q                                              # chạy trước cho chắc
 ```
 
+**Đọc kết quả `rag_coverage.py` trước khi quay.** Nó in ra chương nào chưa có giáo
+trình. Hiện MAS291 thiếu 6/8 chương, nên nếu hỏi về chúng thì hệ thống trả lời "chưa
+có tài liệu" — đúng hành vi, nhưng phải biết trước để chọn câu hỏi, chứ đừng phát
+hiện lúc đang quay. Script này tồn tại vì một buổi demo đã thất bại đúng vì chuyện đó.
+
 Phóng to chữ terminal lên cỡ 16–18pt, tắt thông báo hệ thống, dùng cửa sổ 1600×900.
+Trên web, chọn chủ đề **Trắng** ở cột phải — nền đen quay video hay bị nhiễu khối.
 
 ---
 
@@ -109,13 +117,35 @@ liệu tốt hơn là để bị hỏi.
 
 ---
 
-## Cảnh 6 — Hỏi lý thuyết và biết từ chối (30 giây)
+## Cảnh 6 — Hỏi lý thuyết và BA cách từ chối khác nhau (55 giây)
 
-Mở web, `/ask`, bấm nút "Chu trình Euler là gì?" → có câu trả lời kèm nguồn
-(tên file, chương, trang). Rồi gõ "cách nấu phở bò ngon".
+Mở web, trang **Hỏi lý thuyết**. Ba câu, theo đúng thứ tự này — chúng cho thấy hệ
+thống phân biệt được ba tình huống mà một chatbot thường gộp làm một.
 
-> "Ngoài phạm vi thì hệ thống nói thẳng là không có, không đoán bừa. Ngưỡng nhận
-> biết lấy theo độ tương đồng thật với kho giáo trình."
+**1. Trong phạm vi, có tài liệu** — bấm nút "Chu trình Euler là gì?"
+
+> "Trả lời kèm nguồn: tên file, chương, số trang. Em tự kiểm được."
+
+**2. Ngoài phạm vi** — gõ "cách nấu phở bò ngon"
+
+> "Ngoài bốn môn thì nói thẳng là không có, không đoán bừa. Ngưỡng nhận biết lấy
+> theo độ tương đồng thật với kho giáo trình, không phải một luật từ khoá."
+
+**3. Đúng chủ đề nhưng kho chưa có tài liệu** — chọn môn MAS291, gõ "khoảng tin
+cậy là gì?"
+
+> "Câu này nằm trong chương trình, nhưng kho giáo trình của em chưa có chương đó.
+> Hệ thống nói đúng như vậy, **và nói rõ đây là thiếu sót của hệ thống chứ không
+> phải sinh viên hỏi sai**.
+>
+> Đây là chỗ em muốn nhấn. Trước khi có cơ chế này, hệ thống trả về một đoạn của
+> chương Xác suất — trôi chảy, đúng môn, sai chủ đề. Với một gia sư thì đó là hành
+> vi tệ nhất, vì người học không có cách nào biết mà đề phòng. Em đo được tỉ lệ
+> 'trả bừa' là 20%, và đưa về 0%."
+
+Nếu bị hỏi vì sao thiếu: trả lời thẳng là kho MAS291 hiện có 2/8 chương và môn này
+không có sách giáo trình chung để bù, khác ba môn còn lại — có script
+`rag_coverage.py` in ra đúng danh sách chương thiếu.
 
 ---
 

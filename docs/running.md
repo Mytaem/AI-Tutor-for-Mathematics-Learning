@@ -21,6 +21,50 @@ Biến môi trường đáng chú ý:
 | `VLLM_URL` | trống | endpoint vLLM trên Kaggle; có thì ưu tiên hơn Ollama |
 | `DEMO_MODE` | tắt | `1` để chỉ đọc cache, không gọi model — dùng khi bảo vệ |
 | `DATABASE_URL` | `data/tutor.sqlite` | đổi file dữ liệu |
+| `CORS_ORIGINS` | `localhost:3000`, `127.0.0.1:3000` | origin được phép gọi API |
+| `ADMIN_TOKEN` | trống | bật phần quản trị; **trống = tắt hoàn toàn** |
+
+### Hai biến dễ quên nhất
+
+**`CORS_ORIGINS`** — web ở cổng 3000 gọi API ở cổng 8000, với trình duyệt đó là hai
+origin khác nhau. Thiếu cấu hình này thì **giao diện dựng ra đầy đủ nhưng không nút
+nào chạy**, và không có thông báo lỗi nào trên trang. Mặc định đã phủ trường hợp chạy
+ở máy mình; chỉ cần đặt khi đưa web ra tunnel hay máy khác:
+
+```bash
+CORS_ORIGINS=https://abc.trycloudflare.com python -m uvicorn src.api.app:create_app --factory --port 8000
+```
+
+Thanh bên phải của web có **đèn báo kết nối backend** — xanh là gọi được, đỏ kèm chỉ
+dẫn. Nó có mặt chính vì lỗi này từng lọt qua cả bộ test: `TestClient` và `curl` không
+thi hành same-origin policy, chỉ trình duyệt thật mới chặn.
+
+**`ADMIN_TOKEN`** — mặc định phần quản trị TẮT, không phải mở. Dữ liệu ở đó là bài làm
+của người thật; "chưa cấu hình mà mở sẵn" là kiểu lỗ hổng tệ nhất vì không ai nhận ra
+cho tới lúc muộn.
+
+```bash
+ADMIN_TOKEN=khoá-của-bạn python -m uvicorn src.api.app:create_app --factory --port 8000
+```
+
+Sau đó vào web, chuyển vai sang **Quản trị** rồi nhập khoá. Chuyển vai ở giao diện chỉ
+đổi điều hướng; quyền thật do server kiểm bằng `secrets.compare_digest`.
+
+## Endpoint chính
+
+| Method | Path | Chức năng |
+|---|---|---|
+| GET | `/health` | trạng thái, số đề, số kỹ năng từng môn |
+| GET | `/syllabus?subject=&user_id=` | cây môn → chương → bài → dạng bài, kèm số đề và mức thành thạo |
+| POST | `/session/start` | tạo phiên, chạy test đầu vào |
+| GET | `/item/next?user_id=&subject=&chapter=&skill=&topic=` | bài kế tiếp, ba bộ lọc cộng dồn |
+| POST | `/attempt` | nộp bài → chấm → chẩn đoán lỗi → cập nhật năng lực |
+| POST | `/hint` | gợi ý theo chính sách leo thang (`asked_for_solution` để xin lời giải) |
+| POST | `/ask` | hỏi lý thuyết, nhận cả `subject` và `chapter` |
+| GET | `/progress` | mức thành thạo từng kỹ năng |
+| GET | `/admin/enabled` | phần quản trị có bật không — **không cần khoá** |
+| GET | `/admin/overview` | số liệu cho giảng viên — cần `X-Admin-Token` |
+| GET | `/admin/attempts`, `/admin/export.csv` | bài làm gần nhất, xuất CSV |
 
 ## 2. Web (Next.js)
 
@@ -57,6 +101,29 @@ python scripts/build_bank.py all 1200      # sinh đề cho cả 4 môn
 python scripts/build_error_dataset.py MAE101   # và MAI391 / MAS291 / MAD101
 python scripts/build_rag_index.py --dense      # kho giáo trình (cần Ollama cho bge-m3)
 ```
+
+**Dựng lại dữ liệu thì phải KHỞI ĐỘNG LẠI API.** Ngân hàng đề và kho RAG được nạp một
+lần lúc khởi động rồi giữ trong bộ nhớ, nên API đang chạy vẫn phục vụ dữ liệu cũ. Triệu
+chứng dễ gây hoang mang: script báo chương đã có 187 đề, mà `/syllabus` vẫn trả 0 — tôi
+đã tự vấp đúng chỗ này khi kiểm tra.
+
+## Kiểm tra TRƯỚC khi demo
+
+```bash
+python scripts/rag_coverage.py        # chương nào chưa có giáo trình
+python scripts/demo_full.py           # 6 cảnh, không cần model, không cần mạng
+python -m pytest -q                   # 784 test, ~75 giây
+```
+
+`rag_coverage.py` là bước quan trọng nhất trong ba bước trên, và nó tồn tại vì một
+buổi demo thất bại: sinh viên hỏi "khoảng tin cậy là gì?", kho MAS291 không có chương
+đó, và hệ thống khi ấy trả về một đoạn của chương Xác suất — trôi chảy, đúng môn, sai
+chủ đề.
+
+Hiện tại script báo **MAS291 thiếu 6/8 chương** và không có sách giáo trình chung để
+bù. Hệ thống sẽ nói thẳng "chưa có tài liệu chương này" cho các câu hỏi đó — đúng hành
+vi, nhưng vẫn là trống dữ liệu. **Khi demo nên tránh hỏi MAS291 về sáu chương đó**,
+hoặc hỏi để trình diễn chính việc hệ thống thừa nhận trung thực.
 
 ## Thu thập và gán nhãn bài làm sai THẬT
 
@@ -128,9 +195,13 @@ IPv6 NAT64; `scripts/kaggle_push.py` đã ép IPv4 sẵn.
 ## Chạy thí nghiệm
 
 ```bash
-python scripts/exp5_kt.py --subject MAE101     # BKT / DKT / SAKT
-python scripts/exp6_selection.py               # bốn chiến lược chọn bài
-python scripts/exp8_leakage.py --per-subject 6 # chống lộ đáp án (cần model)
+python scripts/exp4_retrieval.py --k 5            # BM25 / dense / hybrid
+python scripts/exp4b_ask_quality.py --compare     # hỏi đáp lý thuyết, có/không từ điển
+python scripts/exp5_kt.py --subject MAE101        # BKT / DKT / SAKT
+python scripts/exp6_selection.py                  # bốn chiến lược chọn bài
+python scripts/exp7_rag_ablation.py               # bỏ RAG khỏi prompt gợi ý
+python scripts/exp8_leakage.py --per-subject 6    # chống lộ đáp án (cần model)
+python scripts/make_report_tables.py              # sinh docs/results.md từ experiments/
 ```
 
 Kết quả thô ghi vào `experiments/<tên>/`, bảng trong báo cáo sinh từ đó.
