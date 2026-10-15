@@ -141,6 +141,18 @@ Biến môi trường chính (xem `src/core/config.py` và `src/api/app.py`):
 
 Hướng dẫn đầy đủ: [docs/running.md](docs/running.md).
 
+### Tài liệu
+
+Mục lục đầy đủ: **[docs/README.md](docs/README.md)**. Mỗi file viết cho một người đọc
+cụ thể:
+
+| Bạn là | Đọc |
+|---|---|
+| **dùng** hệ thống (sinh viên, giảng viên) | [huong-dan-su-dung.md](docs/huong-dan-su-dung.md) |
+| **demo** trên máy khác | [cho-nguoi-demo.md](docs/cho-nguoi-demo.md) |
+| **dựng lại** từ đầu | [huong-dan-cai-dat.md](docs/huong-dan-cai-dat.md) |
+| **đọc và sửa code** | [kien-truc.md](docs/kien-truc.md) |
+
 ### Người demo đọc gì
 
 Nếu bạn là **người demo chứ không phải người viết code**:

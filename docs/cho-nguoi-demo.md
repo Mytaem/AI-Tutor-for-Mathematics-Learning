@@ -2,6 +2,11 @@
 
 Tài liệu này viết cho **người sẽ demo hệ thống**, không phải cho người viết code.
 
+Ba tài liệu khác, chọn đúng cái bạn cần:
+[huong-dan-su-dung.md](huong-dan-su-dung.md) để biết cách dùng app,
+[huong-dan-cai-dat.md](huong-dan-cai-dat.md) nếu muốn dựng lại mọi thứ từ đầu,
+[demo-script.md](demo-script.md) là kịch bản nói cho từng cảnh.
+
 Nói trước một điều để đỡ mất thời gian: **`git pull` một mình KHÔNG đủ.** Kho git
 cố ý không chứa bốn thứ nặng, và thiếu chúng thì app mở ra nhưng hỏng theo kiểu
 khó đoán:
