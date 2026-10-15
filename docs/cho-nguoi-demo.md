@@ -43,8 +43,11 @@ Cần **Python 3.11** (3.10 trở lên cũng được) và **Node.js 20+**.
 đoạn giáo trình lẫn vector đã mã hoá, nên bạn:
 
 - **không cần** `data/raw/` (223 MB giáo trình),
-- **không cần** chạy lại bước mã hoá (~40 phút trên CPU),
-- **không cần** `ollama pull bge-m3`.
+- **không cần** chạy lại bước mã hoá (~40 phút trên CPU).
+
+Nhưng **vẫn cần `ollama pull bge-m3`** (bước 3). Kho chứa vector của các đoạn giáo
+trình, còn *câu hỏi* của sinh viên thì phải mã hoá tại chỗ mỗi lần tra — thiếu model
+đó thì phần Hỏi lý thuyết không trả lời được câu nào.
 
 Nhận qua Google Drive / USB rồi đặt vào đúng chỗ:
 
@@ -62,8 +65,12 @@ AI-Tutor-for-Mathematics-Learning/
 ```bash
 # cài từ https://ollama.com
 ollama serve                        # để chạy ở một cửa sổ riêng
-ollama pull qwen2.5:7b-instruct     # ~4,7 GB
+ollama pull bge-m3                  # ~1,2 GB — BẮT BUỘC để tra cứu giáo trình
+ollama pull qwen2.5:7b-instruct     # ~4,7 GB — để diễn đạt câu trả lời
 ```
+
+**`bge-m3` là bắt buộc, không phải tuỳ chọn.** Mỗi câu hỏi phải được mã hoá thành vector
+để so với kho; thiếu nó thì phần Hỏi lý thuyết báo lỗi cấu hình và không trả lời được.
 
 Dùng bản **7b** cho demo. Bản 3b nhanh gấp đôi nhưng tiếng Việt kém hơn rõ rệt và
 từng diễn đạt sai khái niệm thống kê.
@@ -196,6 +203,7 @@ Chúng cho thấy hệ thống phân biệt được ba tình huống mà chatbo
 |---|---|---|
 | Web mở ra nhưng **không nút nào chạy** | chưa bật API, hoặc API chạy ở origin khác | xem đèn báo ở cột phải; đặt `CORS_ORIGINS` nếu web không ở `localhost:3000` |
 | Hỏi lý thuyết trả `"Kho giáo trình chưa được dựng"` | thiếu `data/rag_index/` | quay lại Bước 2 |
+| Hỏi lý thuyết báo `"thiếu bộ mã hoá của kho giáo trình"` | chưa có bge-m3 | `ollama pull bge-m3` |
 | Gợi ý ra câu cứng, giống nhau | chưa bật `LLM_HINTS=1` hoặc Ollama chưa chạy | bật lại cửa sổ 1 và 2 |
 | Mục **Quản trị** không hiện | chưa đặt `ADMIN_TOKEN` | đặt biến rồi khởi động lại API |
 | Mới dựng lại dữ liệu mà số không đổi | API nạp dữ liệu một lần lúc khởi động | khởi động lại API |

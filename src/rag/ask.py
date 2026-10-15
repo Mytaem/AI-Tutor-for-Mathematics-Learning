@@ -22,7 +22,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from src.rag.chunking import ChunkType
-from src.rag.store import RagIndex
+from src.rag.store import EncoderUnavailable, RagIndex
 
 #: Dưới mức tương đồng này coi như câu hỏi ngoài phạm vi.
 #:
@@ -209,7 +209,18 @@ def answer_question(
         if target and not has_material_for(index, subject, target):
             return Answer(no_material(display_name(subject, target)), in_scope=True)
 
-    hits = retrieve(index, question, subject, top_k, skill_ids)
+    try:
+        hits = retrieve(index, question, subject, top_k, skill_ids)
+    except EncoderUnavailable as exc:
+        # Lỗi CẤU HÌNH của máy đang chạy, không phải câu hỏi sai. Nói rõ việc
+        # cần làm chứ đừng trả 500, và tuyệt đối không âm thầm chạy bằng BM25 —
+        # ở chế độ đó cơ chế từ chối câu ngoài phạm vi tắt hoàn toàn.
+        return Answer(
+            "Hệ thống chưa trả lời được phần lý thuyết: máy này thiếu bộ mã hoá của kho "
+            f"giáo trình. Người dựng máy chạy giúp `ollama pull bge-m3` rồi thử lại.\n\n({exc})",
+            in_scope=False,
+        )
+
     if not hits:
         return Answer(OUT_OF_SCOPE, in_scope=False)
 

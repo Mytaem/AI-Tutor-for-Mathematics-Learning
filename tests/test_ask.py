@@ -149,6 +149,47 @@ class TestChuongChuaCoTaiLieu:
         assert answer.sources
 
 
+class TestThieuBoMaHoa:
+    """Kho CÓ vector nhưng máy thiếu model embedding — lỗi CẤU HÌNH.
+
+    Ca này rất dễ gặp khi chuyển hệ thống sang máy khác: người ta copy
+    `data/rag_index/` sang (nhanh hơn dựng lại 40 phút) nhưng quên
+    `ollama pull bge-m3`. Kho lưu vector của các ĐOẠN, còn CÂU HỎI thì phải mã
+    hoá tại chỗ mỗi lần tra.
+
+    Hai điều phải đúng, và điều thứ hai mới là điều quan trọng:
+      1. Không được sập 500 — phải nói ra việc cần làm.
+      2. Không được âm thầm rơi về BM25. Đo được: ở chế độ đó cơ chế từ chối
+         câu hỏi ngoài phạm vi TẮT HOÀN TOÀN (3/3 câu lạc đề vẫn được trả lời)
+         và tỉ lệ trả lời sai chủ đề nhảy lên 32%. Chạy lặng lẽ ở chế độ tệ hơn
+         là kiểu hỏng khó phát hiện nhất.
+    """
+
+    @pytest.fixture
+    def kho_thieu_encoder(self) -> RagIndex:
+        from src.rag.store import OllamaEncoder
+
+        chunks = [
+            Chunk(text="A confidence interval is a range of plausible values.",
+                  chunk_type=ChunkType.DEFINITION, subject="MAS291",
+                  chapter="Chapter 8: Confidence Intervals", source="x.pdf"),
+        ]
+        return RagIndex(chunks,
+                        embeddings=np.ones((1, 8), dtype=float),
+                        encoder=OllamaEncoder("model-khong-ton-tai-trong-test"))
+
+    def test_noi_ro_viec_can_lam_thay_vi_sap(self, kho_thieu_encoder: RagIndex) -> None:
+        answer = answer_question("Khoảng tin cậy là gì?", kho_thieu_encoder, subject="MAS291")
+        assert "ollama pull bge-m3" in answer.text
+        assert answer.sources == []
+
+    def test_khong_am_tham_tra_loi_bang_bm25(self, kho_thieu_encoder: RagIndex) -> None:
+        """Có đoạn khớp từ khoá, nhưng vẫn KHÔNG được trả nó ra như một câu trả lời."""
+        answer = answer_question("confidence interval", kho_thieu_encoder, subject="MAS291")
+        assert answer.in_scope is False
+        assert "A confidence interval is a range" not in answer.text
+
+
 class TestMoRongTruyVan:
     def test_cau_tieng_viet_duoc_noi_thuat_ngu_tieng_anh(self, index: RagIndex) -> None:
         """Câu hỏi thuần Việt phải tìm được đoạn tiếng Anh.

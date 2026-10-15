@@ -1,48 +1,4 @@
 {
- "không từ điển": {
-  "n": 28,
-  "good": 23,
-  "honest_no_material": 0,
-  "usable_rate": 0.8214285714285714,
-  "wrong_topic": 0,
-  "false_refusal": 5,
-  "out_of_scope_leaked": 0,
-  "details": {
-   "good": [
-    "MAD101: «Chu trình Euler là gì?»",
-    "MAD101: «Đồ thị hai phía là gì?»",
-    "MAD101: «Nguyên lý bù trừ dùng khi nào?»",
-    "MAD101: «Cây khung nhỏ nhất là gì?»",
-    "MAD101: «Luật De Morgan phát biểu thế nào?»",
-    "MAD101: «Thuật toán Euclid tìm gì?»",
-    "MAE101: «Tích phân từng phần là gì?»",
-    "MAE101: «Định nghĩa đạo hàm»",
-    "MAE101: «Ma trận nghịch đảo tính thế nào?»",
-    "MAE101: «Định thức của ma trận là gì?»",
-    "MAE101: «Dạng vô định 0/0 xử lý thế nào?»",
-    "MAI391: «Phân tích SVD là gì?»",
-    "MAI391: «Gradient là gì?»",
-    "MAS291: «Phân phối chuẩn có tính chất gì?»",
-    "MAS291: «Xác suất có điều kiện là gì?»",
-    "MAS291: «Định lý Bayes phát biểu thế nào?»",
-    "MAS291: «Khoảng tin cậy là gì?»",
-    "MAS291: «p-value nghĩa là gì?»",
-    "MAS291: «Hồi quy tuyến tính là gì?»",
-    "MAS291: «Thống kê mô tả gồm những gì?»",
-    "MAS291: «Định lý giới hạn trung tâm nói gì?»",
-    "MAS291: «Phân phối nhị thức dùng khi nào?»",
-    "MAS291: «Khi nào dùng kiểm định t thay vì z?»"
-   ],
-   "false_refusal": [
-    "MAD101: «Nguyên lý chuồng bồ câu nói gì?»",
-    "MAE101: «Quy tắc hàm hợp là gì?»",
-    "MAE101: «Trị riêng của ma trận là gì?»",
-    "MAI391: «Tích vô hướng là gì?»",
-    "MAI391: «Phép chiếu trực giao là gì?»"
-   ]
-  },
-  "out_of_scope_leaked_list": []
- },
  "có từ điển": {
   "n": 28,
   "good": 28,

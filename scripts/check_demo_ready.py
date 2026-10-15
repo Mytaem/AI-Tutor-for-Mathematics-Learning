@@ -163,8 +163,17 @@ def check_ollama() -> None:
         return
 
     ok(f"Ollama đang chạy, có {len(names)} model")
+
+    # bge-m3 CẦN CẢ KHI CHỈ TRA CỨU, không chỉ khi dựng kho: mỗi câu hỏi phải
+    # được mã hoá để so với vector trong kho. Bản đầu của script này ghi "chỉ
+    # cần khi dựng lại kho" — sai, và sai theo cách làm vỡ demo: thiếu nó thì
+    # phần Hỏi lý thuyết không trả lời được câu nào.
     if not any(n.startswith("bge-m3") for n in names):
-        warn("thiếu bge-m3 (chỉ cần khi DỰNG LẠI kho)", "ollama pull bge-m3")
+        if (ROOT / "data" / "rag_index" / "embeddings.npy").exists():
+            bad("thiếu bge-m3 — kho CÓ vector nhưng không mã hoá nổi câu hỏi",
+                "ollama pull bge-m3 (bắt buộc, cả khi chỉ tra cứu)")
+        else:
+            warn("thiếu bge-m3 (cần khi dựng kho và khi tra cứu)", "ollama pull bge-m3")
     chat = [n for n in names if n.startswith("qwen2.5")]
     if not chat:
         warn("thiếu model trả lời", "ollama pull qwen2.5:7b-instruct")

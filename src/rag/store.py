@@ -230,6 +230,14 @@ def looks_like_boilerplate(text: str) -> bool:
     return digits / len(stripped) > 0.22 and sentences < len(stripped) / 220
 
 
+class EncoderUnavailable(RuntimeError):
+    """Kho có vector nhưng máy không mã hoá nổi câu hỏi — lỗi CẤU HÌNH, không phải lỗi dữ liệu.
+
+    Tách thành ngoại lệ riêng để tầng trên phân biệt được với "chưa dựng kho" và
+    nói đúng việc cần làm, thay vì trả 500 không rõ nguyên nhân.
+    """
+
+
 class RagIndex:
     """Kho chunk có thể tìm kiếm."""
 
@@ -244,6 +252,7 @@ class RagIndex:
         self.encoder = encoder
         self.bm25 = BM25().fit([chunk.text for chunk in chunks])
         self._boilerplate: set[int] | None = None
+        self._encoder_broken: str | None = None
 
     def __len__(self) -> int:
         return len(self.chunks)
@@ -340,7 +349,26 @@ class RagIndex:
         if not self.has_dense:
             return []
 
-        query_vector = self.encoder.encode([query])[0]
+        try:
+            query_vector = self.encoder.encode([query])[0]
+        except Exception as exc:
+            # Kho CÓ vector nhưng không mã hoá nổi câu hỏi — gần như luôn là
+            # thiếu model embedding (encoder.txt ghi "ollama:bge-m3" mà máy chưa
+            # `ollama pull bge-m3`).
+            #
+            # KHÔNG âm thầm rơi về BM25: đo được là lúc đó cơ chế từ chối câu
+            # hỏi ngoài phạm vi tắt hoàn toàn (3/3 câu lạc đề vẫn được trả lời)
+            # và tỉ lệ trả lời sai chủ đề nhảy lên 32%. Lặng lẽ chạy ở chế độ
+            # tệ hơn là kiểu hỏng khó phát hiện nhất.
+            #
+            # Nêu rõ một lần rồi nhớ, để không spam log mỗi câu hỏi.
+            if not self._encoder_broken:
+                self._encoder_broken = (
+                    f"Không mã hoá được câu hỏi ({type(exc).__name__}). Kho có vector của "
+                    f"bộ mã hoá {getattr(self.encoder, 'model_name', '?')!r} nhưng máy này "
+                    "chưa có nó — chạy: ollama pull bge-m3"
+                )
+            raise EncoderUnavailable(self._encoder_broken) from exc
         similarities = self.embeddings @ query_vector  # đã chuẩn hoá -> chính là cosine
 
         indices = np.arange(len(self.chunks))

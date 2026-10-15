@@ -110,6 +110,11 @@ ollama serve              # giữ chạy ở một cửa sổ riêng
 ollama pull bge-m3        # ~1,2 GB
 ```
 
+**`bge-m3` cần cả khi chỉ TRA CỨU, không chỉ khi dựng kho.** Kho lưu vector của các đoạn
+giáo trình, còn câu hỏi của người dùng phải mã hoá tại chỗ mỗi lần tra. Thiếu nó thì
+`/ask` báo lỗi cấu hình và không trả lời được câu nào — nó cố ý **không** âm thầm rơi về
+BM25, vì ở chế độ đó cơ chế từ chối câu ngoài phạm vi tắt hoàn toàn.
+
 ### 3.3. Dựng
 
 ```bash
@@ -347,6 +352,7 @@ python scripts/demo_full.py           # 6 cảnh, không cần mạng, không c�
 | Web mở ra, **không nút nào chạy** | thiếu CORS, hoặc API chưa bật | xem đèn báo cột phải; đặt `CORS_ORIGINS` |
 | `/ask` báo `"Kho giáo trình chưa được dựng"` | thiếu `data/rag_index/` | làm lại mục 3 |
 | Hỏi gì cũng ra đoạn lạc chủ đề | dựng kho mà **thiếu `--dense`** | dựng lại với `--dense` |
+| `/ask` báo `"thiếu bộ mã hoá của kho giáo trình"` | chưa có bge-m3 trên máy này | `ollama pull bge-m3` |
 | Dựng lại dữ liệu mà số không đổi | API nạp một lần lúc khởi động | khởi động lại API |
 | Mục **Quản trị** không hiện | chưa đặt `ADMIN_TOKEN` | đặt biến rồi khởi động lại API |
 | Gợi ý toàn câu mẫu giống nhau | chưa bật `LLM_HINTS=1` hoặc Ollama chưa chạy | bật lại |
@@ -366,5 +372,5 @@ python scripts/demo_full.py           # 6 cảnh, không cần mạng, không c�
 - **`requirements-train.txt`** — chỉ khi huấn luyện LoRA.
 - **`data/raw/`** nếu đã có `data/rag_index/` — kho đã dựng tự đủ, nó giữ cả nội dung
   đoạn. Đây là cách tiết kiệm nhất khi chuyển hệ thống sang máy khác: gửi 61 MB thay vì
-  223 MB, và bỏ luôn 40 phút mã hoá.
+  223 MB, và bỏ luôn 40 phút mã hoá. **Nhưng `bge-m3` thì vẫn phải có** — xem 3.2.
 - **`models/`** — thiếu thì mô hình năng lực tự quay về BKT.
