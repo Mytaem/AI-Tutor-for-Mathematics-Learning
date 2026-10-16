@@ -5,6 +5,7 @@ import { api, type AskResponse } from "../../lib/api";
 import { loadSession } from "../../lib/session";
 import { ApiDownBanner } from "../api-status";
 import { useApp } from "../providers";
+import { MathText } from "../mathtext";
 import { ScopeLine } from "../scope-picker";
 
 const EXAMPLES = [
@@ -127,7 +128,9 @@ export default function AskPage() {
               </span>
               <span className="meta">Câu hỏi: “{asked}”</span>
             </div>
-            <p style={{ whiteSpace: "pre-wrap", margin: 0 }}>{answer.answer}</p>
+            <p style={{ margin: 0 }}>
+              <MathText text={answer.answer} />
+            </p>
             <p className="meta" style={{ marginTop: 14 }}>
               {answer.used_llm
                 ? "Mô hình diễn đạt lại, nội dung lấy từ các nguồn bên dưới."

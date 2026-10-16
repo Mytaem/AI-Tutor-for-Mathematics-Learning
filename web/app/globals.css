@@ -477,7 +477,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
   text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 7px;
 }
 
-.hint .text { color: var(--ink); }
+.hint .text { color: var(--ink); white-space: pre-wrap; line-height: 1.55; }
 
 .ladder { display: flex; gap: 3px; align-items: center; }
 .ladder i { width: 15px; height: 4px; border-radius: 2px; background: var(--warn-line); display: block; }

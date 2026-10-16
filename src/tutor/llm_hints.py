@@ -24,6 +24,7 @@ from typing import Callable
 
 from src.core.schema import ErrorCode, Item, Skill, VerificationResult
 from src.llm.client import LLMClient, LLMError
+from src.rag.mathtext import clean_answer
 from src.tutor.guardrail import check_leak
 from src.tutor.hint_policy import HintLevel
 from src.tutor.hints import Hint, HintGenerator
@@ -105,7 +106,12 @@ class LLMHintGenerator(HintGenerator):
                 trace.fell_back = True
                 break
             trace.backend = reply.backend
-            text = reply.text.strip()
+            # Dọn công thức TRƯỚC khi qua guardrail, không phải sau.
+            #
+            # Guardrail bóc biểu thức toán trong câu gợi ý rồi nộp cho verifier
+            # xem có tương đương đáp án không. Nếu để nguyên `\( x^2 \)` thì bộ
+            # bóc đọc cả dấu LaTeX và có thể bỏ sót một mảnh ĐANG lộ đáp án.
+            text = clean_answer(reply.text.strip())
 
             if not self.use_guardrail:
                 trace.latency_ms = (time.perf_counter() - started) * 1000

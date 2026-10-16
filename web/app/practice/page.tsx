@@ -8,6 +8,7 @@ import { loadSession, type StoredSession } from "../../lib/session";
 import type { Scope } from "../../lib/prefs";
 import { ApiDownBanner } from "../api-status";
 import { useApp } from "../providers";
+import { MathText } from "../mathtext";
 import { ScopeLine } from "../scope-picker";
 
 /** Công thức trong đề: có LaTeX thì render, không thì hiện nguyên văn tiếng Việt. */
@@ -309,7 +310,9 @@ export default function PracticePage() {
               {hint.source === "llm" ? "· do mô hình diễn đạt" : "· mẫu có sẵn"}
             </span>
           </div>
-          <div className="text">{hint.text}</div>
+          <div className="text">
+            <MathText text={hint.text} />
+          </div>
           <div className="row tight" style={{ marginTop: 12 }}>
             {hint.level < 4 && (
               <button

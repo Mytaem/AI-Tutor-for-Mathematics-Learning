@@ -74,10 +74,22 @@ SYSTEM_PROMPT = (
     "CHỈ được dùng thông tin trong các đoạn trích giáo trình được cung cấp. "
     "Không có trong đoạn trích thì nói thẳng là giáo trình không nhắc tới, "
     "TUYỆT ĐỐI không bịa thêm.\n"
-    "Khi đoạn trích có đủ thông tin, hãy trả lời theo thứ tự: (1) định nghĩa hoặc "
-    "ý chính, (2) công thức nếu có, (3) khi nào dùng hoặc điều kiện áp dụng. "
+    # Chỉ VIẾT TIẾNG VIỆT — nói thẳng và nhắc lại, vì Qwen là model Trung Quốc
+    # và đã bắt được câu trả lời chứa "微分学，用于计算复合函数的导数" giữa một
+    # câu tiếng Việt. Sinh viên không đọc được, và demo gặp câu đó là vỡ.
+    "CHỈ viết bằng tiếng Việt. Tuyệt đối không dùng chữ Hán, chữ Trung Quốc hay "
+    "câu tiếng Anh; thuật ngữ tiếng Anh chỉ được để trong ngoặc sau từ tiếng Việt.\n"
+    # Trước đây prompt đánh số "(1) (2) (3)" và model CHÉP LUÔN số đó ra câu trả
+    # lời, khiến nó đọc như biên bản chứ không như lời giảng.
+    "Khi đoạn trích có đủ thông tin, hãy nói đủ ba điều, viết thành văn liền mạch, "
+    "KHÔNG đánh số và KHÔNG xuống dòng gạch đầu dòng: khái niệm đó là gì, công thức "
+    "nếu có, và khi nào dùng hoặc điều kiện áp dụng. "
     "Thiếu phần nào trong đoạn trích thì bỏ phần đó, không tự suy diễn. "
     "Tối đa 8 câu.\n"
+    # Chốt MỘT kiểu ký hiệu. Cùng một model trước đây dùng cả \( \) lẫn \[ \],
+    # nên giao diện không biết phải render theo kiểu nào.
+    "Công thức toán viết trong dấu $...$ nếu nằm trong câu, hoặc $$...$$ nếu đứng "
+    "riêng một dòng. Không dùng \\( \\) hay \\[ \\].\n"
     # Lỗi quan sát được thật ở model 3b: "nếu p-value lớn hơn α thì giả thuyết
     # được chấp nhận". Đây là lỗi thống kê kinh điển, và nó nguy hiểm vì câu văn
     # đọc rất trôi. Chốt thẳng vào prompt.
@@ -235,11 +247,36 @@ def answer_question(
 
     from src.llm.client import LLMError
 
-    try:
-        reply = client.chat(build_messages(question, hits), temperature=0.2, max_tokens=320)
-    except LLMError:
-        body = "\n\n".join(f"• ({source}) {text[:400]}" for source, text in zip(sources, passages))
-        return Answer(f"Model đang không trả lời được. Đoạn giáo trình liên quan:\n\n{body}",
+    from src.rag.mathtext import clean_answer, cjk_ratio
+
+    messages = build_messages(question, hits)
+    text = ""
+    for attempt in range(2):
+        try:
+            reply = client.chat(messages, temperature=0.2 if attempt == 0 else 0.0,
+                                max_tokens=320)
+        except LLMError:
+            body = "\n\n".join(f"• ({source}) {t[:400]}" for source, t in zip(sources, passages))
+            return Answer(f"Model đang không trả lời được. Đoạn giáo trình liên quan:\n\n{body}",
+                          sources=sources, passages=passages)
+
+        text = clean_answer(reply.text.strip())
+
+        # Qwen là model Trung Quốc và có lúc rơi về tiếng Trung giữa câu tiếng
+        # Việt. Sinh viên không đọc được, nên thử lại MỘT lần với nhiệt độ 0 và
+        # một lời nhắc cứng hơn. Ngưỡng 1% để một ký hiệu lạ lẻ không kích hoạt.
+        if cjk_ratio(text) <= 0.01:
+            break
+        messages = messages + [
+            {"role": "assistant", "content": text},
+            {"role": "user", "content": "Câu trên có lẫn chữ Trung Quốc. Viết lại HOÀN TOÀN "
+                                        "bằng tiếng Việt, giữ nguyên nội dung và công thức."},
+        ]
+    else:
+        # Thử hai lần vẫn lẫn tiếng Trung: trả đoạn giáo trình thay vì một câu
+        # trả lời người học không đọc được.
+        body = "\n\n".join(f"• ({source}) {t[:400]}" for source, t in zip(sources, passages))
+        return Answer(f"Giáo trình có mấy đoạn liên quan sau:\n\n{body}",
                       sources=sources, passages=passages)
 
-    return Answer(reply.text.strip(), sources=sources, passages=passages, used_llm=True)
+    return Answer(text, sources=sources, passages=passages, used_llm=True)
