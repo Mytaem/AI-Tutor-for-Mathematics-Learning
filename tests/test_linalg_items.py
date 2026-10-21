@@ -68,11 +68,16 @@ class TestSkillMapping:
             for skill in item.skills:
                 assert skill in bank.skills, f"{item.item_id} gắn kỹ năng lạ: {skill}"
 
-    def test_moi_dang_bai_deu_co_ma_ky_nang_cho_ca_hai_mon(self) -> None:
-        """Thiếu một môn thì dạng bài đó lặng lẽ biến mất khỏi môn ấy."""
-        for subject, mapping in SKILL_MAP.items():
-            missing = [name for name in BUILDERS if name not in mapping]
-            assert missing == [], f"{subject} thiếu mã kỹ năng cho: {missing}"
+    def test_moi_dang_bai_deu_co_ma_ky_nang_mae101(self) -> None:
+        """Thiếu mã thì dạng bài đó lặng lẽ biến mất khỏi MAE101."""
+        mapping = SKILL_MAP["MAE101"]
+        missing = [name for name in BUILDERS if name not in mapping]
+        assert missing == [], f"MAE101 thiếu mã kỹ năng cho: {missing}"
+
+    def test_mai391_khong_co_de_ngoai_chuong_trinh(self) -> None:
+        for name in ("linear_system", "inverse", "rank", "system_inconsistent",
+                     "system_underdetermined", "inverse_singular", "matrix_product"):
+            assert name not in SKILL_MAP["MAI391"]
 
 
 class TestReproducible:

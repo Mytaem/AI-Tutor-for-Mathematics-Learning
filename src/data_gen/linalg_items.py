@@ -34,17 +34,12 @@ SKILL_MAP: dict[str, dict[str, list[str]]] = {
         "inverse_singular": ["MAE.LA.INV", "MAE.LA.DET"],
         "matrix_product": ["MAE.LA.MAT"],
     },
+    # MAI391 bắt đầu từ chương 3 của Deisenroth: hệ phương trình, nghịch đảo,
+    # hạng là kiến thức tiên quyết của MAE101, không phải nội dung của môn.
     "MAI391": {
         "determinant": ["MAI.DEC.TRACE"],
-        "inverse": ["MAI.DEC.TRACE"],
-        "rank": ["MAI.DEC.TRACE"],
         "eigenvalues": ["MAI.DEC.EIGEN"],
         "eigenvector": ["MAI.DEC.EIGEN"],
-        "linear_system": ["MAI.DEC.TRACE"],
-        "system_inconsistent": ["MAI.DEC.TRACE"],
-        "system_underdetermined": ["MAI.DEC.TRACE"],
-        "inverse_singular": ["MAI.DEC.TRACE"],
-        "matrix_product": ["MAI.DEC.TRACE"],
     },
 }
 
