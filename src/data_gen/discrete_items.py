@@ -72,7 +72,7 @@ def _logic_simplify(rng: random.Random):
                  D.logic_to_text(sp.to_nnf(answer_of(meta), simplify=False)), "expression")
 
 
-@template("logic_negate", ["MAD.LOGIC.COND", "MAD.LOGIC.EQUIV"], 0.5, "Phủ định mệnh đề kéo theo")
+@template("logic_negate", ["MAD.LOGIC.EQUIV"], 0.5, "Phủ định mệnh đề (luật De Morgan)")
 def _logic_negate(rng: random.Random):
     a, b = _random_pair(rng)
     formula = rng.choice([f"{a} -> {b}", f"{a} & {b}", f"{a} | {b}"])

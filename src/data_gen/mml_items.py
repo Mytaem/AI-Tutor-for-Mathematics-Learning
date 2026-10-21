@@ -83,7 +83,7 @@ def _norm(rng: random.Random):
     return draft(meta, f"Cho v = {vector}. Tính {name}", text(sp.nsimplify(value)), "number")
 
 
-@template("inner_product", ["MAI.GEO.ANGLE"], 0.25, "Tích vô hướng")
+@template("inner_product", ["MAI.GEO.NORM"], 0.25, "Tích vô hướng")
 def _inner_product(rng: random.Random):
     u = [rng.randint(-5, 5) for _ in range(2)]
     v = [rng.randint(-5, 5) for _ in range(2)]
