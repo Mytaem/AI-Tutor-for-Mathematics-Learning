@@ -231,6 +231,7 @@ Kiểm nhanh: mở http://localhost:8000/health — phải thấy đủ 4 môn v
 | Biến | Mặc định | Tác dụng |
 |---|---|---|
 | `LLM_HINTS` | tắt | `1` để gợi ý do model diễn đạt (có guardrail) |
+| `LLM_ASK` | bật | hỏi lý thuyết dùng model; `0` để chỉ trả đoạn giáo trình |
 | `OLLAMA_MODEL` | `qwen2.5:3b-instruct` | đổi sang `7b` khi cần chất lượng |
 | `VLLM_URL` | trống | endpoint vLLM; có thì ưu tiên hơn Ollama |
 | `DEMO_MODE` | tắt | `1` chỉ đọc cache, không gọi model |

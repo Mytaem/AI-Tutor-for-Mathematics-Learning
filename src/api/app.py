@@ -33,6 +33,7 @@ from src.core.itembank import (
     load_items,
     load_skills,
 )
+from src.core.pretty import pretty_math
 from src.core.schema import AnswerType, Item, Submission, VerificationResult
 from src.kt.bkt import BKTTracker
 from src.kt.coldstart import (
@@ -72,7 +73,7 @@ class PublicItem(BaseModel):
             item_id=item.item_id,
             subject=item.subject.value,
             skills=list(item.skills),
-            statement_vi=item.statement_vi,
+            statement_vi=pretty_math(item.statement_vi),
             statement_latex=item.statement_latex,
             answer_type=item.answer_type.value,
             variable=item.variable,
@@ -528,7 +529,7 @@ class TutorService:
         from src.rag.hint_retriever import load_index
 
         client = None
-        if self.config.llm_hints:
+        if self.config.llm_ask:
             from src.llm.client import LLMClient
 
             client = LLMClient.from_config(self.config.llm)
@@ -605,7 +606,7 @@ class TutorService:
         return HintOut(
             level=int(hint.level),
             level_label=HintLevel(hint.level).label_vi,
-            text=hint.text,
+            text=pretty_math(hint.text),
             source=hint.source,
             error_code=hint.error_code,
             step=hint.step,
@@ -875,7 +876,7 @@ def create_app(service: TutorService | None = None) -> FastAPI:
         if not request.question.strip():
             raise HTTPException(422, "Câu hỏi trống")
         result = service.ask(request.question, request.subject, request.chapter)
-        return AskResponse(answer=result.text, sources=result.sources,
+        return AskResponse(answer=pretty_math(result.text), sources=result.sources,
                            in_scope=result.in_scope, used_llm=result.used_llm)
 
     # ------------------------------------------------------------------

@@ -249,3 +249,11 @@ class TestEndpoint:
         body = client.post("/ask", json={"question": "Chu trình Euler là gì?"}).json()
         assert set(body) == {"answer", "sources", "in_scope", "used_llm"}
         assert body["answer"].strip()
+
+
+def test_cau_bi_cat_giua_chung_thi_bo_di():
+    from src.rag.ask import drop_cut_sentence
+
+    assert drop_cut_sentence("Một câu. Hai câu. Tuy nhiên, thực tế, độ") == "Một câu. Hai câu."
+    assert drop_cut_sentence("Công thức là $x^2$") == "Công thức là $x^2$"
+    assert drop_cut_sentence("Câu đủ.") == "Câu đủ."

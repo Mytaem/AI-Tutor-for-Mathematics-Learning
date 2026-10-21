@@ -230,6 +230,7 @@ hạn chế từng thí nghiệm: `docs/evaluation-protocol.md`.
 | EXP-6 chọn bài | ZPD được trải nghiệm, mất độ phủ — lặp lại ở 5/6 chương |
 | EXP-7a bỏ kiểm chứng ký hiệu | LLM chấm đúng 50%, ký hiệu 100% |
 | EXP-8 chống lộ đáp án | 6,2% → **0%**, đổi sang model 7b chỉ giảm còn 5,0% |
+| EXP-9 mô hình chấm chất lượng gợi ý | kappa 7b–3b từ −0,01 đến 0,38: **không thay được người chấm** |
 
 ## 7.2. Ba kết quả NGƯỢC với kỳ vọng ban đầu
 
@@ -274,10 +275,11 @@ hình 7 tỉ tham số chỉ prompting.
 2. **Chưa có bài làm sai thật.** Mọi con số chẩn đoán là chặn trên.
 3. **macro-F1 0,921 của LoRA là chặn trên**: tập test là lỗi máy cài vào với dấu
    hiệu cố định. Khoảng cách với prompting thì đáng tin vì cùng tập test.
-4. **Kho giáo trình chưa phủ hết syllabus.** MAS291 chỉ có 2/8 chương và không có
-   sách giáo trình chung để bù; sáu chương còn lại không có tài liệu nào. Hệ thống
-   nói thẳng điều đó thay vì đoán, nhưng mọi câu hỏi về sáu chương ấy hiện không
-   trả lời được. Đo bằng `scripts/rag_coverage.py`.
+4. **Kho giáo trình MAS291 dựa vào sách mở thay cho slide của môn.** Slide giảng
+   viên chỉ phủ 2/8 chương; sáu chương còn lại được bù bằng OpenStax *Introductory
+   Statistics 2e* (CC BY-NC-SA 4.0). Nội dung đủ để trả lời (đo bằng
+   `scripts/rag_coverage.py`), nhưng ký hiệu và trọng tâm có thể lệch so với cách
+   môn học dạy và ra đề.
 5. **Chứng minh hình thức** chỉ kiểm được cấu trúc, không kiểm được lập luận.
 6. **Nguyên hàm sai khác hằng số nhân với hàm mũ** không phân biệt được bằng đạo
    hàm ngược, vì `e^x` là hàm riêng của phép đạo hàm.
@@ -290,6 +292,13 @@ hình 7 tỉ tham số chỉ prompting.
 9. **Lỗi ở mức BƯỚC chưa đo được trên dữ liệu thật**, vì đề sinh tự động phần lớn
    chỉ có đáp án cuối. Một mã lỗi đã phải bỏ vì lý do này: `MAE.LIM.NOSIMPLIFY`
    không phân biệt được với `MAE.LIM.INDET_ZERO` nếu chỉ nhìn đáp án cuối.
+10. **Chất lượng sư phạm của gợi ý chưa có người chấm.** Đã thử dùng mô hình thay
+    người (EXP-9, `scripts/exp9_hint_llm_judge.py`): qwen2.5 7b và 3b chấm 128 gợi ý
+    theo bốn tiêu chí. Hai mô hình gần như không đồng thuận (kappa −0,01 / 0,38 /
+    0,10 / 0,09 cho đúng toán / không lộ / sư phạm / tiếng Việt), và 7b gắn "lộ đáp
+    án" cho 47 gợi ý mức < 4 mà khi đọc lại không hề nói ra đáp án — trái với phép
+    đo tự động 0% ở EXP-8. Giám khảo còn cùng họ với mô hình sinh gợi ý. Kết luận:
+    điểm máy chấm không đủ tin cậy để báo cáo; phiếu chấm tay vẫn là việc cần làm.
 
 ## 8.3. Hướng phát triển
 

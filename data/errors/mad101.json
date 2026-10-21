@@ -140,8 +140,8 @@
     "subject": "MAD101",
     "skill_id": "MAD.TREE.BASIC",
     "name_vi": "Đếm sai số lá của cây m-phân đầy đủ",
-    "description_vi": "Cây m-phân đầy đủ có i đỉnh trong thì có (m − 1)i + 1 lá, không phải mi.",
-    "hint_vi": "Tổng số đỉnh là mi + 1 — trong đó bao nhiêu là đỉnh trong?"
+    "description_vi": "Cây m-phân đầy đủ có i đỉnh trong thì có (m − 1)·i + 1 lá, không phải m·i.",
+    "hint_vi": "Cây m-phân đầy đủ có i đỉnh trong thì tổng số đỉnh là m·i + 1. Trong đó bao nhiêu đỉnh là đỉnh trong, còn lại là gì?"
   },
   {
     "code": "MAD.TREE.MST_CYCLE",

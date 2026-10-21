@@ -253,14 +253,15 @@ def answer_question(
     text = ""
     for attempt in range(2):
         try:
+            # Tiếng Việt tốn token gần gấp đôi tiếng Anh: 320 cắt cụt câu trả lời giữa chừng.
             reply = client.chat(messages, temperature=0.2 if attempt == 0 else 0.0,
-                                max_tokens=320)
+                                max_tokens=700)
         except LLMError:
             body = "\n\n".join(f"• ({source}) {t[:400]}" for source, t in zip(sources, passages))
             return Answer(f"Model đang không trả lời được. Đoạn giáo trình liên quan:\n\n{body}",
                           sources=sources, passages=passages)
 
-        text = clean_answer(reply.text.strip())
+        text = drop_cut_sentence(clean_answer(reply.text.strip()))
 
         # Qwen là model Trung Quốc và có lúc rơi về tiếng Trung giữa câu tiếng
         # Việt. Sinh viên không đọc được, nên thử lại MỘT lần với nhiệt độ 0 và
@@ -280,3 +281,11 @@ def answer_question(
                       sources=sources, passages=passages)
 
     return Answer(text, sources=sources, passages=passages, used_llm=True)
+
+
+def drop_cut_sentence(text: str) -> str:
+    """Bỏ câu cuối nếu model hết token giữa câu — thà ngắn hơn còn hơn dở dang."""
+    if not text or text[-1] in ".!?:;)]»\"'”$":
+        return text
+    cut = max(text.rfind(mark) for mark in (". ", ".\n", "! ", "? ", "\n"))
+    return text[: cut + 1].strip() if cut > 0 else text

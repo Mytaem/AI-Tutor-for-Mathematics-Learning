@@ -40,6 +40,17 @@ SELF_CHECKS: dict[AnswerType, str] = {
 GENERIC_SELF_CHECK = "Em thử rà lại từng bước và kiểm tra ngược kết quả của mình nhé."
 
 
+def _norm(text: str) -> str:
+    return " ".join(text.lower().split())
+
+
+def _lower_first(text: str) -> str:
+    # Chỉ hạ chữ đầu của một TỪ thường ("Tính" -> "tính"); ký hiệu như "D", "det" giữ nguyên.
+    if len(text) > 1 and text[0].isupper() and text[1].islower():
+        return text[0].lower() + text[1:]
+    return text
+
+
 def self_check_for(item: Item) -> str:
     if item.meta.get("task") == "inverse":
         return "Em tự kiểm tra được: nhân A với ma trận của em xem có ra ma trận đơn vị không."
@@ -107,12 +118,14 @@ class HintGenerator:
         method = item.meta.get("method") or ""
         skill = self.skills.get(item.skills[0]) if item.skills else None
 
+        name = skill.name_vi if skill is not None else ""
         parts: list[str] = []
-        if skill is not None:
-            parts.append(f"Bài này thuộc dạng «{skill.name_vi}».")
-        if method:
-            parts.append(f"Hướng làm: {method}.")
-        parts.append("Em nhớ lại công thức của dạng này rồi thử lại nhé.")
+        if name and method and _norm(method) not in _norm(name) and _norm(name) not in _norm(method):
+            parts.append(f"Bài này thuộc phần «{name}», cụ thể là dạng «{method}».")
+        elif method or name:
+            parts.append(f"Bài này thuộc dạng «{method or name}».")
+        parts.append("Em viết ra công thức hoặc định nghĩa của dạng này trước, "
+                     "rồi áp từng số liệu của đề vào nhé.")
 
         return Hint(HintLevel.CONCEPT, " ".join(parts), "template",
                     error_code=self._primary_code(result))
@@ -153,7 +166,7 @@ class HintGenerator:
         if result.first_wrong_step is not None:
             parts.append(f"Bước {result.first_wrong_step} của em chưa đúng.")
         if entry is not None:
-            parts.append(f"Lỗi ở đây là: {entry.name_vi}. {entry.description_vi}")
+            parts.append(f"Chỗ sai là «{entry.name_vi}»: {_lower_first(entry.description_vi)}")
 
         reference = self._reference_step(item, result.first_wrong_step)
         if reference:
