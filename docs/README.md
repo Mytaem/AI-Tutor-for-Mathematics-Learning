@@ -36,6 +36,7 @@ Mỗi file viết cho **một người đọc cụ thể**. Chọn đúng cái b
 
 | File | Nội dung |
 |---|---|
+| [du-lieu-loi-giai.md](du-lieu-loi-giai.md) | Sinh đề và lời giải từng bước có kiểm chứng, thêm dạng bài, dùng AI mạnh ở đâu cho đúng |
 | [nguon-tai-lieu.md](nguon-tai-lieu.md) | Nguồn và **giấy phép** của mọi tài liệu trong kho tri thức |
 | [viec-can-lam.md](viec-can-lam.md) | Việc cần người thật làm, kèm sẵn tin nhắn và hướng dẫn để gửi đi |
 
