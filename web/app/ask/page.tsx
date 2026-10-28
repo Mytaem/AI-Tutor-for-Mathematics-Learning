@@ -119,9 +119,9 @@ export default function AskPage() {
               </span>
               <span className="meta">“{asked}”</span>
             </div>
-            <p style={{ margin: 0 }}>
+            <div style={{ lineHeight: 1.6 }}>
               <MathText text={answer.answer} />
-            </p>
+            </div>
             <p className="meta" style={{ marginTop: 14 }}>Nội dung được tổng hợp từ các nguồn bên dưới.</p>
           </div>
 

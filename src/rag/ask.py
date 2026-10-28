@@ -19,6 +19,7 @@ nhưng vẫn đúng, và đây là đường dự phòng lúc bảo vệ.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 
 from src.rag.chunking import ChunkType
@@ -79,13 +80,17 @@ SYSTEM_PROMPT = (
     # câu tiếng Việt. Sinh viên không đọc được, và demo gặp câu đó là vỡ.
     "CHỈ viết bằng tiếng Việt. Tuyệt đối không dùng chữ Hán, chữ Trung Quốc hay "
     "câu tiếng Anh; thuật ngữ tiếng Anh chỉ được để trong ngoặc sau từ tiếng Việt.\n"
-    # Trước đây prompt đánh số "(1) (2) (3)" và model CHÉP LUÔN số đó ra câu trả
-    # lời, khiến nó đọc như biên bản chứ không như lời giảng.
-    "Khi đoạn trích có đủ thông tin, hãy nói đủ ba điều, viết thành văn liền mạch, "
-    "KHÔNG đánh số và KHÔNG xuống dòng gạch đầu dòng: khái niệm đó là gì, công thức "
-    "nếu có, và khi nào dùng hoặc điều kiện áp dụng. "
-    "Thiếu phần nào trong đoạn trích thì bỏ phần đó, không tự suy diễn. "
-    "Tối đa 8 câu.\n"
+    # Trình bày THEO DÒNG CÓ NHÃN, mỗi dòng ghi số đoạn trích làm căn cứ. Nhãn là
+    # chữ ("Định nghĩa:", "Bước 1:") chứ không phải số "(1)" — bản trước đánh số
+    # trong prompt và model chép nguyên số đó ra. Số căn cứ [k] là chốt chống bịa:
+    # dòng nào không dẫn được đoạn trích có thật thì bị bỏ (xem ``grounded_lines``).
+    "Trình bày THEO DÒNG. Mỗi dòng bắt đầu bằng một nhãn và KẾT THÚC bằng số đoạn "
+    "trích làm căn cứ trong ngoặc vuông, ví dụ: 'Định nghĩa: ... [2]'.\n"
+    "- Câu hỏi khái niệm (là gì, nghĩa là gì): các dòng 'Định nghĩa:', 'Công thức:', "
+    "'Khi nào dùng:'.\n"
+    "- Câu hỏi cách làm (tính thế nào, làm sao, các bước, cách): một dòng 'Ý chính:' "
+    "rồi các dòng 'Bước 1:', 'Bước 2:', 'Bước 3:'... theo đúng thứ tự làm.\n"
+    "Đoạn trích không nói tới thì KHÔNG viết dòng đó, không tự suy diễn. Tối đa 8 dòng.\n"
     # Chốt MỘT kiểu ký hiệu. Cùng một model trước đây dùng cả \( \) lẫn \[ \],
     # nên giao diện không biết phải render theo kiểu nào.
     "Công thức toán viết trong dấu $...$ nếu nằm trong câu, hoặc $$...$$ nếu đứng "
@@ -99,6 +104,25 @@ SYSTEM_PROMPT = (
     # Đây là cách hiểu sai kinh điển nhất về p-value, và nó đọc rất thuyết phục.
     "p-value KHÔNG phải xác suất để H₀ đúng. Nó là xác suất quan sát được dữ liệu "
     "cực đoan như vậy hoặc hơn, VỚI ĐIỀU KIỆN H₀ đúng."
+)
+
+
+#: Mẫu định dạng ngay trong lượt hỏi: model nhỏ làm theo VÍ DỤ tốt hơn hẳn làm
+#: theo mô tả. Nội dung mẫu cố ý là chủ đề khác để không bị chép làm câu trả lời.
+PROCEDURAL_FORMAT = (
+    "Đây là câu hỏi CÁCH LÀM: bắt buộc trình bày theo bước, MỖI BƯỚC MỘT DÒNG, mỗi dòng có số căn cứ. Ví dụ định dạng:\n"
+    "Ý chính: Muốn cộng hai phân số thì đưa về cùng mẫu [1]\n"
+    "Bước 1: Quy đồng mẫu số [1]\n"
+    "Bước 2: Cộng các tử số, giữ nguyên mẫu chung [2]\n"
+    "Bước 3: Rút gọn phân số kết quả [2]"
+)
+CONCEPT_FORMAT = (
+    "Đây là câu hỏi KHÁI NIỆM: mỗi ý một dòng, mỗi dòng có số căn cứ. Đoạn trích có công thức "
+    "thì BẮT BUỘC viết dòng 'Công thức:'; có điều kiện hay cách dùng thì viết dòng 'Khi nào dùng:'. "
+    "Ví dụ định dạng:\n"
+    "Định nghĩa: Hình tròn bán kính r là tập các điểm cách tâm không quá r [1]\n"
+    "Công thức: $S = \\pi r^2$ [2]\n"
+    "Khi nào dùng: khi đã biết bán kính và cần tính diện tích [2]"
 )
 
 
@@ -191,7 +215,8 @@ def build_messages(question: str, hits) -> list[dict]:
             f"{glossary_block}\n"
             f"CÂU HỎI: {question}\n\n"
             "Trả lời dựa trên các đoạn trích trên. Giáo trình bằng tiếng Anh, "
-            "hãy diễn đạt lại bằng tiếng Việt."
+            "hãy diễn đạt lại bằng tiếng Việt.\n"
+            + (PROCEDURAL_FORMAT if is_procedural(question) else CONCEPT_FORMAT)
         )},
     ]
 
@@ -261,11 +286,15 @@ def answer_question(
             return Answer(f"Model đang không trả lời được. Đoạn giáo trình liên quan:\n\n{body}",
                           sources=sources, passages=passages)
 
-        text = drop_cut_sentence(clean_answer(reply.text.strip()))
+        text = grounded_lines(clean_answer(reply.text.strip()), len(hits))
 
         # Qwen là model Trung Quốc và có lúc rơi về tiếng Trung giữa câu tiếng
         # Việt. Sinh viên không đọc được, nên thử lại MỘT lần với nhiệt độ 0 và
         # một lời nhắc cứng hơn. Ngưỡng 1% để một ký hiệu lạ lẻ không kích hoạt.
+        if not text:
+            # Không còn dòng nào dẫn được đoạn trích: đừng đưa câu trả lời không
+            # có căn cứ — trả nguyên đoạn giáo trình.
+            break
         if cjk_ratio(text) <= 0.01:
             break
         messages = messages + [
@@ -280,12 +309,69 @@ def answer_question(
         return Answer(f"Giáo trình có mấy đoạn liên quan sau:\n\n{body}",
                       sources=sources, passages=passages)
 
+    if not text:
+        body = "\n\n".join(f"• ({source}) {t[:400]}" for source, t in zip(sources, passages))
+        return Answer(f"Giáo trình có mấy đoạn liên quan sau:\n\n{body}",
+                      sources=sources, passages=passages)
     return Answer(text, sources=sources, passages=passages, used_llm=True)
 
 
-def drop_cut_sentence(text: str) -> str:
-    """Bỏ câu cuối nếu model hết token giữa câu — thà ngắn hơn còn hơn dở dang."""
-    if not text or text[-1] in ".!?:;)]»\"'”$":
-        return text
-    cut = max(text.rfind(mark) for mark in (". ", ".\n", "! ", "? ", "\n"))
-    return text[: cut + 1].strip() if cut > 0 else text
+_CITATION = re.compile(r"\s*\[\s*(\d+(?:\s*[,;]\s*\d+)*)\s*\]")
+_STEP = re.compile(r"^\s*(?:[-•*]\s*)?(?:\*\*)?Bước\s*\d+\s*(?:\*\*)?\s*[:.]\s*", re.IGNORECASE)
+
+
+_LABEL_SPLIT = re.compile(r"\s+(?=(?:Bước\s*\d+|Ý chính|Định nghĩa|Công thức|Khi nào dùng|Điều kiện)\s*:)")
+
+
+def _citations(line: str) -> list[int]:
+    return [int(n) for match in _CITATION.finditer(line) for n in re.split(r"\s*[,;]\s*", match.group(1))]
+
+
+def grounded_lines(text: str, source_count: int) -> str:
+    """Chỉ giữ nội dung dẫn được đoạn trích có thật, đổi [k] thành "(nguồn k)".
+
+    Đơn vị căn cứ là ĐOẠN VĂN (khối dòng liền nhau): model 7b hay ghi số căn cứ
+    một lần ở cuối nhóm bước, nên dòng chưa ghi số được nhận số của dòng có số
+    gần nhất phía sau TRONG CÙNG đoạn. Đoạn không có số nào, hay dẫn số đoạn
+    không tồn tại (model bịa "[7]" khi chỉ có 5 đoạn), bị bỏ cả đoạn. Dòng cuối bị
+    cắt vì hết token cũng rơi vào đây vì chưa kịp có số.
+
+    Dòng dồn "Bước 1: … Bước 2: …" được tách ra, và các bước đánh số lại liên tục
+    sau khi lọc, để không còn "Bước 1, Bước 3".
+    """
+    kept: list[str] = []
+    step = 0
+    for block in re.split(r"\n\s*\n", text):
+        lines = [piece.strip() for raw in block.splitlines()
+                 for piece in _LABEL_SPLIT.split(raw.strip().replace("**", "")) if piece.strip()]
+        pending: list[str] = []
+        for line in lines:
+            # "Công thức: không có …" là chỗ trống model điền cho đủ khuôn, không phải nội dung.
+            if re.match(r"^[^:]{1,20}:\s*(không có|không nhắc|chưa có|n/?a)\b", line, re.IGNORECASE):
+                continue
+            numbers = _citations(line)
+            if any(n < 1 or n > source_count for n in numbers):
+                pending = []                         # dẫn nguồn bịa: bỏ cả nhóm đang chờ
+                continue
+            pending.append(line)
+            if not numbers:
+                continue
+            cited = ", ".join(map(str, sorted(set(numbers))))
+            for body in pending:
+                body = _CITATION.sub("", body).rstrip(" .;,:") + "."
+                if _STEP.match(body):
+                    step += 1
+                    body = _STEP.sub(f"Bước {step}: ", body)
+                kept.append(f"{body} (nguồn {cited})")
+            pending = []
+    return "\n".join(kept)
+
+
+_HOW = re.compile(r"\b(thế nào|như thế nào|làm sao|làm thế nào|cách|các bước|quy trình|tìm .* bằng|"
+                  r"how|steps?)\b", re.IGNORECASE)
+
+
+def is_procedural(question: str) -> bool:
+    """Câu hỏi CÁCH LÀM (trả lời theo Bước 1, 2, 3) hay câu hỏi khái niệm."""
+    return bool(_HOW.search(question))
+

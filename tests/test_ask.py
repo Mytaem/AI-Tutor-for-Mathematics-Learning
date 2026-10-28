@@ -251,9 +251,38 @@ class TestEndpoint:
         assert body["answer"].strip()
 
 
-def test_cau_bi_cat_giua_chung_thi_bo_di():
-    from src.rag.ask import drop_cut_sentence
 
-    assert drop_cut_sentence("Một câu. Hai câu. Tuy nhiên, thực tế, độ") == "Một câu. Hai câu."
-    assert drop_cut_sentence("Công thức là $x^2$") == "Công thức là $x^2$"
-    assert drop_cut_sentence("Câu đủ.") == "Câu đủ."
+class TestCanCu:
+    """Chốt chống bịa: chỉ giữ nội dung dẫn được đoạn trích có thật."""
+
+    def test_bo_dong_khong_nguon_va_nguon_bia(self):
+        from src.rag.ask import grounded_lines
+
+        text = "Định nghĩa: A là B [1]\n\nDòng bịa không nguồn.\n\nCông thức: x = y [9]"
+        assert grounded_lines(text, 5) == "Định nghĩa: A là B. (nguồn 1)"
+
+    def test_dong_don_duoc_tach_va_danh_so_lai(self):
+        from src.rag.ask import grounded_lines
+
+        text = "Ý chính: làm thế này [1] Bước 1: chọn u [2] Bước 3: tính v [2]"
+        assert grounded_lines(text, 3).splitlines() == [
+            "Ý chính: làm thế này. (nguồn 1)", "Bước 1: chọn u. (nguồn 2)", "Bước 2: tính v. (nguồn 2)"]
+
+    def test_nguon_ghi_cuoi_doan_ap_cho_ca_doan(self):
+        from src.rag.ask import grounded_lines
+
+        text = "Bước 1: sắp xếp cạnh\nBước 2: chọn cạnh nhỏ nhất [3]"
+        assert all(line.endswith("(nguồn 3)") for line in grounded_lines(text, 3).splitlines())
+
+    def test_dong_giu_cho_bi_bo(self):
+        from src.rag.ask import grounded_lines
+
+        assert grounded_lines("Định nghĩa: X [1]\nCông thức: không có công thức riêng [1]", 2) == \
+            "Định nghĩa: X. (nguồn 1)"
+
+    def test_nhan_dang_cau_hoi_cach_lam(self):
+        from src.rag.ask import is_procedural
+
+        assert is_procedural("Tích phân từng phần tính thế nào?")
+        assert is_procedural("Cách tìm cây khung nhỏ nhất?")
+        assert not is_procedural("Khoảng tin cậy là gì?")
