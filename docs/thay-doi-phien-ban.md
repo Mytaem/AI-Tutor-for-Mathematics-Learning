@@ -5,6 +5,21 @@ thay vì chỉ mô tả commit mới nhất.
 
 ## Những điểm mới so với bản trước
 
+- **Hiểu đáp án theo cách sinh viên viết:** `x²`, `sinx`, `ln|x|`, `tg x`, `căn x`,
+  `x bình phương`, `0,75` đều được đọc đúng. Trước đây SymPy đọc sai mà không báo
+  (`x²` thành một biến lạ, `sinx` thành `s·i·n·x`) nên bài đúng bị chấm sai. Chữ hệ
+  thống không hiểu thì báo "chưa đọc được", không chấm.
+- **Lời giải từng bước cho 100% đề (4.955/4.955):** mỗi bước có việc cần làm, công
+  thức, phép tính và kết quả, đều do máy tính ra và được bộ chấm xác nhận. Trước chỉ
+  7,5% đề có lời giải, ba môn không có. Xem [du-lieu-loi-giai.md](du-lieu-loi-giai.md).
+- **Sửa 17 đề giới hạn có đáp án sai** (lim(x→∞) bậc 1): sinh viên trả lời đúng từng bị
+  chấm sai.
+- **Gợi ý theo đúng bài đang làm:** chương và kiến thức → công thức → các bước Bước 1..n
+  → làm mẫu bước 1 → lời giải đầy đủ, thay cho câu chung chung. Rà 2.400 gợi ý: không câu
+  nào lộ đáp án trước mức cho phép.
+- **Hỏi lý thuyết trình bày theo dòng có căn cứ:** câu hỏi cách làm trả lời theo Bước 1,
+  2, 3; câu hỏi khái niệm theo Định nghĩa / Công thức / Khi nào dùng. Dòng nào không dẫn
+  được đoạn giáo trình bị bỏ.
 - **Hỏi lý thuyết `/ask` ổn định hơn:** không còn phụ thuộc vào cờ bật gợi ý; câu trả
   lời dài hơn và hạn chế bị cắt giữa câu. Nếu model không hoạt động, hệ thống vẫn trả
   các đoạn tài liệu liên quan thay vì lỗi hoặc im lặng.
