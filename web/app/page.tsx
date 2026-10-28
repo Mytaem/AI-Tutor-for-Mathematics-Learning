@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { api } from "../lib/api";
 import { loadSession, saveSession } from "../lib/session";
 import { ApiDownBanner } from "./api-status";
+import { EMPTY_SCOPE } from "../lib/prefs";
+import { useApp } from "./providers";
 
 const SUBJECTS: Record<string, { name: string; topics: string }> = {
   MAE101: {
@@ -29,6 +31,7 @@ type Health = { subjects: Record<string, { items: number; skills: number }> };
 
 export default function HomePage() {
   const router = useRouter();
+  const { setScope } = useApp();
   const [subjects, setSubjects] = useState<string[]>([]);
   const [health, setHealth] = useState<Health | null>(null);
   const [userId, setUserId] = useState("");
@@ -65,6 +68,7 @@ export default function HomePage() {
         userId: session.user_id,
         subject: session.subject,
       });
+      setScope(EMPTY_SCOPE);
       router.push("/practice");
     } catch (exc) {
       setError((exc as Error).message);
@@ -77,81 +81,60 @@ export default function HomePage() {
 
   return (
     <main>
-      <h1>Bắt đầu luyện tập</h1>
-      <p className="lead">
-        Bài làm được chấm bằng kiểm chứng ký hiệu — SymPy, NetworkX, Monte Carlo — chứ
-        không phải bằng cách hỏi mô hình ngôn ngữ. Gợi ý cho dần theo bậc và không nói
-        đáp án trước mức 4.
-      </p>
+      <section className="welcome">
+        <div>
+          <span className="eyebrow">Không gian học tập</span>
+          <h1>Học đúng phần bạn cần.</h1>
+          <p className="lead">Luyện bài, nhận gợi ý và theo dõi tiến bộ trong một nơi.</p>
+        </div>
+        <div className="welcome-mark" aria-hidden="true">∑</div>
+      </section>
 
       {down && <ApiDownBanner />}
 
-      <form onSubmit={start}>
-        <h2 style={{ marginTop: 0 }}>1. Chọn môn</h2>
-        <div className="cards">
-          {subjects.map((code) => {
-            const info = SUBJECTS[code] ?? { name: code, topics: "" };
-            const stat = health?.subjects?.[code];
-            return (
-              <button
-                type="button"
-                key={code}
-                className="card"
-                aria-pressed={subject === code}
-                onClick={() => setSubject(code)}
-              >
-                <span className="code">
-                  {code}
-                  {subject === code && <span className="chip accent">đang chọn</span>}
-                </span>
-                <div className="desc">{info.name}</div>
-                <div className="meta">{info.topics}</div>
-                {stat && (
-                  <div className="meta" style={{ marginTop: 8 }}>
-                    {stat.items.toLocaleString("vi-VN")} đề · {stat.skills} kỹ năng
-                  </div>
-                )}
-              </button>
-            );
-          })}
-          {subjects.length === 0 && !down && (
-            <>
-              <div className="card"><div className="skeleton tall w40" /><div className="skeleton" /><div className="skeleton w60" /></div>
-              <div className="card"><div className="skeleton tall w40" /><div className="skeleton" /><div className="skeleton w60" /></div>
-            </>
-          )}
-        </div>
-
-        <h2>2. Cho hệ thống biết em là ai</h2>
-        <div className="panel">
-          <label htmlFor="user">Tên hoặc mã sinh viên</label>
-          <input
-            id="user"
-            type="text"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            placeholder="ví dụ: SE170001"
-            required
-            minLength={2}
-            autoComplete="off"
-          />
-          <p className="meta" style={{ marginTop: 8 }}>
-            Không cần mật khẩu. Chuỗi này chỉ để nối các lượt làm bài của cùng một người
-            lại với nhau, nhờ đó mô hình năng lực mới theo dõi được tiến bộ.
-          </p>
-
-          <div className="row" style={{ marginTop: 18 }}>
-            <button type="submit" disabled={busy || !ready}>
-              {busy && <span className="spin" aria-hidden="true" />}
-              {busy ? "Đang tạo phiên…" : "Vào luyện tập"}
-            </button>
-            <span className="meta">
-              Buổi đầu có vài câu đo đầu vào để hệ thống ước lượng trình độ.
-            </span>
+      <form onSubmit={start} className="start-layout">
+        <section>
+          <div className="section-heading">
+            <div><span className="step">01</span><h2>Chọn học phần</h2></div>
+            <span className="meta">{subjects.length || 4} học phần</span>
           </div>
+          <div className="cards">
+            {subjects.map((code, index) => {
+              const info = SUBJECTS[code] ?? { name: code, topics: "" };
+              const stat = health?.subjects?.[code];
+              return (
+                <button type="button" key={code} className={`card course-${index + 1}`} aria-pressed={subject === code} onClick={() => setSubject(code)}>
+                  <span className="course-icon" aria-hidden="true">{["∫", "◇", "λ", "σ"][index] ?? "∑"}</span>
+                  <span className="course-copy">
+                    <span className="code">{code}</span>
+                    <span className="desc">{info.name}</span>
+                    <span className="meta course-topics">{info.topics}</span>
+                    {stat && <span className="course-stat">{stat.items.toLocaleString("vi-VN")} bài · {stat.skills} kỹ năng</span>}
+                  </span>
+                  <span className="select-indicator" aria-hidden="true">✓</span>
+                </button>
+              );
+            })}
+            {subjects.length === 0 && !down && <><div className="card"><div className="skeleton tall w40" /><div className="skeleton" /></div><div className="card"><div className="skeleton tall w40" /><div className="skeleton" /></div></>}
+          </div>
+        </section>
 
+        <section className="start-panel">
+          <span className="step">02</span>
+          <h2>Bắt đầu học</h2>
+          <p className="meta">Nhập mã của bạn để lưu tiến độ.</p>
+          <div className="field-group">
+            <label htmlFor="user">Mã sinh viên</label>
+            <input id="user" type="text" value={userId} onChange={(e) => setUserId(e.target.value)} placeholder="SE170001" required minLength={2} autoComplete="off" />
+          </div>
+          <button type="submit" className="block start-button" disabled={busy || !ready}>
+            {busy && <span className="spin" aria-hidden="true" />}
+            {busy ? "Đang chuẩn bị…" : "Bắt đầu luyện"}
+            {!busy && <span aria-hidden="true">→</span>}
+          </button>
+          <p className="privacy-note"><span aria-hidden="true">●</span> Không cần mật khẩu</p>
           {error && <p className="error">{error}</p>}
-        </div>
+        </section>
       </form>
     </main>
   );

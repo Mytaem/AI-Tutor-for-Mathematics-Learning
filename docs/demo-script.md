@@ -8,7 +8,7 @@ Chuẩn bị trước khi quay:
 
 ```bash
 python scripts/rag_coverage.py                                   # ĐỌC TRƯỚC, xem bên dưới
-python -m pytest -q                                              # 784 test, ~75 giây
+python -m pytest -q                                              # hơn 780 test, ~75 giây
 
 LLM_HINTS=1 python -m uvicorn src.api.app:create_app --factory --port 8000   # cửa sổ 1
 cd web && npm run dev                                            # cửa sổ 2

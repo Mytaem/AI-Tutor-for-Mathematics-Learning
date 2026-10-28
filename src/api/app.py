@@ -18,9 +18,9 @@ import io
 import os
 import secrets
 from contextlib import asynccontextmanager
-from typing import Any
+from typing import Annotated, Any
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Response
+from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -54,6 +54,15 @@ from src.api.db import Store
 # Mô hình dữ liệu cho HTTP
 # ==========================================================================
 
+# Giới hạn đầu vào được đặt ngay ở biên HTTP. Bộ chấm và RAG đều phải phân tích
+# chuỗi người dùng gửi lên; nếu để chuỗi hoặc danh sách bước không giới hạn, một
+# request lỗi có thể giữ CPU/RAM rất lâu và làm API mất phản hồi cho mọi người.
+UserId = Annotated[str, Field(min_length=1, max_length=128)]
+ObjectId = Annotated[str, Field(min_length=1, max_length=160)]
+AnswerText = Annotated[str, Field(max_length=8_000)]
+SolutionStep = Annotated[str, Field(max_length=4_000)]
+QuestionText = Annotated[str, Field(min_length=1, max_length=4_000)]
+
 class PublicItem(BaseModel):
     """Bài tập ở dạng gửi cho client — ĐÃ LƯỢC BỎ mọi thông tin về đáp án."""
 
@@ -83,8 +92,8 @@ class PublicItem(BaseModel):
 
 
 class StartSessionRequest(BaseModel):
-    user_id: str = Field(min_length=1)
-    subject: str = "MAE101"
+    user_id: UserId
+    subject: Annotated[str, Field(min_length=1, max_length=16)] = "MAE101"
 
 
 class StartSessionResponse(BaseModel):
@@ -99,10 +108,10 @@ class StartSessionResponse(BaseModel):
 
 
 class AttemptRequest(BaseModel):
-    session_id: str
-    item_id: str
-    final_answer: str | None = None
-    steps: list[str] = Field(default_factory=list)
+    session_id: ObjectId
+    item_id: ObjectId
+    final_answer: AnswerText | None = None
+    steps: list[SolutionStep] = Field(default_factory=list, max_length=100)
 
 
 class StepResultOut(BaseModel):
@@ -134,8 +143,8 @@ class AttemptResponse(BaseModel):
 
 
 class HintRequest(BaseModel):
-    session_id: str
-    item_id: str
+    session_id: ObjectId
+    item_id: ObjectId
     asked_for_solution: bool = False
 
 
@@ -230,9 +239,9 @@ class AdminOverview(BaseModel):
 
 
 class AskRequest(BaseModel):
-    question: str
-    subject: str | None = None
-    chapter: str | None = None
+    question: QuestionText
+    subject: Annotated[str, Field(max_length=16)] | None = None
+    chapter: Annotated[str, Field(max_length=128)] | None = None
 
 
 class AskResponse(BaseModel):
@@ -560,18 +569,13 @@ class TutorService:
             for skill_id, skill in sorted(skills_by_id.items())
         ]
 
-        query = "SELECT COUNT(*) AS total, SUM(is_correct) AS correct FROM attempts WHERE user_id = ?"
-        params: tuple = (user_id,)
-        if subject:
-            query += " AND subject = ?"
-            params += (subject,)
-        rows = self.store._connection.execute(query, params).fetchone()  # noqa: SLF001
+        attempts, correct = self.store.progress_counts(user_id, subject)
 
         return ProgressResponse(
             user_id=user_id,
             skills=skills,
-            attempts=rows["total"] or 0,
-            correct=rows["correct"] or 0,
+            attempts=attempts,
+            correct=correct,
         )
 
     # ------------------------------------------------------------------
@@ -758,12 +762,19 @@ ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "").strip()
 
 def create_app(service: TutorService | None = None) -> FastAPI:
     state: dict[str, Any] = {"service": service}
+    owns_service = service is None
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         if state["service"] is None:
             state["service"] = build_service()
-        yield
+        try:
+            yield
+        finally:
+            # App production tự tạo Store thì cũng phải tự đóng. Service được
+            # inject trong test hoặc notebook vẫn thuộc quyền sở hữu của caller.
+            if owns_service and state["service"] is not None:
+                state["service"].store.close()
 
     app = FastAPI(title="AI Tutor for Mathematics Learning", version="0.2.0", lifespan=lifespan)
 
@@ -781,6 +792,20 @@ def create_app(service: TutorService | None = None) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    @app.middleware("http")
+    async def production_headers(request: Request, call_next):
+        """Bảo vệ phản hồi API và không cho cache dữ liệu người học."""
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        # Nhiều endpoint nhận user_id qua query hoặc trả tiến độ/bài làm. Tắt
+        # cache toàn API tránh proxy dùng nhầm phản hồi của người này cho người khác.
+        response.headers["Cache-Control"] = "no-store"
+        if request.url.path.startswith("/admin/"):
+            response.headers["Pragma"] = "no-cache"
+        return response
 
     def get_service() -> TutorService:
         if state["service"] is None:
@@ -942,7 +967,9 @@ def create_app(service: TutorService | None = None) -> FastAPI:
         Có endpoint này vì phần đánh giá của đồ án cần dữ liệu thô: đây là
         đường ngắn nhất từ log người dùng thật sang `scripts/label_real_errors.py`.
         """
-        rows = service.store.recent_attempts(500, subject)
+        # Xuất dữ liệu là đường đưa log người dùng sang bước gán nhãn/đánh giá.
+        # Không được âm thầm cắt 500 dòng như trang xem nhanh của quản trị viên.
+        rows = service.store.recent_attempts(None, subject)
         buffer = io.StringIO()
         writer = csv.DictWriter(
             buffer,

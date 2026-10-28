@@ -40,7 +40,11 @@ llm_cache.sqlite
 # dữ liệu cá nhân của sinh viên, không bao giờ đưa lên git.
 *.sqlite
 *.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
 *.db
+*.db-wal
+*.db-shm
 
 # Frontend
 web/node_modules/

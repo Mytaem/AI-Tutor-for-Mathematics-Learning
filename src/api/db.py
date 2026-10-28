@@ -16,7 +16,9 @@ import json
 import sqlite3
 import time
 import uuid
+from functools import wraps
 from pathlib import Path
+from threading import RLock
 from typing import Any
 
 SCHEMA = """
@@ -69,10 +71,20 @@ CREATE INDEX IF NOT EXISTS idx_hints_session ON hints(session_id);
 """
 
 
+def _locked(method):
+    """Tuần tự hoá thao tác trên connection SQLite dùng chung giữa các request."""
+    @wraps(method)
+    def wrapped(self, *args, **kwargs):
+        with self._lock:
+            return method(self, *args, **kwargs)
+    return wrapped
+
+
 class Store:
     """Kho dữ liệu của ứng dụng."""
 
     def __init__(self, path: str | Path) -> None:
+        self._lock = RLock()
         self.path = Path(path)
         if str(path) != ":memory:":
             self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -80,12 +92,21 @@ class Store:
         self._connection = sqlite3.connect(
             ":memory:" if str(path) == ":memory:" else self.path,
             check_same_thread=False,
+            timeout=10.0,
         )
         self._connection.row_factory = sqlite3.Row
+        # Production có thể chạy nhiều worker hoặc có tiến trình xuất báo cáo
+        # cùng lúc người học nộp bài. WAL cho phép đọc trong khi đang ghi; thời
+        # gian chờ giúp một đợt ghi ngắn không biến ngay thành "database is locked".
+        self._connection.execute("PRAGMA busy_timeout = 10000")
+        if str(path) != ":memory:":
+            self._connection.execute("PRAGMA journal_mode = WAL")
+            self._connection.execute("PRAGMA synchronous = NORMAL")
         self._connection.executescript(SCHEMA)
         self._migrate()
         self._connection.commit()
 
+    @_locked
     def _migrate(self) -> None:
         """Nâng cấp file DB đã tạo bằng lược đồ cũ.
 
@@ -105,11 +126,13 @@ class Store:
             "CREATE INDEX IF NOT EXISTS idx_attempts_user_subject ON attempts(user_id, subject)"
         )
 
+    @_locked
     def close(self) -> None:
         self._connection.close()
 
     # ------------------------------------------------------------------
 
+    @_locked
     def create_session(self, user_id: str, subject: str) -> str:
         session_id = uuid.uuid4().hex
         self._connection.execute(
@@ -119,6 +142,7 @@ class Store:
         self._connection.commit()
         return session_id
 
+    @_locked
     def get_session(self, session_id: str) -> sqlite3.Row | None:
         return self._connection.execute(
             "SELECT * FROM sessions WHERE session_id = ?", (session_id,)
@@ -126,6 +150,7 @@ class Store:
 
     # ------------------------------------------------------------------
 
+    @_locked
     def record_attempt(
         self,
         session_id: str,
@@ -157,6 +182,7 @@ class Store:
         self._connection.commit()
         return cursor.lastrowid
 
+    @_locked
     def record_hint(self, session_id: str, item_id: str, hint: Any) -> int:
         cursor = self._connection.execute(
             """
@@ -171,6 +197,7 @@ class Store:
         self._connection.commit()
         return cursor.lastrowid
 
+    @_locked
     def attempts_for_session(self, session_id: str) -> list[sqlite3.Row]:
         return self._connection.execute(
             "SELECT * FROM attempts WHERE session_id = ? ORDER BY attempt_id", (session_id,)
@@ -180,6 +207,7 @@ class Store:
     def _subject_filter(subject: str | None) -> tuple[str, tuple]:
         return (" AND subject = ?", (subject,)) if subject else ("", ())
 
+    @_locked
     def attempt_count(self, user_id: str, subject: str | None = None) -> int:
         """Người này đã làm bao nhiêu bài (của một môn) — để biết còn trong giai đoạn đo đầu vào không.
 
@@ -191,6 +219,7 @@ class Store:
             "SELECT COUNT(*) FROM attempts WHERE user_id = ?" + clause, (user_id, *params)
         ).fetchone()[0]
 
+    @_locked
     def attempt_history(self, user_id: str, subject: str | None = None) -> list[tuple[str, bool]]:
         """Lịch sử làm bài theo đúng thứ tự thời gian: (mã đề, đúng/sai).
 
@@ -204,6 +233,7 @@ class Store:
         ).fetchall()
         return [(row["item_id"], bool(row["is_correct"])) for row in rows]
 
+    @_locked
     def attempted_item_ids(self, user_id: str, subject: str | None = None) -> set[str]:
         clause, params = self._subject_filter(subject)
         rows = self._connection.execute(
@@ -211,6 +241,7 @@ class Store:
         ).fetchall()
         return {row["item_id"] for row in rows}
 
+    @_locked
     def recent_item_ids(self, user_id: str, limit: int = 5, subject: str | None = None) -> set[str]:
         clause, params = self._subject_filter(subject)
         rows = self._connection.execute(
@@ -222,12 +253,14 @@ class Store:
 
     # ------------------------------------------------------------------
 
+    @_locked
     def load_mastery(self, user_id: str) -> dict[str, float]:
         rows = self._connection.execute(
             "SELECT skill_id, value FROM mastery WHERE user_id = ?", (user_id,)
         ).fetchall()
         return {row["skill_id"]: row["value"] for row in rows}
 
+    @_locked
     def save_mastery(self, user_id: str, values: dict[str, float]) -> None:
         now = time.time()
         self._connection.executemany(
@@ -244,6 +277,7 @@ class Store:
     # Tổng hợp cho trang quản trị
     # ------------------------------------------------------------------
 
+    @_locked
     def per_subject_stats(self) -> list[dict]:
         """Số lượt, số người, tỉ lệ đúng theo từng môn.
 
@@ -278,6 +312,7 @@ class Store:
             })
         return out
 
+    @_locked
     def top_error_codes(self, limit: int = 15) -> list[dict]:
         """Mã lỗi hay gặp nhất. Đây là thứ giảng viên cần để biết dạy lại chỗ nào."""
         counter: dict[str, int] = {}
@@ -293,6 +328,7 @@ class Store:
         ordered = sorted(counter.items(), key=lambda kv: (-kv[1], kv[0]))[:limit]
         return [{"error_code": code, "count": count} for code, count in ordered]
 
+    @_locked
     def learners(self, limit: int = 100) -> list[dict]:
         rows = self._connection.execute(
             """
@@ -319,8 +355,14 @@ class Store:
             for row in rows
         ]
 
-    def recent_attempts(self, limit: int = 50, subject: str | None = None) -> list[dict]:
+    @_locked
+    def recent_attempts(
+        self, limit: int | None = 50, subject: str | None = None
+    ) -> list[dict]:
+        """Trả bài làm mới nhất; ``limit=None`` dùng khi xuất toàn bộ dữ liệu."""
         clause, params = self._subject_filter(subject)
+        limit_sql = " LIMIT ?" if limit is not None else ""
+        query_params = (*params, limit) if limit is not None else params
         rows = self._connection.execute(
             f"""
             SELECT attempt_id, user_id, subject, item_id, raw_input,
@@ -328,9 +370,9 @@ class Store:
             FROM attempts
             WHERE 1 = 1 {clause}
             ORDER BY attempt_id DESC
-            LIMIT ?
+            {limit_sql}
             """,
-            (*params, limit),
+            query_params,
         ).fetchall()
         return [
             {
@@ -351,12 +393,14 @@ class Store:
             for row in rows
         ]
 
+    @_locked
     def hint_level_usage(self) -> list[dict]:
         rows = self._connection.execute(
             "SELECT level, COUNT(*) AS n FROM hints GROUP BY level ORDER BY level"
         ).fetchall()
         return [{"level": row["level"], "count": row["n"]} for row in rows]
 
+    @_locked
     def stats(self) -> dict[str, int]:
         def count(table: str) -> int:
             return self._connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
@@ -367,3 +411,14 @@ class Store:
             "hints": count("hints"),
             "mastery_records": count("mastery"),
         }
+
+    @_locked
+    def progress_counts(self, user_id: str, subject: str | None = None) -> tuple[int, int]:
+        """Số lượt và số câu đúng, đọc an toàn khi nhiều request chạy đồng thời."""
+        query = "SELECT COUNT(*) AS total, SUM(is_correct) AS correct FROM attempts WHERE user_id = ?"
+        params: tuple = (user_id,)
+        if subject:
+            query += " AND subject = ?"
+            params += (subject,)
+        row = self._connection.execute(query, params).fetchone()
+        return row["total"] or 0, row["correct"] or 0

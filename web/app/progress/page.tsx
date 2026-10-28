@@ -79,12 +79,9 @@ export default function ProgressPage() {
 
   return (
     <main>
-      <h1>Tiến độ — {subject}</h1>
-      <p className="lead">
-        Mức thành thạo do mô hình BKT ước lượng từ chính các lượt làm bài, <strong>không
-        phải điểm trung bình</strong>: làm đúng một bài dễ khi đang yếu thì tăng ít, làm
-        đúng bài khó thì tăng nhiều.
-      </p>
+      <span className="eyebrow">{subject}</span>
+      <h1>Tiến độ học tập</h1>
+      <p className="lead">Theo dõi mức thành thạo và chọn nội dung cần luyện tiếp.</p>
 
       {progress.attempts === 0 ? (
         <div className="panel empty">
@@ -102,7 +99,7 @@ export default function ProgressPage() {
             </div>
             <div className="tile">
               <div className="n">{(accuracy * 100).toFixed(0)}%</div>
-              <div className="k">Tỉ lệ làm đúng — {progress.correct}/{progress.attempts} lượt</div>
+              <div className="k">Tỉ lệ đúng · {progress.correct}/{progress.attempts} lượt</div>
             </div>
             <div className="tile">
               <div className="n">
@@ -111,11 +108,11 @@ export default function ProgressPage() {
                   /{progress.skills.length}
                 </span>
               </div>
-              <div className="k">Kỹ năng đạt từ 60% trở lên</div>
+              <div className="k">Kỹ năng đã vững</div>
             </div>
             <div className="tile">
               <div className="n">{weak.length}</div>
-              <div className="k">Kỹ năng còn dưới 35%</div>
+              <div className="k">Kỹ năng cần luyện</div>
             </div>
           </div>
 
@@ -130,15 +127,12 @@ export default function ProgressPage() {
                     </span>
                   ))}
                 </div>
-                <p className="meta" style={{ marginTop: 12 }}>
-                  Bộ chọn bài không nhất thiết đưa ngay bài khó nhất trong nhóm này — nó
-                  chọn bài có xác suất làm đúng quanh 75%, tức vừa đủ sức để học được.
-                </p>
+                <p className="meta" style={{ marginTop: 12 }}>Bài tiếp theo sẽ ưu tiên các kỹ năng này.</p>
               </div>
             </>
           )}
 
-          <h2>Toàn bộ kỹ năng của môn</h2>
+          <h2>Tất cả kỹ năng</h2>
           <div className="panel flush">
             <div className="panel-head" style={{ justifyContent: "space-between" }}>
               <span className="meta">Xếp từ kỹ năng yếu nhất lên</span>
@@ -158,7 +152,7 @@ export default function ProgressPage() {
                 <thead>
                   <tr>
                     <th scope="col">Kỹ năng</th>
-                    <th scope="col">Mức thành thạo (BKT)</th>
+                    <th scope="col">Mức thành thạo</th>
                     <th scope="col" style={{ textAlign: "right" }}>
                       Xếp loại
                     </th>

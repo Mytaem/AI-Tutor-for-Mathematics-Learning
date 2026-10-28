@@ -89,10 +89,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <AppContext.Provider value={value}>
       <div className="shell">
-        <main>{children}</main>
         <aside className="side">
           <Sidebar />
         </aside>
+        <div className="content">{children}</div>
       </div>
     </AppContext.Provider>
   );

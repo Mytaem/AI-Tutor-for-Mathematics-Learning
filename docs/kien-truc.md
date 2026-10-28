@@ -260,7 +260,7 @@ Ghi lại để không ai sửa lại thành cũ.
 ## 6. Chạy test
 
 ```bash
-python -m pytest -q                       # 784 test, ~60–120 giây
+python -m pytest -q                       # hơn 780 test, ~60–120 giây
 python -m pytest tests/test_verify_calculus.py -q
 python -m pytest -q -k "Syllabus or Admin"
 set PYTHONIOENCODING=utf-8                # nếu terminal không đọc được tiếng Việt

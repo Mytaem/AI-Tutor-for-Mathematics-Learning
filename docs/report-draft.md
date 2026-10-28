@@ -131,11 +131,11 @@ ra khi nó hiện số đề từng chương.
 | MAE101 | 7/7 | OpenStax Calculus 1–2, 3.160 đoạn |
 | MAD101 | 7/7 | Rosen 7th ed., 4.730 đoạn |
 | MAI391 | 2/8 | Deisenroth, 1.253 đoạn — đủ bù |
-| MAS291 | **2/8** | **không có** (2 đoạn lẻ) |
+| MAS291 | 2/8 | OpenStax *Introductory Statistics 2e*, 2.061 đoạn — đủ bù |
 
-MAS291 là lỗ thật: sáu chương không có tài liệu nào để truy xuất. Hệ thống trả lời
-"chưa có tài liệu chương này" thay vì đoán, nhưng đó vẫn là trống dữ liệu, không phải
-một tính năng.
+MAS291 từng là lỗ thật: sáu chương không có tài liệu nào để truy xuất. Kho hiện đã
+được bù bằng sách mở OpenStax; slide riêng của môn vẫn chỉ phủ 2/8 chương nên nội dung
+có thể không hoàn toàn trùng với cách giảng viên tổ chức bài học.
 
 ## 4.2. Sinh đề tự động có kiểm chứng
 

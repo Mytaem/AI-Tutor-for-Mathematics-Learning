@@ -66,10 +66,7 @@ export function AdminGate({
         <div>
           <strong>Phần quản trị đang tắt</strong>
           <div className="meta" style={{ marginTop: 4 }}>
-            Mặc định là tắt vì dữ liệu ở đây là bài làm của người thật. Bật bằng cách
-            đặt biến môi trường rồi khởi động lại API:
-            <br />
-            <code>ADMIN_TOKEN=khoá-của-bạn python -m uvicorn src.api.app:create_app --factory --port 8000</code>
+            Liên hệ quản trị viên để được cấp quyền truy cập.
           </div>
         </div>
       </div>
@@ -85,7 +82,7 @@ export function AdminGate({
           type="password"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="giá trị của ADMIN_TOKEN"
+          placeholder="Nhập khoá truy cập"
           autoComplete="off"
         />
         <div className="row" style={{ marginTop: 14 }}>

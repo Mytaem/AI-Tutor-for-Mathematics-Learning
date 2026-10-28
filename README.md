@@ -46,7 +46,7 @@ Phần huấn luyện (LoRA, knowledge tracing) cài riêng trên Colab/Kaggle:
 
 ## Tình trạng
 
-Đủ 4/4 môn, chạy được end-to-end từ web và Telegram. **784 test**, chạy hết trong
+Đủ 4/4 môn, chạy được end-to-end từ web và Telegram. **Hơn 780 test**, chạy hết trong
 ~75 giây, không cần GPU, không cần mạng, không cần model.
 
 | Phần | Trạng thái |

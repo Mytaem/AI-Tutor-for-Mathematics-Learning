@@ -38,15 +38,15 @@ export function ApiStatus() {
 
   if (state === "up") {
     return (
-      <span className="chip ok" title={`Đang nối tới ${API_URL}`}>
-        <Dot color="var(--ok)" /> Đã nối backend
+      <span className="status-pill" title="Hệ thống đang hoạt động">
+        <Dot color="var(--ok)" /> Trực tuyến
       </span>
     );
   }
 
   return (
-    <span className="chip wrong" title={`Không gọi được ${API_URL}`}>
-      <Dot color="var(--wrong)" /> Mất kết nối backend
+    <span className="status-pill offline" title={`Không thể kết nối ${API_URL}`}>
+      <Dot color="var(--wrong)" /> Mất kết nối
     </span>
   );
 }
@@ -66,14 +66,9 @@ export function ApiDownBanner() {
     <div className="banner">
       <span aria-hidden="true">⚠</span>
       <div>
-        <strong>Không gọi được backend</strong>
+        <strong>Không thể kết nối</strong>
         <div className="meta" style={{ marginTop: 4 }}>
-          Web đang trỏ tới <code>{API_URL}</code>. Mở một cửa sổ dòng lệnh khác rồi chạy:
-          <br />
-          <code>python -m uvicorn src.api.app:create_app --factory --port 8000</code>
-          <br />
-          Nếu API đang chạy mà vẫn báo lỗi này, kiểm tra <code>CORS_ORIGINS</code> có chứa
-          địa chỉ của trang web không.
+          Dịch vụ đang tạm gián đoạn. Vui lòng thử lại sau ít phút.
         </div>
       </div>
     </div>

@@ -239,8 +239,8 @@ Khoá chỉ giữ trong tab đang mở — đóng tab là phải nhập lại. �
 200 bài làm gần nhất, lọc được theo môn. Mỗi dòng có thời điểm, người học, mã đề, **bài
 làm nguyên văn**, kết quả chấm và mã lỗi.
 
-Nút **Xuất CSV** lấy tới 500 dòng. File có BOM nên Excel trên Windows đọc đúng tiếng
-Việt.
+Nút **Xuất CSV** lấy toàn bộ bài làm trong phạm vi đang chọn. File có BOM nên Excel
+trên Windows đọc đúng tiếng Việt.
 
 Dùng CSV này để phân tích ngoài hệ thống, hoặc đưa vào công cụ gán nhãn lỗi
 (`scripts/label_real_errors.py`) khi cần dữ liệu cho nghiên cứu.

@@ -20,6 +20,7 @@ Mỗi file viết cho **một người đọc cụ thể**. Chọn đúng cái b
 | [huong-dan-cai-dat.md](huong-dan-cai-dat.md) | Cài từ đầu, dựng kho giáo trình, dựng ngân hàng đề, huấn luyện DKT và LoRA, bảng xử lý sự cố |
 | [running.md](running.md) | Tham chiếu nhanh: lệnh, biến môi trường, endpoint |
 | [kien-truc.md](kien-truc.md) | Bản đồ mã nguồn, luồng một lượt làm bài, cách thêm môn / mã lỗi / dạng bài, những chỗ dễ sập |
+| [thay-doi-phien-ban.md](thay-doi-phien-ban.md) | Mốc thay đổi của phiên bản production hiện tại |
 
 ## Đánh giá và báo cáo
 

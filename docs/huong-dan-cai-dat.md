@@ -338,7 +338,7 @@ gõ tay** — nên đổi số liệu thì chạy lại `make_report_tables.py`.
 
 ```bash
 python scripts/check_demo_ready.py    # gộp mọi phép kiểm, in việc còn thiếu kèm lệnh
-python -m pytest -q                   # 784 test
+python -m pytest -q                   # hơn 780 test
 python scripts/rag_coverage.py        # độ phủ kho giáo trình
 python scripts/demo_full.py           # 6 cảnh, không cần mạng, không cần model
 ```

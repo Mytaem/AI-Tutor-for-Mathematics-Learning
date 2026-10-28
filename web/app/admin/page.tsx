@@ -9,12 +9,7 @@ export default function AdminPage() {
   return (
     <main>
       <h1>Tổng quan</h1>
-      <p className="lead">
-        Dành cho giảng viên: ai đang luyện, sai ở đâu, xin gợi ý tới mức nào. Dữ liệu
-        lấy trực tiếp từ bảng <span className="mono">attempts</span> và{" "}
-        <span className="mono">hints</span> — chính hai bảng dùng cho phần thực nghiệm
-        của đồ án.
-      </p>
+      <p className="lead">Theo dõi hoạt động học tập và những nội dung cần hỗ trợ.</p>
       <AdminGate>{(token) => <Overview token={token} />}</AdminGate>
     </main>
   );

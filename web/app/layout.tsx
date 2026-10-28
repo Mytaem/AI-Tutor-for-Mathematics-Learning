@@ -4,8 +4,8 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "AI Tutor Toán",
-  description: "Gia sư toán có kiểm chứng ký hiệu — MAE101, MAD101, MAI391, MAS291",
+  title: "Numeris — Học toán chủ động",
+  description: "Luyện tập, hỏi đáp và theo dõi tiến độ cho MAE101, MAD101, MAI391, MAS291",
 };
 
 /**
@@ -25,7 +25,7 @@ try {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi">
+    <html lang="vi" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
       </head>
@@ -33,11 +33,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <header className="topbar">
           <div className="inner">
             <a className="brand" href="/">
-              <span className="mark" aria-hidden="true">∫</span>
-              <span>AI Tutor Toán</span>
+              <span className="mark" aria-hidden="true">N</span>
+              <span className="brand-copy">
+                <strong>Numeris</strong>
+                <small>Trợ lý học toán</small>
+              </span>
             </a>
             <div className="spacer" />
-            <span className="meta">MAE101 · MAD101 · MAI391 · MAS291</span>
+            <span className="course-count">4 học phần</span>
           </div>
         </header>
         <Providers>{children}</Providers>

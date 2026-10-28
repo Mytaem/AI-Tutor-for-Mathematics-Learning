@@ -11,11 +11,7 @@ export default function AttemptsPage() {
   return (
     <main>
       <h1>Bài làm</h1>
-      <p className="lead">
-        Bài làm gần nhất, đã chấm. Đây cũng là nguồn cho{" "}
-        <span className="mono">scripts/label_real_errors.py</span> — công cụ gán nhãn lỗi
-        THẬT của sinh viên, thứ mà phần đánh giá của đồ án đang cần.
-      </p>
+      <p className="lead">Xem kết quả gần đây hoặc xuất dữ liệu để phân tích.</p>
       <AdminGate>{(token) => <Table token={token} />}</AdminGate>
     </main>
   );
@@ -132,8 +128,8 @@ function Table({ token }: { token: string }) {
       )}
 
       <p className="meta">
-        Hiện tối đa 200 dòng gần nhất. Bản xuất CSV lấy tới 500 dòng và có BOM nên Excel
-        trên Windows đọc đúng tiếng Việt.
+        Hiện tối đa 200 dòng gần nhất. Bản xuất CSV lấy toàn bộ bài làm trong phạm vi đã
+        chọn và có BOM nên Excel trên Windows đọc đúng tiếng Việt.
       </p>
     </>
   );

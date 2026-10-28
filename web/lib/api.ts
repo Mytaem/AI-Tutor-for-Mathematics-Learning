@@ -7,6 +7,8 @@
  */
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const DEFAULT_TIMEOUT_MS = 30_000;
+const MODEL_TIMEOUT_MS = 120_000;
 
 export type PublicItem = {
   item_id: string;
@@ -131,12 +133,34 @@ export type Session = {
   placement_remaining: number;
 };
 
-async function call<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_URL}${path}`, {
-    ...init,
-    headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
-    cache: "no-store",
-  });
+async function fetchWithTimeout(
+  path: string,
+  init?: RequestInit,
+  timeoutMs = DEFAULT_TIMEOUT_MS
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(`${API_URL}${path}`, {
+      ...init,
+      headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
+      cache: "no-store",
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new Error("Máy chủ phản hồi quá lâu. Vui lòng thử lại.");
+    }
+    throw new Error("Không kết nối được tới backend. Vui lòng kiểm tra máy chủ và cấu hình API.", {
+      cause: error,
+    });
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
+
+async function call<T>(path: string, init?: RequestInit, timeoutMs?: number): Promise<T> {
+  const response = await fetchWithTimeout(path, init, timeoutMs);
   if (!response.ok) {
     // Thông điệp lỗi của FastAPI nằm ở trường `detail`; hiện nguyên văn cho
     // người dùng thấy còn hơn nuốt lỗi rồi để màn hình trắng.
@@ -192,9 +216,8 @@ export const api = {
   adminExport: async (token: string, subject?: string) => {
     const query = new URLSearchParams();
     if (subject) query.set("subject", subject);
-    const response = await fetch(`${API_URL}/admin/export.csv?${query}`, {
+    const response = await fetchWithTimeout(`/admin/export.csv?${query}`, {
       headers: { "X-Admin-Token": token },
-      cache: "no-store",
     });
     if (!response.ok) throw new Error(`Lỗi ${response.status}`);
     return response.blob();
@@ -229,7 +252,7 @@ export const api = {
         subject: subject ?? null,
         chapter: chapter ?? null,
       }),
-    }),
+    }, MODEL_TIMEOUT_MS),
 
   progress: (userId: string, subject: string) =>
     call<Progress>(`/progress?user_id=${encodeURIComponent(userId)}&subject=${subject}`),

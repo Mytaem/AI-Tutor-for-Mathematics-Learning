@@ -38,6 +38,23 @@ def session(client: TestClient) -> dict:
 
 # ==========================================================================
 
+class TestRequestLimits:
+    """Biên HTTP phải chặn payload bất thường trước khi đưa vào bộ chấm/RAG."""
+
+    def test_chan_cau_hoi_qua_dai(self, client: TestClient) -> None:
+        response = client.post("/ask", json={"question": "x" * 4_001})
+        assert response.status_code == 422
+
+    def test_chan_qua_nhieu_buoc_loi_giai(self, client: TestClient, session: dict) -> None:
+        response = client.post("/attempt", json={
+            "session_id": session["session_id"],
+            "item_id": session["first_item"]["item_id"],
+            "final_answer": "0",
+            "steps": ["x"] * 101,
+        })
+        assert response.status_code == 422
+
+
 class TestCORS:
     """Thiếu CORS thì web hiện ra đầy đủ nhưng KHÔNG nút nào chạy.
 
@@ -74,6 +91,12 @@ class TestAdmin:
         fresh = TestClient(create_app(build_service(AppConfig(), store=Store(":memory:"))))
         assert fresh.get("/admin/enabled").json() == {"enabled": False}
         assert fresh.get("/admin/overview").status_code == 403
+
+    def test_phan_hoi_quan_tri_khong_duoc_cache(self, client: TestClient) -> None:
+        response = client.get("/admin/enabled")
+        assert response.headers["cache-control"] == "no-store"
+        assert response.headers["x-content-type-options"] == "nosniff"
+        assert response.headers["x-frame-options"] == "DENY"
 
     def test_khoa_sai_hoac_thieu_thi_tu_choi(self, monkeypatch) -> None:
         monkeypatch.setattr(app_module, "ADMIN_TOKEN", "khoa-that")
@@ -113,6 +136,32 @@ class TestAdmin:
         assert response.status_code == 200
         assert response.content.startswith(b"\xef\xbb\xbf")
         assert "attachment" in response.headers["content-disposition"]
+
+    def test_xuat_csv_khong_cat_o_500_dong(self, monkeypatch) -> None:
+        monkeypatch.setattr(app_module, "ADMIN_TOKEN", "khoa-that")
+        store = Store(":memory:")
+        # Chèn thẳng dữ liệu kiểm thử: mục tiêu ở đây là kiểm đường xuất, không
+        # chạy bộ chấm 501 lần rồi biến test nhỏ thành test hiệu năng.
+        store._connection.executemany(
+            """
+            INSERT INTO attempts
+                (session_id, user_id, subject, item_id, raw_input, is_correct,
+                 final_answer_correct, error_codes, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                ("s", "u", "MAE101", f"MAE101-TEST-{index:03d}", "0", 0, 0, "[]", index)
+                for index in range(501)
+            ],
+        )
+        store._connection.commit()
+        guarded = TestClient(create_app(build_service(AppConfig(), store=store)))
+
+        response = guarded.get(
+            "/admin/export.csv", headers={"X-Admin-Token": "khoa-that"}
+        )
+        # Một dòng tiêu đề + toàn bộ 501 bài làm.
+        assert len(response.content.decode("utf-8-sig").splitlines()) == 502
 
 
 class TestSyllabus:

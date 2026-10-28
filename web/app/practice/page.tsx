@@ -40,11 +40,11 @@ function Statement({ item }: { item: PublicItem }) {
 const ANSWER_HELP: Record<string, string> = {
   expression: "Biểu thức, ví dụ x**2/2 + C",
   antiderivative: "Nguyên hàm, nhớ + C",
-  number: "Một số — viết 0.75 hay 0,75 đều được, phân số 3/4 cũng được",
+  number: "Nhập số thập phân hoặc phân số",
   set: "Các phần tử cách nhau bởi dấu phẩy: 1, 3",
   matrix: "Ma trận [[1, 2], [3, 4]] hoặc vector [1, 2]",
-  eigenvector: "Vector [1, 2] — chấp nhận mọi bội vô hướng",
-  linear_system: "Nghiệm [2, 1] hoặc x = 2, y = 1; vô nghiệm thì viết bằng lời",
+  eigenvector: "Ví dụ: [1, 2]",
+  linear_system: "Ví dụ: [2, 1] hoặc x = 2, y = 1",
   ode_solution: "Nghiệm kèm hằng số tự do, ví dụ C1*exp(x)",
   boolean: "Trả lời có / không",
   text: "Trả lời bằng lời",
@@ -170,10 +170,10 @@ export default function PracticePage() {
     <main>
       <div className="row spread" style={{ marginBottom: 18 }}>
         <div>
+          <span className="eyebrow">{session.subject}</span>
           <h1 style={{ marginBottom: 2 }}>Luyện tập</h1>
           <div className="meta">
-            {session.subject} · {session.userId}
-            {solved > 0 && ` · đã làm đúng ${solved} bài trong phiên này`}
+            {session.userId}{solved > 0 && ` · ${solved} bài đúng`}
           </div>
         </div>
         <button type="button" className="ghost small" onClick={() => router.push("/progress")}>
@@ -199,13 +199,11 @@ export default function PracticePage() {
                 năng, cũng không biết "vừa" là vừa cái gì. */}
             <div className="panel-head">
               <span className="chip">
-                Mã đề <span className="mono">{item.item_id}</span>
+                <span className="mono">{item.item_id}</span>
               </span>
               <span className="chip">Độ khó: {DIFFICULTY(item.difficulty)}</span>
               {item.skills.length > 0 && (
-                <span className="chip accent">
-                  Kỹ năng: {item.skills.join(", ")}
-                </span>
+                <span className="chip accent">{item.skills.join(", ")}</span>
               )}
             </div>
             <div className="panel-body">
@@ -233,19 +231,14 @@ export default function PracticePage() {
 
             {showSteps ? (
               <div style={{ marginTop: 16 }}>
-                <label htmlFor="steps">
-                  Các bước làm — mỗi dòng một bước
-                </label>
+                <label htmlFor="steps">Các bước làm</label>
                 <textarea
                   id="steps"
                   value={steps}
                   onChange={(e) => setSteps(e.target.value)}
                   placeholder={"u = x**2 + 1\ndu = 2*x dx"}
                 />
-                <p className="meta" style={{ marginTop: 6 }}>
-                  Có bước thì hệ thống chỉ được <strong>bước sai đầu tiên</strong>, thay vì
-                  chỉ nói đáp án chưa đúng.
-                </p>
+                <p className="meta" style={{ marginTop: 6 }}>Mỗi dòng một bước.</p>
               </div>
             ) : (
               <button
@@ -254,7 +247,7 @@ export default function PracticePage() {
                 style={{ marginTop: 10 }}
                 onClick={() => setShowSteps(true)}
               >
-                + Trình bày từng bước (để được chỉ đúng chỗ sai)
+                + Thêm các bước làm
               </button>
             )}
 
@@ -289,7 +282,7 @@ export default function PracticePage() {
            quay mãi thì người học tưởng hệ thống treo. */
         <div className="panel empty">
           <p>{error}</p>
-          <p className="meta">Đổi lại phạm vi ở cột bên phải, hoặc bỏ lọc để luyện cả môn.</p>
+          <p className="meta">Đổi phạm vi hoặc bỏ bộ lọc để tiếp tục.</p>
         </div>
       ) : (
         <div className="panel">
@@ -321,7 +314,7 @@ export default function PracticePage() {
                 onClick={() => void askHint(false)}
                 disabled={busy}
               >
-                Vẫn chưa hiểu, gợi ý rõ hơn
+                Gợi ý rõ hơn
               </button>
             )}
             {hint.level >= 4 && hint.level < 5 && (
@@ -331,7 +324,7 @@ export default function PracticePage() {
                 onClick={() => void askHint(true)}
                 disabled={busy}
               >
-                Cho em xem lời giải đầy đủ
+                Xem lời giải
               </button>
             )}
           </div>

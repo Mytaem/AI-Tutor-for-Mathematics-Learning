@@ -52,12 +52,9 @@ export default function AskPage() {
 
   return (
     <main>
-      <h1>Hỏi lý thuyết</h1>
-      <p className="lead">
-        Câu trả lời chỉ dựa trên giáo trình đã nạp và <strong>luôn kèm nguồn</strong> để
-        em tự kiểm. Hỏi ngoài phạm vi bốn môn thì hệ thống nói thẳng là không có, không
-        đoán bừa.
-      </p>
+      <span className="eyebrow">Thư viện học liệu</span>
+      <h1>Hỏi đáp</h1>
+      <p className="lead">Đặt câu hỏi và xem câu trả lời kèm nguồn từ giáo trình.</p>
 
       {down && <ApiDownBanner />}
 
@@ -77,7 +74,7 @@ export default function AskPage() {
             type="text"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="ví dụ: định lý giới hạn trung tâm nói gì?"
+            placeholder="Định lý giới hạn trung tâm nói gì?"
             autoComplete="off"
             style={{ flex: "1 1 240px" }}
           />
@@ -87,7 +84,7 @@ export default function AskPage() {
           </button>
         </div>
 
-        <p className="meta" style={{ margin: "14px 0 7px" }}>Thử nhanh:</p>
+        <p className="meta" style={{ margin: "14px 0 7px" }}>Gợi ý câu hỏi</p>
         <div className="row tight">
           {EXAMPLES.map((example) => (
             <button
@@ -101,12 +98,6 @@ export default function AskPage() {
             </button>
           ))}
         </div>
-
-        <p className="meta" style={{ marginTop: 14 }}>
-          Giáo trình phần lớn là tiếng Anh, nên hỏi bằng thuật ngữ tiếng Anh hiện vẫn cho
-          kết quả tốt hơn — đo được ở EXP-4: Recall@5 là 0,98 với câu hỏi tiếng Anh so với
-          0,60 với tiếng Việt.
-        </p>
 
         {error && <p className="error">{error}</p>}
       </form>
@@ -126,16 +117,12 @@ export default function AskPage() {
               <span className={`chip ${answer.in_scope ? "ok" : "warn"}`}>
                 {answer.in_scope ? "Trong phạm vi giáo trình" : "Ngoài phạm vi"}
               </span>
-              <span className="meta">Câu hỏi: “{asked}”</span>
+              <span className="meta">“{asked}”</span>
             </div>
             <p style={{ margin: 0 }}>
               <MathText text={answer.answer} />
             </p>
-            <p className="meta" style={{ marginTop: 14 }}>
-              {answer.used_llm
-                ? "Mô hình diễn đạt lại, nội dung lấy từ các nguồn bên dưới."
-                : "Trích thẳng từ giáo trình (chưa bật mô hình diễn đạt)."}
-            </p>
+            <p className="meta" style={{ marginTop: 14 }}>Nội dung được tổng hợp từ các nguồn bên dưới.</p>
           </div>
 
           {answer.sources.length > 0 && (

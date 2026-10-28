@@ -704,6 +704,6 @@ Chạy thí nghiệm này còn tìm ra hai lỗi thật, cả hai đều không 
   không kiểm được tính đúng đắn của lập luận.
 - **Nguyên hàm sai khác hằng số nhân với hàm mũ**: `e^(-x)` và bội của nó là hàm riêng
   của phép đạo hàm, nên một lớp lỗi hệ số không phân biệt được bằng đạo hàm ngược.
-- **Kho giáo trình chưa phủ hết syllabus**: MAS291 mới có chương xác suất và biến ngẫu
-  nhiên liên tục; chương biến ngẫu nhiên rời rạc, ước lượng, kiểm định chưa có tài liệu.
-  Gợi ý mức 1–2 cho các chương đó phải lấy đoạn lạc chương.
+- **Kho MAS291 dùng sách mở để bù slide còn thiếu**: nội dung đã phủ syllabus nhờ
+  OpenStax *Introductory Statistics 2e*, nhưng có thể không hoàn toàn trùng với thứ tự,
+  ký hiệu và trọng tâm của giảng viên.

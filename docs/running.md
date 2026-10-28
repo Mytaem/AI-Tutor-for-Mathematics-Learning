@@ -8,7 +8,7 @@ Ba tầng chạy độc lập, mở ba cửa sổ dòng lệnh.
 python -m uvicorn src.api.app:create_app --factory --port 8000
 ```
 
-Kiểm tra: mở http://localhost:8000/health — phải thấy đủ 4 môn và tổng số đề (~4.055,
+Kiểm tra: mở http://localhost:8000/health — phải thấy đủ 4 môn và tổng số đề (4.955,
 gồm cả đề sinh tự động).
 
 Biến môi trường đáng chú ý:
@@ -23,6 +23,10 @@ Biến môi trường đáng chú ý:
 | `DATABASE_URL` | `data/tutor.sqlite` | đổi file dữ liệu |
 | `CORS_ORIGINS` | `localhost:3000`, `127.0.0.1:3000` | origin được phép gọi API |
 | `ADMIN_TOKEN` | trống | bật phần quản trị; **trống = tắt hoàn toàn** |
+
+SQLite chạy ở chế độ WAL để web, bot và trang quản trị có thể đọc/ghi đồng thời ổn
+định hơn. Khi sao lưu `data/tutor.sqlite`, hãy dừng API trước để dữ liệu trong file
+`-wal` được nhập hết vào file chính.
 
 ### Hai biến dễ quên nhất
 
@@ -113,7 +117,7 @@ chứng dễ gây hoang mang: script báo chương đã có 187 đề, mà `/syl
 python scripts/check_demo_ready.py    # máy đã sẵn sàng demo chưa (gộp mọi phép kiểm)
 python scripts/rag_coverage.py        # chương nào chưa có giáo trình
 python scripts/demo_full.py           # 6 cảnh, không cần model, không cần mạng
-python -m pytest -q                   # 784 test, ~75 giây
+python -m pytest -q                   # hơn 780 test, ~75 giây
 ```
 
 **Người demo không phải người viết code** thì đọc [cho-nguoi-demo.md](cho-nguoi-demo.md):
@@ -124,10 +128,10 @@ buổi demo thất bại: sinh viên hỏi "khoảng tin cậy là gì?", kho MA
 đó, và hệ thống khi ấy trả về một đoạn của chương Xác suất — trôi chảy, đúng môn, sai
 chủ đề.
 
-Hiện tại script báo **MAS291 thiếu 6/8 chương** và không có sách giáo trình chung để
-bù. Hệ thống sẽ nói thẳng "chưa có tài liệu chương này" cho các câu hỏi đó — đúng hành
-vi, nhưng vẫn là trống dữ liệu. **Khi demo nên tránh hỏi MAS291 về sáu chương đó**,
-hoặc hỏi để trình diễn chính việc hệ thống thừa nhận trung thực.
+Hiện tại kho đã được bổ sung OpenStax *Introductory Statistics 2e* và phủ đủ các chương
+MAS291. Vẫn phải chạy `rag_coverage.py` trên chính máy production trước mỗi lần demo,
+vì giáo trình và index RAG không nằm trong Git; `git pull` không thể bảo đảm máy đó đã
+có đủ dữ liệu.
 
 ## Thu thập và gán nhãn bài làm sai THẬT
 
