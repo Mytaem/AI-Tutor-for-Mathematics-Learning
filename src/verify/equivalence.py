@@ -27,6 +27,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Literal, Sequence
 
 import sympy as sp
+from src.verify.notation import normalize_notation, unreadable_symbols
 from sympy.parsing.sympy_parser import (
     _token_splittable,
     convert_xor,
@@ -174,6 +175,11 @@ def parse_math(text: str) -> sp.Expr:
 
     if not isinstance(expr, (sp.Expr, sp.MatrixBase, sp.Set)):
         raise ParseError(f"{text!r} không phải là một biểu thức toán học hợp lệ")
+    # Chữ tiếng Việt hay ký hiệu lạ còn sót thành "biến" nghĩa là đọc nhầm. Báo
+    # chưa đọc được còn hơn chấm bài như thể đó là một biến toán học.
+    strange = unreadable_symbols(expr)
+    if strange:
+        raise ParseError(f"Chưa hiểu phần {', '.join(strange)} trong {text!r}")
     return expr
 
 
@@ -191,7 +197,7 @@ def _normalize_input(text: str) -> str:
         "[": "(",
         "]": ")",
     }
-    out = text.strip()
+    out = normalize_notation(text)
     for old, new in replacements.items():
         out = out.replace(old, new)
 
