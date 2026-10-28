@@ -147,7 +147,9 @@ def _limit_infinity(rng: random.Random):
     return draft(
         meta,
         f"Tính giới hạn: lim(x→∞) ({pretty(numerator)}) / ({pretty(denominator)})",
-        text(sp.nsimplify(sp.Rational(lead_top, lead_bottom))),
+        # Tính thẳng giới hạn, KHÔNG suy từ lead_top/lead_bottom: với bậc 1, số
+        # hạng ngẫu nhiên "k*x" cộng vào hệ số đầu, và 17 đề từng có đáp án sai.
+        text(sp.limit(numerator / denominator, X, sp.oo)),
         "number",
     )
 
