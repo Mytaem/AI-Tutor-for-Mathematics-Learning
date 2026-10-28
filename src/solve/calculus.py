@@ -80,7 +80,7 @@ def _limit(item: Item) -> Solution:
                  f"f({show(point)}) = {show(f.subs(X, point))}", f"giới hạn = {show(value)}"),
         ]
         theory = "Hàm sơ cấp liên tục trên miền xác định: giới hạn bằng giá trị của hàm tại điểm đó."
-        formula = "lim_{x→a} f(x) = f(a)"
+        formula = "lim (x→a) f(x) = f(a)"
     return Solution(theory=theory, formula=formula, steps=steps, answer=sp.sstr(value))
 
 

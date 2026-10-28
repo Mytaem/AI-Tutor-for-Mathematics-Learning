@@ -40,6 +40,24 @@ SELF_CHECKS: dict[AnswerType, str] = {
 GENERIC_SELF_CHECK = "Em thử rà lại từng bước và kiểm tra ngược kết quả của mình nhé."
 
 
+def _solution(item: Item):
+    from src.solve import solve
+
+    return solve(item)
+
+
+def _detail(number: int, step, *, with_result: bool) -> list[str]:
+    """Một bước dạng nhiều dòng: việc cần làm, công thức, phép tính, kết quả."""
+    lines = [f"Bước {number}: {step.action}"]
+    if step.formula:
+        lines.append(f"   Công thức: {step.formula}")
+    if step.work:
+        lines.append(f"   {step.work}")
+    if with_result and step.result:
+        lines.append(f"   ⇒ {step.result}")
+    return lines
+
+
 def _norm(text: str) -> str:
     return " ".join(text.lower().split())
 
@@ -111,10 +129,47 @@ class HintGenerator:
 
     # ------------------------------------------------------------------
 
+    # Các mức dưới đây dựng từ LỜI GIẢI ĐÃ KIỂM (src/solve): chương, kiến thức,
+    # công thức và các bước cụ thể của chính bài này. Mỗi dòng qua guardrail
+    # riêng — dòng nào lộ đáp án ở mức đó thì bỏ dòng đó, không bỏ cả gợi ý.
+
+    def _where(self, item: Item) -> str:
+        from src.core.syllabus import display_name
+
+        skill = self.skills.get(item.skills[0]) if item.skills else None
+        if skill is None:
+            return ""
+        return f"Bài thuộc chương «{display_name(item.subject.value, skill.chapter)}», phần «{skill.name_vi}»."
+
+    @staticmethod
+    def _safe(lines: list[str], item: Item, level: HintLevel) -> list[str]:
+        return [line for line in lines if line and not check_leak(line, item, level).leaked]
+
     def _probe(self, item: Item, result: VerificationResult) -> Hint:
-        return Hint(HintLevel.PROBE, self._rng.choice(PROBES), "template")
+        solution = _solution(item)
+        if solution is None:
+            return Hint(HintLevel.PROBE, self._rng.choice(PROBES), "template")
+        lines = self._safe([
+            self._where(item),
+            f"Em xác định lại: đề cho những dữ kiện gì, và hỏi gì? "
+            f"Việc đầu tiên cần làm là: {_lower_first(solution.steps[0].action)}.",
+        ], item, HintLevel.PROBE)
+        return Hint(HintLevel.PROBE, "\n".join(lines) or self._rng.choice(PROBES), "solution")
 
     def _concept(self, item: Item, result: VerificationResult) -> Hint:
+        solution = _solution(item)
+        if solution is not None:
+            lines = self._safe([
+                self._where(item),
+                f"Kiến thức cần dùng: {solution.theory}",
+                f"Công thức: {solution.formula}" if solution.formula else "",
+            ], item, HintLevel.CONCEPT)
+            if lines:
+                return Hint(HintLevel.CONCEPT, "\n".join(lines), "solution",
+                            error_code=self._primary_code(result))
+        return self._concept_template(item, result)
+
+    def _concept_template(self, item: Item, result: VerificationResult) -> Hint:
         method = item.meta.get("method") or ""
         skill = self.skills.get(item.skills[0]) if item.skills else None
 
@@ -134,9 +189,20 @@ class HintGenerator:
         """Cảnh báo đúng cái bẫy mà sinh viên đang mắc, lấy từ taxonomy lỗi."""
         code = self._primary_code(result)
         entry = self.error_codes.get(code) if code else None
+        solution = _solution(item)
 
+        lines: list[str] = []
         if entry is not None and entry.hint_vi:
-            return Hint(HintLevel.PITFALL, entry.hint_vi, "taxonomy", error_code=code)
+            lines.append(entry.hint_vi)
+        if solution is not None:
+            lines.append("Các bước làm bài này:")
+            lines += [f"Bước {i}: {s.action}" + (f" — dùng {s.formula}" if s.formula else "")
+                      for i, s in enumerate(solution.steps, start=1)]
+        lines = self._safe(lines, item, HintLevel.PITFALL)
+        if lines:
+            # Có chẩn đoán thì câu đầu là cái bẫy ĐÚNG loại lỗi đang mắc: nguồn chính là taxonomy.
+            source = "taxonomy" if entry is not None and entry.hint_vi else "solution"
+            return Hint(HintLevel.PITFALL, "\n".join(lines), source, error_code=code)
 
         # Chưa chẩn đoán được loại lỗi: đưa lời khuyên tự kiểm tra, không đoán bừa.
         return Hint(HintLevel.PITFALL, self_check_for(item), "template", error_code=code)
@@ -150,6 +216,18 @@ class HintGenerator:
                 f"Các bước trước đó của em đúng rồi.",
                 "reference", step=step, error_code=self._primary_code(result),
             )
+
+        solution = _solution(item)
+        if solution is not None:
+            # Làm mẫu bước đầu tiên có số của chính đề; các bước sau chỉ nêu việc cần làm.
+            first, rest = solution.steps[0], solution.steps[1:]
+            lines = self._safe(
+                ["Thầy làm mẫu bước đầu, em làm tiếp nhé:", *_detail(1, first, with_result=True)]
+                + [f"Bước {i}: {s.action}" for i, s in enumerate(rest, start=2)],
+                item, HintLevel.LOCATE)
+            if len(lines) > 1:
+                return Hint(HintLevel.LOCATE, "\n".join(lines), "solution", step=1,
+                            error_code=self._primary_code(result))
 
         return Hint(
             HintLevel.LOCATE,
@@ -172,6 +250,17 @@ class HintGenerator:
         if reference:
             parts.append(f"Bước đó đúng ra phải là: {reference}")
 
+        solution = _solution(item)
+        if solution is not None:
+            # Mọi bước có số, trừ KẾT QUẢ của bước cuối: em tự làm phép tính sau cùng.
+            *head, last = solution.steps
+            lines = parts + ["Làm lại theo các bước:"]
+            for i, step in enumerate(head, start=1):
+                lines += _detail(i, step, with_result=True)
+            lines += _detail(len(solution.steps), last, with_result=False)
+            return Hint(HintLevel.CORRECT, "\n".join(lines), "solution",
+                        error_code=code, step=result.first_wrong_step)
+
         if not parts:
             parts.append("Em rà lại phép biến đổi cuối cùng nhé, chỗ đó chưa chính xác.")
 
@@ -179,6 +268,14 @@ class HintGenerator:
                     error_code=code, step=result.first_wrong_step)
 
     def _full(self, item: Item, result: VerificationResult) -> Hint:
+        solution = _solution(item)
+        if solution is not None:
+            lines = [f"Lời giải đầy đủ cho bài «{item.statement_vi}»:", f"Kiến thức: {solution.theory}"]
+            for i, step in enumerate(solution.steps, start=1):
+                lines += _detail(i, step, with_result=True)
+            lines.append(f"Đáp án: {item.answer_text}")
+            return Hint(HintLevel.FULL, "\n".join(lines), "solution")
+
         lines = [f"Lời giải đầy đủ cho bài «{item.statement_vi}»:"]
 
         if item.reference_solution_steps:

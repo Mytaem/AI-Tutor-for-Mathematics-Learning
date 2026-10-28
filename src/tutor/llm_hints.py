@@ -94,6 +94,13 @@ class LLMHintGenerator(HintGenerator):
         trace = GenerationTrace()
         self.last_trace = trace
         template = super().generate(item, result, level)
+        # Từ mức "cảnh báo bẫy" trở lên, gợi ý là CÁC BƯỚC của lời giải đã kiểm:
+        # có số, có công thức, đúng theo cấu tạo. Để model 3 câu diễn đạt lại thì
+        # vừa mất bước vừa có thể chép sai công thức — đúng điều người học cần tránh.
+        from src.solve import solve
+
+        if level >= HintLevel.PITFALL and solve(item) is not None:
+            return template
         messages = self.build_messages(item, result, level)
         started = time.perf_counter()
 
@@ -146,6 +153,19 @@ class LLMHintGenerator(HintGenerator):
             lines.append(f"DẠNG BÀI: {skill.name_vi}")
 
         lines.append("CHẨN ĐOÁN (từ bộ chấm tự động, đáng tin cậy): " + self._diagnosis(result, level))
+
+        from src.solve import solve
+
+        solution = solve(item)
+        if solution is not None:
+            # Chỉ đưa phần KHÔNG có số của đề, và qua guardrail từng dòng: định lý
+            # Kronecker–Capelli nhắc "vô nghiệm", mà đó lại chính là đáp án của đề.
+            context = [f"KIẾN THỨC: {solution.theory}", f"CÔNG THỨC: {solution.formula}",
+                       "CÁC BƯỚC LÀM: " + "; ".join(
+                           f"bước {i}: {s.action}" for i, s in enumerate(solution.steps, start=1))]
+            if level < REVEAL_IN_PROMPT_FROM:
+                context = [line for line in context if not check_leak(line, item, level).leaked]
+            lines.extend(context)
 
         if self.retriever is not None and level in (HintLevel.CONCEPT, HintLevel.PITFALL):
             passages = self.retriever(item, level)

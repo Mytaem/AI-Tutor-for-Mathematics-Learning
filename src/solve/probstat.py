@@ -314,7 +314,7 @@ def _ci_mean(item: Item) -> Solution:
     se = sd / math.sqrt(n)
     half = critical * se
     low, high = xbar - half, xbar + half
-    crit_name = "z_{α/2}" if known else "t_{α/2, n−1}"
+    crit_name = "z(α/2)" if known else "t(α/2; n − 1)"
     spread = "σ" if known else "s"
     return Solution(
         theory=("σ đã biết thì dùng phân phối z; σ chưa biết (chỉ có s) thì dùng phân phối t với n − 1 bậc tự do."),
@@ -344,7 +344,7 @@ def _ci_prop(item: Item) -> Solution:
     low, high = p - half, p + half
     return Solution(
         theory="Khoảng tin cậy cho tỉ lệ dùng xấp xỉ chuẩn: p̂ ± z·√(p̂(1 − p̂)/n).",
-        formula="p̂ ± z_{α/2}·√(p̂(1 − p̂)/n)",
+        formula="p̂ ± z(α/2)·√(p̂(1 − p̂)/n)",
         steps=[
             Step("Tính tỉ lệ mẫu p̂", "p̂ = số người đồng ý / n", "", f"p̂ = {num(p, 4)}"),
             Step("Tra giá trị tới hạn z", "", f"độ tin cậy {num(conf * 100)}% → z = {num(critical, 4)}"),

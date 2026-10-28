@@ -312,7 +312,7 @@ def _sum_closed(item: Item) -> Solution:
     closed = sp.factor(sp.summation(term, (k, start, n)))
     return Solution(theory="Tách tổng thành các tổng chuẩn rồi dùng công thức Σk = n(n + 1)/2, Σ1 = n.",
                     formula="Σₖ₌₁ⁿ k = n(n + 1)/2",
-                    steps=[Step("Viết dưới dạng ký hiệu tổng", "", f"Σ_{{k={start}}}^n ({show(term)})"),
+                    steps=[Step("Viết dưới dạng ký hiệu tổng", "", f"Σ ({show(term)}), k chạy từ {start} đến n"),
                            Step("Tách tổng và áp công thức tổng chuẩn", "Σ(a·k + b) = a·Σk + b·Σ1",
                                 f"= {show(sp.expand(sp.summation(term, (k, start, n))))}", f"= {show(closed)}")],
                     answer=sp.sstr(closed))
@@ -351,14 +351,14 @@ def _logic_negate(item: Item) -> Solution:
     formula = _logic(item)
     target = sp.Not(formula) if item.meta["task"] == "logic_negate" else formula
     nnf = sp.to_nnf(target, simplify=False)
-    rules = "¬(p → q) ≡ p ∧ ¬q; ¬(p ∧ q) ≡ ¬p ∨ ¬q; ¬(p ∨ q) ≡ ¬p ∧ ¬q"
+    rules = "¬(A → B) ≡ A ∧ ¬B; ¬(A ∧ B) ≡ ¬A ∨ ¬B; ¬(A ∨ B) ≡ ¬A ∧ ¬B"
     steps = []
     if item.meta["task"] == "logic_negate":
         steps.append(Step("Viết phủ định của cả mệnh đề", "", f"¬({D.logic_to_text(formula)})"))
-    steps += [Step("Khử phép kéo theo (nếu có)", "p → q ≡ ¬p ∨ q"),
+    steps += [Step("Khử phép kéo theo (nếu có)", "A → B ≡ ¬A ∨ B"),
               Step("Đẩy dấu ¬ vào trong bằng luật De Morgan", rules, "", D.logic_to_text(nnf))]
     return Solution(theory="Luật De Morgan: phủ định của 'và' là 'hoặc' các phủ định, và ngược lại.",
-                    formula="¬(p ∧ q) ≡ ¬p ∨ ¬q, ¬(p ∨ q) ≡ ¬p ∧ ¬q", steps=steps,
+                    formula="¬(A ∧ B) ≡ ¬A ∨ ¬B, ¬(A ∨ B) ≡ ¬A ∧ ¬B", steps=steps,
                     answer=D.logic_to_text(nnf))
 
 
@@ -367,10 +367,10 @@ def _logic_contrapositive(item: Item) -> Solution:
     formula = _logic(item)
     p, q = formula.args
     contrapositive = sp.Implies(sp.Not(q), sp.Not(p))
-    return Solution(theory="Mệnh đề phản đảo của p → q là ¬q → ¬p, tương đương logic với mệnh đề gốc.",
-                    formula="p → q ≡ ¬q → ¬p",
-                    steps=[Step("Xác định giả thiết p và kết luận q", "", f"p = {D.logic_to_text(p)}, q = {D.logic_to_text(q)}"),
-                           Step("Đổi chỗ VÀ phủ định cả hai", "¬q → ¬p", "", D.logic_to_text(contrapositive))],
+    return Solution(theory="Mệnh đề phản đảo của A → B là ¬B → ¬A, tương đương logic với mệnh đề gốc.",
+                    formula="A → B ≡ ¬B → ¬A",
+                    steps=[Step("Xác định giả thiết A và kết luận B", "", f"A = {D.logic_to_text(p)}, B = {D.logic_to_text(q)}"),
+                           Step("Đổi chỗ VÀ phủ định cả hai", "¬B → ¬A", "", D.logic_to_text(contrapositive))],
                     answer=D.logic_to_text(contrapositive))
 
 

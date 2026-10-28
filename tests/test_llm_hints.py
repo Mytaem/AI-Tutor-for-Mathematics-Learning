@@ -71,36 +71,43 @@ def generator(backend, tmp_path, mae, **kwargs) -> LLMHintGenerator:
 
 
 class TestRewriteLoop:
+    # Vòng viết lại chỉ còn chạy ở mức 0–1; từ mức 2, gợi ý là các bước đã kiểm.
+    def test_tu_muc_bay_tro_len_dung_cac_buoc_da_kiem_khong_goi_llm(self, tmp_path, mae, item, wrong) -> None:
+        backend = ScriptedBackend([CLEAN])
+        hint = generator(backend, tmp_path, mae).generate(item, wrong, HintLevel.PITFALL)
+        assert backend.calls == [] and hint.source != "llm"
+        assert "Bước 1:" in hint.text and "Bước 2:" in hint.text
+
     def test_cau_sach_duoc_dung_ngay(self, tmp_path, mae, item, wrong) -> None:
         gen = generator(ScriptedBackend([CLEAN]), tmp_path, mae)
-        hint = gen.generate(item, wrong, HintLevel.PITFALL)
+        hint = gen.generate(item, wrong, HintLevel.CONCEPT)
         assert hint.source == "llm" and hint.text == CLEAN
         assert gen.last_trace.attempts == 1 and not gen.last_trace.fell_back
 
     def test_cau_lo_dap_an_thi_viet_lai(self, tmp_path, mae, item, wrong) -> None:
         backend = ScriptedBackend([LEAK, CLEAN])
         gen = generator(backend, tmp_path, mae)
-        hint = gen.generate(item, wrong, HintLevel.PITFALL)
+        hint = gen.generate(item, wrong, HintLevel.CONCEPT)
         assert hint.text == CLEAN
         assert gen.last_trace.attempts == 2 and gen.last_trace.rejected == [LEAK]
         assert "lộ đáp án" in backend.calls[1][-1]["content"], "Lần viết lại phải nói rõ lý do bị từ chối"
 
     def test_viet_lai_het_luot_van_lo_thi_dung_template(self, tmp_path, mae, item, wrong) -> None:
         gen = generator(ScriptedBackend([LEAK, LEAK, LEAK]), tmp_path, mae, max_rewrites=2)
-        hint = gen.generate(item, wrong, HintLevel.PITFALL)
+        hint = gen.generate(item, wrong, HintLevel.CONCEPT)
         assert hint.source != "llm"
         assert gen.last_trace.fell_back and len(gen.last_trace.rejected) == 3
 
     def test_llm_chet_thi_dung_template(self, tmp_path, mae, item, wrong) -> None:
         gen = generator(StubBackend("ollama", is_up=False), tmp_path, mae)
-        hint = gen.generate(item, wrong, HintLevel.PITFALL)
+        hint = gen.generate(item, wrong, HintLevel.CONCEPT)
         assert hint.source != "llm" and hint.text
         assert gen.last_trace.fell_back
 
     def test_tat_guardrail_thi_de_lot(self, tmp_path, mae, item, wrong) -> None:
         """Cờ ablation cho EXP-8: không guardrail thì câu lộ đáp án đi thẳng ra ngoài."""
         gen = generator(ScriptedBackend([LEAK]), tmp_path, mae, use_guardrail=False)
-        assert gen.generate(item, wrong, HintLevel.PITFALL).text == LEAK
+        assert gen.generate(item, wrong, HintLevel.CONCEPT).text == LEAK
 
     def test_loi_giai_day_du_khong_can_llm(self, tmp_path, mae, item, wrong) -> None:
         backend = ScriptedBackend([])
