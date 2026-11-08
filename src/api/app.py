@@ -17,7 +17,9 @@ import csv
 import io
 import os
 import secrets
+import sqlite3
 from contextlib import asynccontextmanager
+from dataclasses import dataclass
 from typing import Annotated, Any
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response
@@ -47,6 +49,19 @@ from src.kt.selector import select_next
 from src.tutor.hint_policy import HintLevel
 from src.tutor.hints import HintGenerator, TutorEngine
 from src.verify.registry import supported_subjects, verifier_for
+from src.api.auth import (
+    COOKIE_NAME,
+    SESSION_DAYS,
+    AuthError,
+    LoginLimiter,
+    check_password_rules,
+    hash_password,
+    new_token,
+    normalize_email,
+    token_digest,
+    verify_or_waste_time,
+    verify_password,
+)
 from src.api.db import Store
 
 
@@ -62,6 +77,41 @@ ObjectId = Annotated[str, Field(min_length=1, max_length=160)]
 AnswerText = Annotated[str, Field(max_length=8_000)]
 SolutionStep = Annotated[str, Field(max_length=4_000)]
 QuestionText = Annotated[str, Field(min_length=1, max_length=4_000)]
+
+class RegisterRequest(BaseModel):
+    email: Annotated[str, Field(max_length=254)]
+    password: Annotated[str, Field(max_length=256)]
+    display_name: Annotated[str, Field(max_length=80)] = ""
+
+
+class LoginRequest(BaseModel):
+    email: Annotated[str, Field(max_length=254)]
+    password: Annotated[str, Field(max_length=256)]
+
+
+class PasswordChangeRequest(BaseModel):
+    current_password: Annotated[str, Field(max_length=256)]
+    new_password: Annotated[str, Field(max_length=256)]
+
+
+class UserOut(BaseModel):
+    user_id: str
+    email: str
+    display_name: str
+
+
+@dataclass
+class Identity:
+    """Ai đang gọi: một tài khoản (``user_id``) hoặc một dịch vụ tin cậy (bot)."""
+
+    user_id: str | None
+    trusted: bool = False
+
+
+#: Khoá cho dịch vụ nội bộ (bot Telegram) — gọi API thay mặt người dùng của nó,
+#: không có cookie. Để trống thì không dịch vụ nào được gọi thay ai.
+SERVICE_TOKEN = os.environ.get("SERVICE_TOKEN", "").strip()
+
 
 #: Ngân sách cho model ở /ask, phải nhỏ hơn MODEL_TIMEOUT_MS (120 s) của web.
 ASK_LLM_TIMEOUT_S = 100.0
@@ -107,7 +157,8 @@ class PublicItem(BaseModel):
 
 
 class StartSessionRequest(BaseModel):
-    user_id: UserId
+    #: Chỉ dùng cho bot (khoá dịch vụ). Người dùng web lấy danh tính từ phiên đăng nhập.
+    user_id: UserId | None = None
     subject: Annotated[str, Field(min_length=1, max_length=16)] = "MAE101"
 
 
@@ -855,26 +906,167 @@ def create_app(service: TutorService | None = None) -> FastAPI:
     def subjects(service: TutorService = Depends(get_service)) -> list[str]:
         return service.subjects
 
+    # ------------------------------------------------------------------
+    # Tài khoản và danh tính
+    # ------------------------------------------------------------------
+
+    login_limiter = LoginLimiter()
+    signup_limiter = LoginLimiter(limit=10, window_s=60 * 60)
+
+    def identity_optional(
+        request: Request,
+        x_service_token: str = Header(default=""),
+        service: TutorService = Depends(get_service),
+    ) -> Identity | None:
+        token = request.cookies.get(COOKIE_NAME, "")
+        auth = request.headers.get("authorization", "")
+        if not token and auth.lower().startswith("bearer "):
+            token = auth[7:].strip()
+        if token:
+            user = service.store.user_for_token(token_digest(token))
+            if user is not None:
+                return Identity(user["user_id"])
+        if SERVICE_TOKEN and x_service_token and secrets.compare_digest(x_service_token, SERVICE_TOKEN):
+            return Identity(None, trusted=True)
+        return None
+
+    def identity(found: Identity | None = Depends(identity_optional)) -> Identity:
+        if found is None:
+            raise HTTPException(401, "Bạn cần đăng nhập để tiếp tục")
+        return found
+
+    def resolve_user(who: Identity, claimed: str | None) -> str:
+        """Tài khoản thì luôn là chính nó — ``user_id`` gửi kèm bị bỏ qua, không
+        ai xem được tiến độ người khác bằng cách đổi tham số. Chỉ dịch vụ tin cậy
+        mới được nói mình gọi thay ai."""
+        if who.user_id:
+            return who.user_id
+        if not claimed:
+            raise HTTPException(422, "Thiếu user_id")
+        return claimed
+
+    def require_own_session(who: Identity, service: TutorService, session_id: str) -> None:
+        if who.trusted:
+            return
+        row = service.store.get_session(session_id)
+        if row is not None and row["user_id"] != who.user_id:
+            raise HTTPException(403, "Phiên luyện tập này không thuộc tài khoản của bạn")
+
+    def client_ip(request: Request) -> str:
+        return request.client.host if request.client else "?"
+
+    def open_session(request: Request, response: Response, service: TutorService, user_id: str) -> None:
+        token = new_token()
+        service.store.add_token(token_digest(token), user_id, SESSION_DAYS * 86400)
+        response.set_cookie(
+            COOKIE_NAME, token, max_age=SESSION_DAYS * 86400, path="/",
+            httponly=True, samesite="lax", secure=request.url.scheme == "https",
+        )
+
+    def user_out(row) -> UserOut:
+        return UserOut(user_id=row["user_id"], email=row["email"], display_name=row["display_name"])
+
+    @app.post("/auth/register", response_model=UserOut, status_code=201)
+    def register(body: RegisterRequest, request: Request, response: Response,
+                 service: TutorService = Depends(get_service)) -> UserOut:
+        ip_key = f"ip:{client_ip(request)}"
+        wait = signup_limiter.retry_after(ip_key)
+        if wait:
+            raise HTTPException(429, "Đăng ký quá nhiều lần, vui lòng thử lại sau",
+                                headers={"Retry-After": str(wait)})
+        try:
+            email = normalize_email(body.email)
+            check_password_rules(body.password)
+        except AuthError as exc:
+            raise HTTPException(422, str(exc)) from exc
+        name = " ".join(body.display_name.split()) or email.split("@")[0]
+        try:
+            user_id = service.store.create_user(email, name, hash_password(body.password))
+        except sqlite3.IntegrityError as exc:
+            raise HTTPException(409, "Email này đã được đăng ký — hãy đăng nhập") from exc
+        signup_limiter.failed(ip_key)          # đếm số lần đăng ký thành công theo IP
+        open_session(request, response, service, user_id)
+        return user_out(service.store.user_by_id(user_id))
+
+    @app.post("/auth/login", response_model=UserOut)
+    def login(body: LoginRequest, request: Request, response: Response,
+              service: TutorService = Depends(get_service)) -> UserOut:
+        email = (body.email or "").strip().lower()
+        keys = (f"ip:{client_ip(request)}", f"email:{email}")
+        wait = login_limiter.retry_after(*keys)
+        if wait:
+            raise HTTPException(429, f"Sai quá nhiều lần. Thử lại sau {max(1, wait // 60)} phút",
+                                headers={"Retry-After": str(wait)})
+        user = service.store.user_by_email(email)
+        if not verify_or_waste_time(body.password, user["password_hash"] if user else None):
+            login_limiter.failed(*keys)
+            # Cùng một câu cho "không có email" và "sai mật khẩu": không để lộ
+            # email nào đã đăng ký.
+            raise HTTPException(401, "Email hoặc mật khẩu không đúng")
+        login_limiter.succeeded(*keys)
+        open_session(request, response, service, user["user_id"])
+        return user_out(user)
+
+    @app.post("/auth/logout", status_code=204)
+    def logout(request: Request, service: TutorService = Depends(get_service)) -> Response:
+        token = request.cookies.get(COOKIE_NAME)
+        if token:
+            service.store.delete_token(token_digest(token))
+        response = Response(status_code=204)
+        response.delete_cookie(COOKIE_NAME, path="/")
+        return response
+
+    @app.get("/auth/me", response_model=UserOut)
+    def me(who: Identity = Depends(identity), service: TutorService = Depends(get_service)) -> UserOut:
+        if not who.user_id:
+            raise HTTPException(401, "Bạn cần đăng nhập để tiếp tục")
+        return user_out(service.store.user_by_id(who.user_id))
+
+    @app.post("/auth/password", status_code=204)
+    def change_password(body: PasswordChangeRequest, request: Request,
+                        who: Identity = Depends(identity),
+                        service: TutorService = Depends(get_service)) -> Response:
+        user = service.store.user_by_id(who.user_id) if who.user_id else None
+        if user is None:
+            raise HTTPException(401, "Bạn cần đăng nhập để tiếp tục")
+        if not verify_password(body.current_password, user["password_hash"]):
+            raise HTTPException(403, "Mật khẩu hiện tại không đúng")
+        try:
+            check_password_rules(body.new_password)
+        except AuthError as exc:
+            raise HTTPException(422, str(exc)) from exc
+        service.store.set_password(user["user_id"], hash_password(body.new_password))
+        # Đổi mật khẩu thì đăng xuất mọi thiết bị khác — lý do hay gặp nhất để
+        # đổi mật khẩu chính là nghi bị lộ.
+        current = request.cookies.get(COOKIE_NAME)
+        service.store.delete_tokens_of(user["user_id"], keep=token_digest(current) if current else None)
+        return Response(status_code=204)
+
+    # ------------------------------------------------------------------
+
     @app.post("/session/start", response_model=StartSessionResponse)
     def start_session(
-        request: StartSessionRequest, service: TutorService = Depends(get_service)
+        request: StartSessionRequest,
+        who: Identity = Depends(identity),
+        service: TutorService = Depends(get_service),
     ) -> StartSessionResponse:
         try:
-            return service.start_session(request.user_id, request.subject)
+            return service.start_session(resolve_user(who, request.user_id), request.subject)
         except LookupError as exc:
             raise HTTPException(404, str(exc)) from exc
 
     @app.get("/item/next", response_model=PublicItem)
     def next_item(
-        user_id: str,
+        user_id: str | None = None,
         subject: str | None = None,
         chapter: str | None = None,
         skill: str | None = None,
         topic: str | None = None,
+        who: Identity = Depends(identity),
         service: TutorService = Depends(get_service),
     ) -> PublicItem:
         try:
-            item = service.pick_item(user_id, subject, chapter, skill, topic)
+            item = service.pick_item(resolve_user(who, user_id), subject, chapter, skill, topic)
         except LookupError as exc:
             raise HTTPException(404, str(exc)) from exc
         if item is None:
@@ -885,6 +1077,7 @@ def create_app(service: TutorService | None = None) -> FastAPI:
     def syllabus(
         subject: str | None = None,
         user_id: str | None = None,
+        who: Identity | None = Depends(identity_optional),
         service: TutorService = Depends(get_service),
     ) -> SyllabusResponse:
         """Cây môn → chương → bài → dạng bài, để người học chọn dần cho hẹp.
@@ -892,6 +1085,11 @@ def create_app(service: TutorService | None = None) -> FastAPI:
         ``user_id`` là tuỳ chọn: có thì kèm mức thành thạo từng nhánh, không có
         thì vẫn trả được cây — trang chọn môn cần cây trước khi có phiên.
         """
+        # Cây môn học là công khai; mức thành thạo kèm theo chỉ của chính mình.
+        if who is None:
+            user_id = None
+        elif who.user_id:
+            user_id = who.user_id
         try:
             return service.syllabus(user_id, subject)
         except LookupError as exc:
@@ -899,22 +1097,28 @@ def create_app(service: TutorService | None = None) -> FastAPI:
 
     @app.post("/attempt", response_model=AttemptResponse)
     def attempt(
-        request: AttemptRequest, service: TutorService = Depends(get_service)
+        request: AttemptRequest,
+        who: Identity = Depends(identity),
+        service: TutorService = Depends(get_service),
     ) -> AttemptResponse:
+        require_own_session(who, service, request.session_id)
         try:
             return service.submit(request)
         except LookupError as exc:
             raise HTTPException(404, str(exc)) from exc
 
     @app.post("/hint", response_model=HintOut)
-    def hint(request: HintRequest, service: TutorService = Depends(get_service)) -> HintOut:
+    def hint(request: HintRequest, who: Identity = Depends(identity),
+             service: TutorService = Depends(get_service)) -> HintOut:
+        require_own_session(who, service, request.session_id)
         try:
             return service.request_hint(request)
         except LookupError as exc:
             raise HTTPException(404, str(exc)) from exc
 
     @app.post("/ask", response_model=AskResponse)
-    def ask(request: AskRequest, service: TutorService = Depends(get_service)) -> AskResponse:
+    def ask(request: AskRequest, who: Identity = Depends(identity),
+            service: TutorService = Depends(get_service)) -> AskResponse:
         """Hỏi đáp lý thuyết dựa trên giáo trình.
 
         Không tìm được đoạn nào đủ liên quan thì trả lời "ngoài phạm vi" chứ
@@ -1011,10 +1215,13 @@ def create_app(service: TutorService | None = None) -> FastAPI:
 
     @app.get("/progress", response_model=ProgressResponse)
     def progress(
-        user_id: str, subject: str | None = None, service: TutorService = Depends(get_service)
+        user_id: str | None = None,
+        subject: str | None = None,
+        who: Identity = Depends(identity),
+        service: TutorService = Depends(get_service),
     ) -> ProgressResponse:
         try:
-            return service.progress(user_id, subject)
+            return service.progress(resolve_user(who, user_id), subject)
         except LookupError as exc:
             raise HTTPException(404, str(exc)) from exc
 

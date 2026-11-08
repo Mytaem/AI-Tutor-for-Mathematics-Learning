@@ -23,6 +23,7 @@ Biến môi trường đáng chú ý:
 | `DATABASE_URL` | `data/tutor.sqlite` | đổi file dữ liệu |
 | `CORS_ORIGINS` | `localhost:3000`, `127.0.0.1:3000` | origin được phép gọi API |
 | `ADMIN_TOKEN` | trống | bật phần quản trị; **trống = tắt hoàn toàn** |
+| `SERVICE_TOKEN` | trống | khoá cho bot Telegram gọi API thay người dùng; đặt **cùng giá trị** ở API và bot. Trống = bot không gọi được |
 
 SQLite chạy ở chế độ WAL để web, bot và trang quản trị có thể đọc/ghi đồng thời ổn
 định hơn. Khi sao lưu `data/tutor.sqlite`, hãy dừng API trước để dữ liệu trong file

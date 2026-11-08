@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, type Progress, type SkillProgress } from "../../lib/api";
 import { loadSession } from "../../lib/session";
+import { useApp } from "../providers";
 import { ApiDownBanner } from "../api-status";
 
 /**
@@ -32,21 +33,24 @@ export default function ProgressPage() {
   const [error, setError] = useState<string | null>(null);
   const [down, setDown] = useState(false);
 
+  const { user } = useApp();
+
   useEffect(() => {
+    if (!user) return;
     const saved = loadSession();
-    if (!saved) {
+    if (!saved || saved.userId !== user.user_id) {
       router.push("/");
       return;
     }
     setSubject(saved.subject);
     api
-      .progress(saved.userId, saved.subject)
+      .progress(saved.subject)
       .then(setProgress)
       .catch((exc: Error) => {
         setError(exc.message);
         setDown(true);
       });
-  }, [router]);
+  }, [router, user]);
 
   if (down) {
     return (

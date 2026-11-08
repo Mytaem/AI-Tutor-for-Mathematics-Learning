@@ -12,7 +12,8 @@ bản giả.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import os
+from dataclasses import dataclass, field
 from typing import Any
 
 import httpx
@@ -26,9 +27,14 @@ class ApiError(RuntimeError):
 class TutorApi:
     base_url: str = "http://localhost:8000"
     timeout: float = 120.0        # model chạy CPU có thể mất hàng chục giây
+    #: Bot gọi API THAY người dùng Telegram nên không có cookie đăng nhập; API chỉ
+    #: tin user_id do bot gửi khi kèm đúng khoá dịch vụ (SERVICE_TOKEN).
+    service_token: str = field(default_factory=lambda: os.environ.get("SERVICE_TOKEN", ""))
 
     async def _call(self, method: str, path: str, **kwargs) -> Any:
-        async with httpx.AsyncClient(base_url=self.base_url, timeout=self.timeout) as client:
+        headers = {"X-Service-Token": self.service_token} if self.service_token else {}
+        async with httpx.AsyncClient(base_url=self.base_url, timeout=self.timeout,
+                                     headers=headers) as client:
             try:
                 response = await client.request(method, path, **kwargs)
             except httpx.HTTPError as exc:

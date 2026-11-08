@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from conftest import SERVICE_HEADERS
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -26,7 +27,7 @@ from src.kt.coldstart import PLACEMENT_LENGTH  # noqa: E402
 @pytest.fixture
 def client() -> TestClient:
     service = build_service(AppConfig(), store=Store(":memory:"))
-    return TestClient(create_app(service))
+    return TestClient(create_app(service), headers=SERVICE_HEADERS)
 
 
 @pytest.fixture
@@ -88,7 +89,7 @@ class TestAdmin:
         kiểu lỗ hổng tệ nhất vì không ai nhận ra cho tới lúc muộn.
         """
         monkeypatch.setattr(app_module, "ADMIN_TOKEN", "")
-        fresh = TestClient(create_app(build_service(AppConfig(), store=Store(":memory:"))))
+        fresh = TestClient(create_app(build_service(AppConfig(), store=Store(":memory:"))), headers=SERVICE_HEADERS)
         assert fresh.get("/admin/enabled").json() == {"enabled": False}
         assert fresh.get("/admin/overview").status_code == 403
 
@@ -100,7 +101,7 @@ class TestAdmin:
 
     def test_khoa_sai_hoac_thieu_thi_tu_choi(self, monkeypatch) -> None:
         monkeypatch.setattr(app_module, "ADMIN_TOKEN", "khoa-that")
-        guarded = TestClient(create_app(build_service(AppConfig(), store=Store(":memory:"))))
+        guarded = TestClient(create_app(build_service(AppConfig(), store=Store(":memory:"))), headers=SERVICE_HEADERS)
         assert guarded.get("/admin/overview").status_code == 401
         # Khoá sai phải là ASCII: giá trị header không mang được dấu tiếng Việt,
         # httpx chặn ngay ở tầng HTTP nên sẽ không tới được chỗ mình muốn kiểm.
@@ -112,7 +113,7 @@ class TestAdmin:
         monkeypatch.setattr(app_module, "ADMIN_TOKEN", "khoa-that")
         store = Store(":memory:")
         service = build_service(AppConfig(), store=store)
-        guarded = TestClient(create_app(service))
+        guarded = TestClient(create_app(service), headers=SERVICE_HEADERS)
         head = {"X-Admin-Token": "khoa-that"}
 
         session = guarded.post("/session/start", json={"user_id": "sv9", "subject": "MAE101"}).json()
@@ -131,7 +132,7 @@ class TestAdmin:
     def test_xuat_csv_co_bom_cho_excel(self, monkeypatch) -> None:
         """Thiếu BOM thì Excel trên Windows mở ra tiếng Việt thành ký tự lạ."""
         monkeypatch.setattr(app_module, "ADMIN_TOKEN", "khoa-that")
-        guarded = TestClient(create_app(build_service(AppConfig(), store=Store(":memory:"))))
+        guarded = TestClient(create_app(build_service(AppConfig(), store=Store(":memory:"))), headers=SERVICE_HEADERS)
         response = guarded.get("/admin/export.csv", headers={"X-Admin-Token": "khoa-that"})
         assert response.status_code == 200
         assert response.content.startswith(b"\xef\xbb\xbf")
@@ -155,7 +156,7 @@ class TestAdmin:
             ],
         )
         store._connection.commit()
-        guarded = TestClient(create_app(build_service(AppConfig(), store=store)))
+        guarded = TestClient(create_app(build_service(AppConfig(), store=store)), headers=SERVICE_HEADERS)
 
         response = guarded.get(
             "/admin/export.csv", headers={"X-Admin-Token": "khoa-that"}

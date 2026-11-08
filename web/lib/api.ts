@@ -10,6 +10,16 @@ export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000
 const DEFAULT_TIMEOUT_MS = 30_000;
 const MODEL_TIMEOUT_MS = 120_000;
 
+export type User = {
+  user_id: string;
+  email: string;
+  display_name: string;
+};
+
+/** Phiên đăng nhập hết hạn hoặc chưa đăng nhập — giao diện chuyển sang trang đăng nhập. */
+export class AuthRequired extends Error {}
+export const AUTH_EVENT = "numeris:auth-required";
+
 export type PublicItem = {
   item_id: string;
   subject: string;
@@ -147,6 +157,9 @@ async function fetchWithTimeout(
     return await fetch(`${API_URL}${path}`, {
       ...init,
       headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
+      // Cookie đăng nhập là httpOnly: JavaScript không đọc được nó, trình duyệt
+      // tự gửi kèm khi có `credentials: "include"`.
+      credentials: "include",
       cache: "no-store",
       signal: controller.signal,
     });
@@ -164,12 +177,17 @@ async function fetchWithTimeout(
 
 async function call<T>(path: string, init?: RequestInit, timeoutMs?: number): Promise<T> {
   const response = await fetchWithTimeout(path, init, timeoutMs);
+  if (response.status === 401 && !path.startsWith("/auth/")) {
+    window.dispatchEvent(new Event(AUTH_EVENT));
+    throw new AuthRequired("Phiên đăng nhập đã hết. Vui lòng đăng nhập lại.");
+  }
   if (!response.ok) {
     // Thông điệp lỗi của FastAPI nằm ở trường `detail`; hiện nguyên văn cho
     // người dùng thấy còn hơn nuốt lỗi rồi để màn hình trắng.
     const body = await response.json().catch(() => ({}));
     throw new Error(body.detail ?? `Lỗi ${response.status}`);
   }
+  if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
 }
 
@@ -177,25 +195,36 @@ export const api = {
   health: () => call<{ status: string; subjects: Record<string, unknown> }>("/health"),
   subjects: () => call<string[]>("/subjects"),
 
-  startSession: (userId: string, subject: string) =>
-    call<Session>("/session/start", {
+  me: () => call<User>("/auth/me"),
+
+  register: (email: string, password: string, displayName: string) =>
+    call<User>("/auth/register", {
       method: "POST",
-      body: JSON.stringify({ user_id: userId, subject }),
+      body: JSON.stringify({ email, password, display_name: displayName }),
     }),
 
-  syllabus: (subject: string, userId?: string) =>
-    call<Syllabus>(
-      `/syllabus?subject=${encodeURIComponent(subject)}` +
-        (userId ? `&user_id=${encodeURIComponent(userId)}` : "")
-    ),
+  login: (email: string, password: string) =>
+    call<User>("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }),
+
+  logout: () => call<void>("/auth/logout", { method: "POST" }),
+
+  changePassword: (currentPassword: string, newPassword: string) =>
+    call<void>("/auth/password", {
+      method: "POST",
+      body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+    }),
+
+  startSession: (subject: string) =>
+    call<Session>("/session/start", { method: "POST", body: JSON.stringify({ subject }) }),
+
+  syllabus: (subject: string) => call<Syllabus>(`/syllabus?subject=${encodeURIComponent(subject)}`),
 
   /** `scope` để trống ở tầng nào thì tầng đó không lọc — xem src/core/syllabus.py. */
   nextItem: (
-    userId: string,
     subject: string,
     scope?: { chapter?: string | null; skill?: string | null; topic?: string | null }
   ) => {
-    const query = new URLSearchParams({ user_id: userId, subject });
+    const query = new URLSearchParams({ subject });
     if (scope?.chapter) query.set("chapter", scope.chapter);
     if (scope?.skill) query.set("skill", scope.skill);
     if (scope?.topic) query.set("topic", scope.topic);
@@ -257,6 +286,5 @@ export const api = {
       }),
     }, MODEL_TIMEOUT_MS),
 
-  progress: (userId: string, subject: string) =>
-    call<Progress>(`/progress?user_id=${encodeURIComponent(userId)}&subject=${subject}`),
+  progress: (subject: string) => call<Progress>(`/progress?subject=${encodeURIComponent(subject)}`),
 };

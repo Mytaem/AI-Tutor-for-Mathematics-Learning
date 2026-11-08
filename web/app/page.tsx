@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api } from "../lib/api";
 import { loadSession, saveSession } from "../lib/session";
@@ -31,10 +32,9 @@ type Health = { subjects: Record<string, { items: number; skills: number }> };
 
 export default function HomePage() {
   const router = useRouter();
-  const { setScope } = useApp();
+  const { setScope, user } = useApp();
   const [subjects, setSubjects] = useState<string[]>([]);
   const [health, setHealth] = useState<Health | null>(null);
-  const [userId, setUserId] = useState("");
   const [subject, setSubject] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [down, setDown] = useState(false);
@@ -51,10 +51,7 @@ export default function HomePage() {
       .catch(() => setDown(true));
 
     const saved = loadSession();
-    if (saved) {
-      setUserId(saved.userId);
-      setSubject(saved.subject);
-    }
+    if (saved) setSubject(saved.subject);
   }, []);
 
   async function start(event: React.FormEvent) {
@@ -62,7 +59,7 @@ export default function HomePage() {
     setError(null);
     setBusy(true);
     try {
-      const session = await api.startSession(userId.trim(), subject);
+      const session = await api.startSession(subject);
       saveSession({
         sessionId: session.session_id,
         userId: session.user_id,
@@ -77,7 +74,7 @@ export default function HomePage() {
     }
   }
 
-  const ready = Boolean(subject) && userId.trim().length >= 2;
+  const ready = Boolean(subject) && Boolean(user);
 
   return (
     <main>
@@ -122,17 +119,28 @@ export default function HomePage() {
         <section className="start-panel">
           <span className="step">02</span>
           <h2>Bắt đầu học</h2>
-          <p className="meta">Nhập mã của bạn để lưu tiến độ.</p>
-          <div className="field-group">
-            <label htmlFor="user">Mã sinh viên</label>
-            <input id="user" type="text" value={userId} onChange={(e) => setUserId(e.target.value)} placeholder="SE170001" required minLength={2} autoComplete="off" />
-          </div>
-          <button type="submit" className="block start-button" disabled={busy || !ready}>
-            {busy && <span className="spin" aria-hidden="true" />}
-            {busy ? "Đang chuẩn bị…" : "Bắt đầu luyện"}
-            {!busy && <span aria-hidden="true">→</span>}
-          </button>
-          <p className="privacy-note"><span aria-hidden="true">●</span> Không cần mật khẩu</p>
+          {user === undefined ? (
+            <div className="skeleton tall" style={{ marginTop: 22 }} />
+          ) : user ? (
+            <>
+              <p className="meta">Xin chào <strong>{user.display_name}</strong> — tiến độ được lưu vào tài khoản của bạn.</p>
+              <button type="submit" className="block start-button" disabled={busy || !ready}>
+                {busy && <span className="spin" aria-hidden="true" />}
+                {busy ? "Đang chuẩn bị…" : "Bắt đầu luyện"}
+                {!busy && <span aria-hidden="true">→</span>}
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="meta">Tạo tài khoản miễn phí để lưu tiến độ và học tiếp trên mọi thiết bị.</p>
+              <Link className="button block start-button" href="/login?mode=register&next=/">
+                Tạo tài khoản <span aria-hidden="true">→</span>
+              </Link>
+              <p className="privacy-note">
+                Đã có tài khoản? <Link href="/login?next=/">Đăng nhập</Link>
+              </p>
+            </>
+          )}
           {error && <p className="error">{error}</p>}
         </section>
       </form>

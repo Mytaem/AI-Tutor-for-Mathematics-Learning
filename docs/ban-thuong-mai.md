@@ -58,16 +58,20 @@ Nam việc này chịu sự điều chỉnh của quy định về bảo vệ d�
 **Đã có:** dữ liệu ở máy chủ của khách, không gửi ra ngoài; mô hình chạy cục bộ qua
 Ollama; trang quản trị tắt mặc định và cần khoá.
 
-## 4. Tài khoản người dùng: chưa có
+## 4. Tài khoản người dùng: đã có email + mật khẩu
 
-Hiện người học chỉ nhập mã sinh viên, **không có mật khẩu**: ai biết mã người khác thì
-xem được tiến độ của người đó. Chấp nhận được trong mạng nội bộ của một lớp, nhưng **không
-đủ khi bán**. Cần chọn:
+**Đã làm:** đăng ký, đăng nhập, đăng xuất, đổi mật khẩu (tự đăng xuất các thiết bị
+khác). Mật khẩu băm scrypt có muối; phiên đăng nhập là cookie httpOnly, cơ sở dữ liệu
+chỉ giữ bản băm của token. Sai mật khẩu 5 lần trong 15 phút thì tạm khoá theo email
+và theo IP. Danh tính lấy từ phiên đăng nhập, nên không ai xem hay nộp bài vào dữ liệu
+của người khác bằng cách đổi tham số (có test cho từng trường hợp).
 
-- Đăng nhập bằng tài khoản Google/Microsoft của trường (SSO): hợp với B2B, trường quản lý tài khoản.
-- Email + mật khẩu: hợp với B2C, kèm quên mật khẩu, xác thực email.
+**Còn thiếu, cần trước khi mở bán rộng:**
 
-Trang quản trị dùng một khoá chung, cũng nên đổi thành tài khoản giảng viên riêng.
+- [ ] **Quên mật khẩu**: cần dịch vụ gửi email (SMTP hoặc nhà cung cấp gửi mail).
+- [ ] **Xác thực email** khi đăng ký: chặn tài khoản rác.
+- [ ] **Xoá tài khoản và dữ liệu** theo yêu cầu người học (quy định bảo vệ dữ liệu cá nhân).
+- [ ] Trang quản trị vẫn dùng một khoá chung; nên đổi thành tài khoản quản trị riêng.
 
 ## 5. Còn thiếu nếu bán trực tiếp cho sinh viên
 

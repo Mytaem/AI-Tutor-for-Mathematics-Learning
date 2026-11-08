@@ -18,7 +18,8 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from fastapi.testclient import TestClient  # noqa: E402
+from fastapi.testclient import TestClient
+from conftest import SERVICE_HEADERS  # noqa: E402
 
 from src.api.app import build_service, create_app  # noqa: E402
 from src.api.db import Store  # noqa: E402
@@ -240,7 +241,7 @@ class TestFallback:
 class TestEndpoint:
     @pytest.fixture
     def client(self) -> TestClient:
-        return TestClient(create_app(build_service(AppConfig(), store=Store(":memory:"))))
+        return TestClient(create_app(build_service(AppConfig(), store=Store(":memory:"))), headers=SERVICE_HEADERS)
 
     def test_cau_hoi_rong_bi_tu_choi(self, client: TestClient) -> None:
         assert client.post("/ask", json={"question": "   "}).status_code == 422

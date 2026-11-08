@@ -138,7 +138,7 @@ h3 { margin: 0 0 6px; font-size: .95rem; }
 .panel-body { padding: 20px; }
 .card-box > .title { margin: -20px -20px 12px; padding: 10px 14px; border-bottom: 1px solid var(--line); color: var(--muted); background: var(--surface-2); font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
 label { display: block; margin-bottom: 6px; color: var(--ink-2); font-size: .8rem; font-weight: 620; }
-input[type="text"], input[type="password"], textarea, select { width: 100%; min-height: 42px; padding: 9px 12px; border: 1px solid var(--line-strong); border-radius: 10px; color: var(--ink); background: var(--surface); font: inherit; font-size: .9rem; transition: .14s ease; }
+input[type="text"], input[type="password"], input[type="email"], textarea, select { width: 100%; min-height: 42px; padding: 9px 12px; border: 1px solid var(--line-strong); border-radius: 10px; color: var(--ink); background: var(--surface); font: inherit; font-size: .9rem; transition: .14s ease; }
 input::placeholder, textarea::placeholder { color: var(--muted); }
 input:focus-visible, textarea:focus-visible, select:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
 select { cursor: pointer; } select:disabled { opacity: .5; cursor: not-allowed; }
@@ -256,4 +256,53 @@ td.value, th.value { text-align: right; font-variant-numeric: tabular-nums; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+/* ------------------------------------------------------------ tài khoản */
+
+a.button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 40px; padding: 9px 15px; border-radius: 10px; text-decoration: none;
+  color: var(--accent-ink); background: var(--accent); font: 620 .88rem var(--font);
+}
+a.button.small { min-height: 34px; padding: 6px 13px; font-size: .82rem; }
+a.button.block { display: flex; width: 100%; justify-content: space-between; }
+a.button:hover { filter: brightness(1.06); }
+
+.account { position: relative; }
+.account-button {
+  display: flex; align-items: center; gap: 9px; min-height: 38px; padding: 4px 12px 4px 4px;
+  border: 1px solid var(--line); border-radius: 999px; color: var(--ink); background: var(--surface);
+}
+.avatar {
+  display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%;
+  color: var(--accent-ink); background: var(--accent); font-size: .82rem; font-weight: 700;
+}
+.account-name { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .86rem; }
+.account-menu {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 50; min-width: 220px; padding: 6px;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow-md, var(--shadow-sm));
+}
+.account-menu a, .account-menu button {
+  display: block; width: 100%; padding: 9px 11px; border: 0; border-radius: 8px; min-height: 0;
+  text-align: left; text-decoration: none; color: var(--ink); background: transparent; font: 500 .86rem var(--font);
+}
+.account-menu a:hover, .account-menu button:hover { background: var(--surface-2); filter: none; }
+.account-email { padding: 8px 11px 10px; border-bottom: 1px solid var(--line); margin-bottom: 4px; color: var(--muted); font-size: .78rem; overflow-wrap: anywhere; }
+
+.auth-page { display: flex; justify-content: center; padding-top: 12px; }
+.auth-card {
+  width: 100%; max-width: 440px; padding: 28px; border: 1px solid var(--line);
+  border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-sm);
+}
+.auth-card h1 { margin: 6px 0 4px; }
+.auth-switch { margin-top: 18px; }
+.auth-card input { width: 100%; }
+.password-row { display: flex; gap: 8px; align-items: stretch; }
+.password-row input { flex: 1; min-width: 0; }
+
+@media (max-width: 640px) {
+  .account-name { display: none; }
+  .account-button { padding: 4px; }
+  .auth-card { padding: 20px; }
 }

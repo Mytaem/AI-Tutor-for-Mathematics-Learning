@@ -75,7 +75,7 @@ function Ladder({ level }: { level: number }) {
 
 export default function PracticePage() {
   const router = useRouter();
-  const { scope, ready } = useApp();
+  const { scope, ready, user } = useApp();
   const [session, setSession] = useState<StoredSession | null>(null);
   const [item, setItem] = useState<PublicItem | null>(null);
   const [answer, setAnswer] = useState("");
@@ -99,7 +99,7 @@ export default function PracticePage() {
     setBusy(true);
     setError(null);
     try {
-      const next = await api.nextItem(current.userId, current.subject, within);
+      const next = await api.nextItem(current.subject, within);
       setItem(next);
       setAnswer("");
       setSteps("");
@@ -126,15 +126,16 @@ export default function PracticePage() {
   // `scope` nằm trong deps là CỐ Ý: đổi chương ở cột phải thì đổi luôn sang đề
   // của chương đó, không phải bấm thêm "Bài khác".
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || !user) return;
     const saved = loadSession();
-    if (!saved) {
+    // Phiên của tài khoản khác còn sót trên máy này thì không dùng — về chọn môn lại.
+    if (!saved || saved.userId !== user.user_id) {
       router.push("/");
       return;
     }
     setSession(saved);
     void nextItem(saved, scope);
-  }, [ready, scope, router, nextItem]);
+  }, [ready, user, scope, router, nextItem]);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -188,7 +189,7 @@ export default function PracticePage() {
           <span className="eyebrow">{session.subject}</span>
           <h1 style={{ marginBottom: 2 }}>Luyện tập</h1>
           <div className="meta">
-            {session.userId}{solved > 0 && ` · ${solved} bài đúng`}
+            {user?.display_name}{solved > 0 && ` · ${solved} bài đúng`}
           </div>
         </div>
         <button type="button" className="ghost small" onClick={() => router.push("/progress")}>

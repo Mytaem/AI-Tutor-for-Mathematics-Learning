@@ -262,6 +262,7 @@ ra cho tới lúc muộn.
 ```bash
 # lấy token: mở Telegram, nhắn @BotFather, gõ /newbot
 set TELEGRAM_TOKEN=<token>
+set SERVICE_TOKEN=<cùng khoá đã đặt cho API>
 python -m src.bot.main
 ```
 

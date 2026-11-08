@@ -30,19 +30,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
       </head>
       <body>
-        <header className="topbar">
-          <div className="inner">
-            <a className="brand" href="/">
-              <span className="mark" aria-hidden="true">N</span>
-              <span className="brand-copy">
-                <strong>Numeris</strong>
-                <small>Trợ lý học toán</small>
-              </span>
-            </a>
-            <div className="spacer" />
-            <span className="course-count">4 học phần</span>
-          </div>
-        </header>
         <Providers>{children}</Providers>
       </body>
     </html>

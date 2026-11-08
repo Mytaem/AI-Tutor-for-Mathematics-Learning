@@ -1,10 +1,7 @@
 /**
- * Phiên làm bài lưu ở localStorage.
- *
- * Chưa có đăng nhập: đồ án cần đo được việc học chứ không cần quản lý tài khoản,
- * và người tham gia thực nghiệm sẽ vào qua một đường link. Danh tính vì thế chỉ
- * là một chuỗi do người dùng tự đặt, đủ để nối các lượt làm bài của cùng một
- * người lại với nhau ở phía server.
+ * Phiên LUYỆN TẬP (môn đang học, mã phiên) lưu ở localStorage để mở lại trang là
+ * học tiếp. Danh tính KHÔNG nằm ở đây: nó là cookie đăng nhập httpOnly. `userId`
+ * chỉ để nhận ra phiên của tài khoản khác còn sót trên cùng máy và bỏ qua nó.
  */
 
 const KEY = "ai-tutor-session";

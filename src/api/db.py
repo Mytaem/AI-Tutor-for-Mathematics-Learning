@@ -65,6 +65,25 @@ CREATE TABLE IF NOT EXISTS mastery (
     PRIMARY KEY (user_id, skill_id)
 );
 
+-- Tài khoản. user_id của tài khoản là khoá dùng ở mọi bảng khác (sessions,
+-- attempts, mastery), nên tiến độ gắn với tài khoản chứ không với một chuỗi tự đặt.
+CREATE TABLE IF NOT EXISTS users (
+    user_id       TEXT PRIMARY KEY,
+    email         TEXT NOT NULL UNIQUE,
+    display_name  TEXT NOT NULL DEFAULT '',
+    password_hash TEXT NOT NULL,
+    created_at    REAL NOT NULL
+);
+
+-- Phiên đăng nhập: chỉ lưu SHA-256 của token, không lưu token.
+CREATE TABLE IF NOT EXISTS auth_tokens (
+    token_hash   TEXT PRIMARY KEY,
+    user_id      TEXT NOT NULL,
+    created_at   REAL NOT NULL,
+    expires_at   REAL NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_auth_tokens_user ON auth_tokens(user_id);
 CREATE INDEX IF NOT EXISTS idx_attempts_session ON attempts(session_id);
 CREATE INDEX IF NOT EXISTS idx_attempts_user ON attempts(user_id);
 CREATE INDEX IF NOT EXISTS idx_hints_session ON hints(session_id);
@@ -129,6 +148,66 @@ class Store:
     @_locked
     def close(self) -> None:
         self._connection.close()
+
+    # ------------------------------------------------------------------
+    # Tài khoản
+
+    @_locked
+    def create_user(self, email: str, display_name: str, password_hash: str) -> str:
+        """Tạo tài khoản; email đã có thì ném ``sqlite3.IntegrityError``."""
+        user_id = "u_" + uuid.uuid4().hex
+        self._connection.execute(
+            "INSERT INTO users (user_id, email, display_name, password_hash, created_at) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (user_id, email, display_name, password_hash, time.time()),
+        )
+        self._connection.commit()
+        return user_id
+
+    @_locked
+    def user_by_email(self, email: str) -> sqlite3.Row | None:
+        return self._connection.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+
+    @_locked
+    def user_by_id(self, user_id: str) -> sqlite3.Row | None:
+        return self._connection.execute("SELECT * FROM users WHERE user_id = ?", (user_id,)).fetchone()
+
+    @_locked
+    def set_password(self, user_id: str, password_hash: str) -> None:
+        self._connection.execute("UPDATE users SET password_hash = ? WHERE user_id = ?",
+                                 (password_hash, user_id))
+        self._connection.commit()
+
+    @_locked
+    def add_token(self, token_hash: str, user_id: str, ttl_seconds: float) -> None:
+        now = time.time()
+        self._connection.execute(
+            "INSERT INTO auth_tokens (token_hash, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)",
+            (token_hash, user_id, now, now + ttl_seconds),
+        )
+        # Dọn phiên hết hạn mỗi lần đăng nhập — bảng không phình mãi.
+        self._connection.execute("DELETE FROM auth_tokens WHERE expires_at < ?", (now,))
+        self._connection.commit()
+
+    @_locked
+    def user_for_token(self, token_hash: str) -> sqlite3.Row | None:
+        return self._connection.execute(
+            "SELECT u.* FROM auth_tokens t JOIN users u ON u.user_id = t.user_id "
+            "WHERE t.token_hash = ? AND t.expires_at > ?",
+            (token_hash, time.time()),
+        ).fetchone()
+
+    @_locked
+    def delete_token(self, token_hash: str) -> None:
+        self._connection.execute("DELETE FROM auth_tokens WHERE token_hash = ?", (token_hash,))
+        self._connection.commit()
+
+    @_locked
+    def delete_tokens_of(self, user_id: str, keep: str | None = None) -> None:
+        """Đăng xuất mọi thiết bị (giữ lại phiên ``keep``) — dùng khi đổi mật khẩu."""
+        self._connection.execute(
+            "DELETE FROM auth_tokens WHERE user_id = ? AND token_hash != ?", (user_id, keep or ""))
+        self._connection.commit()
 
     # ------------------------------------------------------------------
 

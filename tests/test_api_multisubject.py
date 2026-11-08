@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
+from conftest import SERVICE_HEADERS
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -25,7 +26,7 @@ def service():
 
 @pytest.fixture
 def client(service) -> TestClient:
-    return TestClient(create_app(service))
+    return TestClient(create_app(service), headers=SERVICE_HEADERS)
 
 
 def start(client: TestClient, user: str, subject: str) -> dict:
