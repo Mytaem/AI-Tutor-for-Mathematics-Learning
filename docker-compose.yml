@@ -33,6 +33,14 @@ services:
       OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434/v1}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:7b-instruct}
       KT_MODEL: ${KT_MODEL:-bkt}
+      APP_URL: ${APP_URL:-http://localhost}
+      SERVICE_TOKEN: ${SERVICE_TOKEN:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_TLS: ${SMTP_TLS:-starttls}
+      MAIL_FROM: ${MAIL_FROM:-}
     volumes:
       - state:/app/state                 # bài làm, tiến độ của người học — SAO LƯU thư mục này
       - rag_index:/app/data/rag_index    # kho giáo trình của khách (để trống thì /ask báo chưa có kho)

@@ -20,7 +20,8 @@ mô hình**: chúng phản hồi tức thì trên mọi máy.
 ```bash
 # 1. Lấy mã nguồn, tạo file cấu hình
 cp deploy/.env.example .env
-#    Mở .env: đặt ADMIN_TOKEN (chuỗi ngẫu nhiên dài) và SITE_ADDRESS (tên miền, nếu có)
+#    Mở .env: đặt ADMIN_TOKEN (chuỗi ngẫu nhiên dài), SITE_ADDRESS và APP_URL (tên miền),
+#    và cấu hình SMTP để gửi email xác thực / đặt lại mật khẩu
 
 # 2. Dựng và chạy
 docker compose up -d --build
@@ -29,7 +30,7 @@ docker compose up -d --build
 docker compose --profile setup run --rm models
 
 # 4. Kiểm tra
-curl http://localhost/api/health
+curl http://localhost/api/health      # "email_configured": true thì email đã sẵn sàng
 ```
 
 Mở trình duyệt vào địa chỉ máy chủ (hoặc tên miền). Trang quản trị: chọn **Quản trị**

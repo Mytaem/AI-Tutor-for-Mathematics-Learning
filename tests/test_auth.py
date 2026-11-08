@@ -147,3 +147,94 @@ class TestPhanQuyen:
 
         bot = TestClient(app, headers=SERVICE_HEADERS)
         assert bot.post("/session/start", json={"user_id": "tg:42", "subject": "MAE101"}).json()["user_id"] == "tg:42"
+
+
+# ----------------------------------------------------------------------
+# Email: xác thực, quên mật khẩu; quyền với dữ liệu: tải về, xoá
+# ----------------------------------------------------------------------
+
+import re  # noqa: E402
+
+from src.api.mailer import Mailer  # noqa: E402
+
+
+@pytest.fixture()
+def mailed():
+    mailer = Mailer(host="", sender="")
+    service = build_service(AppConfig(), store=Store(":memory:"))
+    app = create_app(service, mailer=mailer)
+    app.state.service = service
+    return app, mailer
+
+
+def _token_in(message) -> str:
+    return re.search(r"token=([A-Za-z0-9_\-]+)", message.get_content()).group(1)
+
+
+class TestEmail:
+    def test_dang_ky_gui_thu_xac_thuc_va_xac_thuc_duoc(self, mailed):
+        app, mailer = mailed
+        client = signed_up(app, "verify@gmail.com")
+        assert client.get("/auth/me").json()["email_verified"] is False
+        assert len(mailer.outbox) == 1 and mailer.outbox[0]["To"] == "verify@gmail.com"
+        token = _token_in(mailer.outbox[0])
+        assert browser(app).post("/auth/verify", json={"token": token}).json()["email_verified"] is True
+        assert client.get("/auth/me").json()["email_verified"] is True
+        # Link chỉ dùng được một lần.
+        assert browser(app).post("/auth/verify", json={"token": token}).status_code == 400
+
+    def test_quen_mat_khau_dat_lai_va_dang_xuat_moi_noi(self, mailed):
+        app, mailer = mailed
+        old_device = signed_up(app, "quen@gmail.com")
+        mailer.outbox.clear()
+        assert browser(app).post("/auth/forgot", json={"email": "Quen@gmail.com"}).status_code == 202
+        token = _token_in(mailer.outbox[-1])
+        assert "/reset?token=" in mailer.outbox[-1].get_content()
+        # Mật khẩu yếu bị từ chối và KHÔNG đốt mất link.
+        assert browser(app).post("/auth/reset", json={"token": token, "new_password": "yeu"}).status_code == 422
+        assert browser(app).post("/auth/reset", json={"token": token, "new_password": "moitinh123"}).status_code == 204
+        assert old_device.get("/auth/me").status_code == 401
+        assert browser(app).post("/auth/login", json={"email": "quen@gmail.com", "password": "moitinh123"}).status_code == 200
+        assert browser(app).post("/auth/reset", json={"token": token, "new_password": "khac12345"}).status_code == 400
+
+    def test_quen_mat_khau_email_khong_ton_tai_tra_cung_cau(self, mailed):
+        app, mailer = mailed
+        mailer.outbox.clear()
+        response = browser(app).post("/auth/forgot", json={"email": "khong-ai@gmail.com"})
+        assert response.status_code == 202 and response.json() == {"sent": True}
+        assert mailer.outbox == []
+
+
+class TestDuLieuCaNhan:
+    def test_tai_ve_du_lieu_cua_minh(self, mailed):
+        app, _ = mailed
+        client = signed_up(app, "export@gmail.com")
+        session = client.post("/session/start", json={"subject": "MAS291"}).json()
+        client.post("/attempt", json={"session_id": session["session_id"],
+                                      "item_id": session["first_item"]["item_id"], "final_answer": "0.1"})
+        response = client.get("/auth/export")
+        assert "attachment" in response.headers["content-disposition"]
+        data = response.json()
+        assert data["account"]["email"] == "export@gmail.com"
+        assert len(data["attempts"]) == 1 and "password_hash" not in data["account"]
+
+    def test_xoa_tai_khoan_xoa_het_du_lieu(self, mailed):
+        app, _ = mailed
+        client = signed_up(app, "xoa@gmail.com")
+        session = client.post("/session/start", json={"subject": "MAS291"}).json()
+        client.post("/attempt", json={"session_id": session["session_id"],
+                                      "item_id": session["first_item"]["item_id"], "final_answer": "0.1"})
+        user_id = client.get("/auth/me").json()["user_id"]
+        assert client.post("/auth/delete", json={"password": "sai12345"}).status_code == 403
+        assert client.post("/auth/delete", json={"password": PASSWORD}).status_code == 204
+        assert client.get("/auth/me").status_code == 401
+        store = app.state.service.store
+        for table in ("users", "sessions", "attempts", "mastery", "auth_tokens", "email_tokens"):
+            left = store._connection.execute(f"SELECT COUNT(*) FROM {table} WHERE user_id = ?", (user_id,))
+            assert left.fetchone()[0] == 0, f"còn dữ liệu trong {table}"
+        relogin = browser(app).post("/auth/login", json={"email": "xoa@gmail.com", "password": PASSWORD})
+        assert relogin.status_code == 401
+        # Đăng ký lại cùng email được — tài khoản cũ đã thật sự biến mất.
+        again = signed_up(app, "xoa@gmail.com")
+        assert again.get("/auth/me").json()["user_id"] != user_id
+        assert again.get("/auth/export").json()["attempts"] == []

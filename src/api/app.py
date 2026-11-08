@@ -22,7 +22,7 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from typing import Annotated, Any
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response
+from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -63,6 +63,7 @@ from src.api.auth import (
     verify_password,
 )
 from src.api.db import Store
+from src.api.mailer import Mailer
 
 
 # ==========================================================================
@@ -98,6 +99,30 @@ class UserOut(BaseModel):
     user_id: str
     email: str
     display_name: str
+    email_verified: bool = False
+
+
+class TokenRequest(BaseModel):
+    token: Annotated[str, Field(min_length=10, max_length=200)]
+
+
+class ResetRequest(BaseModel):
+    token: Annotated[str, Field(min_length=10, max_length=200)]
+    new_password: Annotated[str, Field(max_length=256)]
+
+
+class ForgotRequest(BaseModel):
+    email: Annotated[str, Field(max_length=254)]
+
+
+class DeleteAccountRequest(BaseModel):
+    password: Annotated[str, Field(max_length=256)]
+
+
+#: Địa chỉ web mà link trong email trỏ tới (trang /verify, /reset).
+APP_URL = os.environ.get("APP_URL", "http://localhost:3000").rstrip("/")
+VERIFY_TTL_S = 48 * 3600
+RESET_TTL_S = 3600
 
 
 @dataclass
@@ -834,8 +859,9 @@ CORS_ORIGINS = [
 ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "").strip()
 
 
-def create_app(service: TutorService | None = None) -> FastAPI:
+def create_app(service: TutorService | None = None, mailer: Mailer | None = None) -> FastAPI:
     state: dict[str, Any] = {"service": service}
+    mail = mailer or Mailer()
     owns_service = service is None
 
     @asynccontextmanager
@@ -900,6 +926,8 @@ def create_app(service: TutorService | None = None) -> FastAPI:
             "items": sum(len(bank.items) for bank in service.banks.values()),
             "skills": sum(len(bank.skills) for bank in service.banks.values()),
             "database": service.store.stats(),
+            # Bản bán phải là true: chưa có SMTP thì quên mật khẩu không tới được ai.
+            "email_configured": mail.configured,
         }
 
     @app.get("/subjects")
@@ -964,10 +992,24 @@ def create_app(service: TutorService | None = None) -> FastAPI:
         )
 
     def user_out(row) -> UserOut:
-        return UserOut(user_id=row["user_id"], email=row["email"], display_name=row["display_name"])
+        return UserOut(user_id=row["user_id"], email=row["email"], display_name=row["display_name"],
+                       email_verified=bool(row["email_verified"]))
+
+    mail_limiter = LoginLimiter(limit=5, window_s=60 * 60)
+
+    def send_verification(tasks: BackgroundTasks, service: TutorService, user) -> None:
+        token = new_token()
+        service.store.add_email_token(token_digest(token), user["user_id"], "verify", VERIFY_TTL_S)
+        tasks.add_task(
+            mail.send, user["email"], "Xác thực email tài khoản Numeris",
+            f"Chào {user['display_name']},\n\n"
+            f"Bấm vào link dưới đây để xác thực email cho tài khoản Numeris của bạn:\n\n"
+            f"{APP_URL}/verify?token={token}\n\n"
+            "Link có hiệu lực trong 48 giờ. Nếu bạn không đăng ký Numeris, hãy bỏ qua thư này.\n",
+        )
 
     @app.post("/auth/register", response_model=UserOut, status_code=201)
-    def register(body: RegisterRequest, request: Request, response: Response,
+    def register(body: RegisterRequest, request: Request, response: Response, tasks: BackgroundTasks,
                  service: TutorService = Depends(get_service)) -> UserOut:
         ip_key = f"ip:{client_ip(request)}"
         wait = signup_limiter.retry_after(ip_key)
@@ -986,7 +1028,9 @@ def create_app(service: TutorService | None = None) -> FastAPI:
             raise HTTPException(409, "Email này đã được đăng ký — hãy đăng nhập") from exc
         signup_limiter.failed(ip_key)          # đếm số lần đăng ký thành công theo IP
         open_session(request, response, service, user_id)
-        return user_out(service.store.user_by_id(user_id))
+        user = service.store.user_by_id(user_id)
+        send_verification(tasks, service, user)
+        return user_out(user)
 
     @app.post("/auth/login", response_model=UserOut)
     def login(body: LoginRequest, request: Request, response: Response,
@@ -1041,6 +1085,90 @@ def create_app(service: TutorService | None = None) -> FastAPI:
         current = request.cookies.get(COOKIE_NAME)
         service.store.delete_tokens_of(user["user_id"], keep=token_digest(current) if current else None)
         return Response(status_code=204)
+
+    @app.post("/auth/verify", response_model=UserOut)
+    def verify_email(body: TokenRequest, service: TutorService = Depends(get_service)) -> UserOut:
+        user_id = service.store.use_email_token(token_digest(body.token), "verify")
+        if user_id is None:
+            raise HTTPException(400, "Link xác thực không hợp lệ hoặc đã hết hạn — hãy gửi lại link mới")
+        service.store.mark_email_verified(user_id)
+        return user_out(service.store.user_by_id(user_id))
+
+    @app.post("/auth/verify/resend", status_code=202)
+    def resend_verification(tasks: BackgroundTasks, who: Identity = Depends(identity),
+                            service: TutorService = Depends(get_service)) -> dict[str, bool]:
+        user = service.store.user_by_id(who.user_id) if who.user_id else None
+        if user is None:
+            raise HTTPException(401, "Bạn cần đăng nhập để tiếp tục")
+        if user["email_verified"]:
+            return {"sent": False}
+        key = f"verify:{user['user_id']}"
+        if mail_limiter.retry_after(key):
+            raise HTTPException(429, "Bạn vừa gửi nhiều lần, vui lòng đợi rồi thử lại")
+        mail_limiter.failed(key)
+        send_verification(tasks, service, user)
+        return {"sent": True}
+
+    @app.post("/auth/forgot", status_code=202)
+    def forgot_password(body: ForgotRequest, request: Request, tasks: BackgroundTasks,
+                        service: TutorService = Depends(get_service)) -> dict[str, bool]:
+        email = (body.email or "").strip().lower()
+        keys = (f"forgot-ip:{client_ip(request)}", f"forgot:{email}")
+        if mail_limiter.retry_after(*keys):
+            raise HTTPException(429, "Bạn vừa yêu cầu nhiều lần, vui lòng đợi rồi thử lại")
+        mail_limiter.failed(*keys)
+        user = service.store.user_by_email(email)
+        if user is not None:
+            token = new_token()
+            service.store.add_email_token(token_digest(token), user["user_id"], "reset", RESET_TTL_S)
+            tasks.add_task(
+                mail.send, user["email"], "Đặt lại mật khẩu Numeris",
+                f"Chào {user['display_name']},\n\n"
+                "Có yêu cầu đặt lại mật khẩu cho tài khoản Numeris của bạn. Bấm vào link dưới "
+                f"đây để đặt mật khẩu mới:\n\n{APP_URL}/reset?token={token}\n\n"
+                "Link có hiệu lực trong 1 giờ và chỉ dùng được một lần. Nếu không phải bạn "
+                "yêu cầu, hãy bỏ qua thư này — mật khẩu hiện tại vẫn giữ nguyên.\n",
+            )
+        # Trả cùng một câu dù email có tồn tại hay không: không để lộ ai đã đăng ký.
+        return {"sent": True}
+
+    @app.post("/auth/reset", status_code=204)
+    def reset_password(body: ResetRequest, service: TutorService = Depends(get_service)) -> Response:
+        try:
+            check_password_rules(body.new_password)   # kiểm TRƯỚC để mật khẩu yếu không đốt mất link
+        except AuthError as exc:
+            raise HTTPException(422, str(exc)) from exc
+        user_id = service.store.use_email_token(token_digest(body.token), "reset")
+        if user_id is None:
+            raise HTTPException(400, "Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn — hãy yêu cầu link mới")
+        service.store.set_password(user_id, hash_password(body.new_password))
+        service.store.delete_tokens_of(user_id)        # đăng xuất mọi thiết bị
+        service.store.mark_email_verified(user_id)     # mở được thư tức là sở hữu email
+        return Response(status_code=204)
+
+    @app.get("/auth/export")
+    def export_my_data(who: Identity = Depends(identity),
+                       service: TutorService = Depends(get_service)) -> Response:
+        if not who.user_id:
+            raise HTTPException(401, "Bạn cần đăng nhập để tiếp tục")
+        import json
+
+        body = json.dumps(service.store.export_user(who.user_id), ensure_ascii=False, indent=2)
+        return Response(body, media_type="application/json", headers={
+            "Content-Disposition": 'attachment; filename="numeris-du-lieu-cua-toi.json"'})
+
+    @app.post("/auth/delete", status_code=204)
+    def delete_account(body: DeleteAccountRequest, who: Identity = Depends(identity),
+                       service: TutorService = Depends(get_service)) -> Response:
+        user = service.store.user_by_id(who.user_id) if who.user_id else None
+        if user is None:
+            raise HTTPException(401, "Bạn cần đăng nhập để tiếp tục")
+        if not verify_password(body.password, user["password_hash"]):
+            raise HTTPException(403, "Mật khẩu không đúng")
+        service.store.delete_user(user["user_id"])
+        response = Response(status_code=204)
+        response.delete_cookie(COOKIE_NAME, path="/")
+        return response
 
     # ------------------------------------------------------------------
 

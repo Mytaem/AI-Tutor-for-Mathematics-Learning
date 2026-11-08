@@ -84,6 +84,14 @@ CREATE TABLE IF NOT EXISTS auth_tokens (
 );
 
 CREATE INDEX IF NOT EXISTS idx_auth_tokens_user ON auth_tokens(user_id);
+
+-- Mã dùng một lần gửi qua email: xác thực email, đặt lại mật khẩu. Chỉ lưu băm.
+CREATE TABLE IF NOT EXISTS email_tokens (
+    token_hash   TEXT PRIMARY KEY,
+    user_id      TEXT NOT NULL,
+    purpose      TEXT NOT NULL,
+    expires_at   REAL NOT NULL
+);
 CREATE INDEX IF NOT EXISTS idx_attempts_session ON attempts(session_id);
 CREATE INDEX IF NOT EXISTS idx_attempts_user ON attempts(user_id);
 CREATE INDEX IF NOT EXISTS idx_hints_session ON hints(session_id);
@@ -144,6 +152,10 @@ class Store:
         self._connection.execute(
             "CREATE INDEX IF NOT EXISTS idx_attempts_user_subject ON attempts(user_id, subject)"
         )
+        user_columns = {row["name"] for row in self._connection.execute("PRAGMA table_info(users)")}
+        if "email_verified" not in user_columns:
+            self._connection.execute(
+                "ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0")
 
     @_locked
     def close(self) -> None:
@@ -208,6 +220,62 @@ class Store:
         self._connection.execute(
             "DELETE FROM auth_tokens WHERE user_id = ? AND token_hash != ?", (user_id, keep or ""))
         self._connection.commit()
+
+    @_locked
+    def mark_email_verified(self, user_id: str) -> None:
+        self._connection.execute("UPDATE users SET email_verified = 1 WHERE user_id = ?", (user_id,))
+        self._connection.commit()
+
+    @_locked
+    def add_email_token(self, token_hash: str, user_id: str, purpose: str, ttl_seconds: float) -> None:
+        now = time.time()
+        # Mỗi người, mỗi mục đích chỉ một mã còn hiệu lực: xin mã mới thì mã cũ hết dùng.
+        self._connection.execute("DELETE FROM email_tokens WHERE (user_id = ? AND purpose = ?) OR expires_at < ?",
+                                 (user_id, purpose, now))
+        self._connection.execute(
+            "INSERT INTO email_tokens (token_hash, user_id, purpose, expires_at) VALUES (?, ?, ?, ?)",
+            (token_hash, user_id, purpose, now + ttl_seconds))
+        self._connection.commit()
+
+    @_locked
+    def use_email_token(self, token_hash: str, purpose: str) -> str | None:
+        """Dùng mã một lần: trả user_id và XOÁ mã; sai, hết hạn hay đã dùng thì None."""
+        row = self._connection.execute(
+            "SELECT user_id FROM email_tokens WHERE token_hash = ? AND purpose = ? AND expires_at > ?",
+            (token_hash, purpose, time.time())).fetchone()
+        self._connection.execute("DELETE FROM email_tokens WHERE token_hash = ?", (token_hash,))
+        self._connection.commit()
+        return row["user_id"] if row else None
+
+    @_locked
+    def export_user(self, user_id: str) -> dict[str, Any]:
+        """Mọi dữ liệu gắn với một người — quyền được biết hệ thống giữ gì về mình."""
+        def rows(sql: str) -> list[dict[str, Any]]:
+            return [dict(r) for r in self._connection.execute(sql, (user_id,))]
+
+        user = self._connection.execute(
+            "SELECT user_id, email, display_name, email_verified, created_at FROM users WHERE user_id = ?",
+            (user_id,)).fetchone()
+        return {
+            "account": dict(user) if user else None,
+            "practice_sessions": rows("SELECT session_id, subject, created_at FROM sessions WHERE user_id = ?"),
+            "attempts": rows("SELECT session_id, subject, item_id, raw_input, steps_json, is_correct, "
+                             "final_answer_correct, first_wrong_step, error_codes, created_at "
+                             "FROM attempts WHERE user_id = ? ORDER BY created_at"),
+            "hints": rows("SELECT h.item_id, h.level, h.text, h.created_at FROM hints h "
+                          "JOIN sessions s ON s.session_id = h.session_id WHERE s.user_id = ?"),
+            "mastery": rows("SELECT skill_id, value, updated_at FROM mastery WHERE user_id = ?"),
+        }
+
+    @_locked
+    def delete_user(self, user_id: str) -> None:
+        """Xoá tài khoản và MỌI dữ liệu học của người đó, trong một giao dịch."""
+        with self._connection:
+            self._connection.execute(
+                "DELETE FROM hints WHERE session_id IN (SELECT session_id FROM sessions WHERE user_id = ?)",
+                (user_id,))
+            for table in ("attempts", "sessions", "mastery", "auth_tokens", "email_tokens", "users"):
+                self._connection.execute(f"DELETE FROM {table} WHERE user_id = ?", (user_id,))
 
     # ------------------------------------------------------------------
 

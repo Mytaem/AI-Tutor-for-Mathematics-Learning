@@ -66,11 +66,15 @@ chỉ giữ bản băm của token. Sai mật khẩu 5 lần trong 15 phút thì
 và theo IP. Danh tính lấy từ phiên đăng nhập, nên không ai xem hay nộp bài vào dữ liệu
 của người khác bằng cách đổi tham số (có test cho từng trường hợp).
 
-**Còn thiếu, cần trước khi mở bán rộng:**
+**Cũng đã có:** quên mật khẩu (link một lần, hết hạn sau 1 giờ, đặt lại xong đăng xuất
+mọi thiết bị); xác thực email khi đăng ký (link 48 giờ, có nút gửi lại); người học tự
+**tải toàn bộ dữ liệu** của mình (JSON) và tự **xoá tài khoản** cùng mọi dữ liệu học.
 
-- [ ] **Quên mật khẩu**: cần dịch vụ gửi email (SMTP hoặc nhà cung cấp gửi mail).
-- [ ] **Xác thực email** khi đăng ký: chặn tài khoản rác.
-- [ ] **Xoá tài khoản và dữ liệu** theo yêu cầu người học (quy định bảo vệ dữ liệu cá nhân).
+**Bạn cần làm:**
+
+- [ ] **Cấu hình gửi email (SMTP)** — chưa cấu hình thì thư xác thực và đặt lại mật
+      khẩu không tới người dùng. Xem `deploy/.env.example`; `/health` báo
+      `email_configured`.
 - [ ] Trang quản trị vẫn dùng một khoá chung; nên đổi thành tài khoản quản trị riêng.
 
 ## 5. Còn thiếu nếu bán trực tiếp cho sinh viên

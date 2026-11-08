@@ -306,3 +306,20 @@ a.button:hover { filter: brightness(1.06); }
   .account-button { padding: 4px; }
   .auth-card { padding: 20px; }
 }
+
+.verify-banner { border-bottom: 1px solid var(--warn-line, var(--line)); background: color-mix(in srgb, var(--warn, #b45309) 10%, var(--surface)); }
+.verify-banner .inner {
+  max-width: var(--page); margin: auto; padding: 8px 24px; display: flex; gap: 10px;
+  align-items: center; justify-content: space-between; font-size: .85rem; color: var(--ink);
+}
+.verify-banner .inner > span { flex: 1; }
+.error-inline { color: var(--wrong); }
+
+.danger-zone { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--line); }
+.danger-zone h3 { margin: 0 0 4px; font-size: .95rem; }
+button.danger { background: var(--wrong); color: #fff; }
+button.danger-outline { background: transparent; color: var(--wrong); border-color: currentColor; }
+
+@media (max-width: 640px) {
+  .verify-banner .inner { padding: 8px 15px; flex-wrap: wrap; }
+}

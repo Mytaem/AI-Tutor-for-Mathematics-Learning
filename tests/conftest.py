@@ -8,3 +8,6 @@ os.environ.setdefault("LLM_ASK", "0")
 SERVICE_TOKEN = "test-service-token"
 os.environ.setdefault("SERVICE_TOKEN", SERVICE_TOKEN)
 SERVICE_HEADERS = {"X-Service-Token": SERVICE_TOKEN}
+
+# Test không bao giờ gửi email thật, kể cả khi máy có cấu hình SMTP.
+os.environ["SMTP_HOST"] = ""

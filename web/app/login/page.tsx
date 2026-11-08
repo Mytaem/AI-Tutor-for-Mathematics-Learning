@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "../../lib/api";
 import { useApp } from "../providers";
@@ -96,7 +97,11 @@ function LoginForm() {
                 {showPassword ? "Ẩn" : "Hiện"}
               </button>
             </div>
-            {registering && <p className="meta" style={{ marginTop: 6 }}>Ít nhất 8 ký tự, có cả chữ và số.</p>}
+            {registering ? (
+              <p className="meta" style={{ marginTop: 6 }}>Ít nhất 8 ký tự, có cả chữ và số.</p>
+            ) : (
+              <p className="meta" style={{ marginTop: 6 }}><Link href="/forgot">Quên mật khẩu?</Link></p>
+            )}
           </div>
           {registering && (
             <div className="field-group">

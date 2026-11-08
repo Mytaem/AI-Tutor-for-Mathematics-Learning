@@ -25,6 +25,7 @@ import {
 } from "../lib/prefs";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
+import { VerifyBanner } from "./verify-banner";
 
 type Ctx = {
   ready: boolean;
@@ -129,6 +130,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <AppContext.Provider value={value}>
       <Topbar />
+      <VerifyBanner />
       <div className="shell">
         <aside className="side">
           <Sidebar />

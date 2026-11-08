@@ -14,6 +14,7 @@ export type User = {
   user_id: string;
   email: string;
   display_name: string;
+  email_verified: boolean;
 };
 
 /** Phiên đăng nhập hết hạn hoặc chưa đăng nhập — giao diện chuyển sang trang đăng nhập. */
@@ -213,6 +214,29 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
     }),
+
+  verifyEmail: (token: string) =>
+    call<User>("/auth/verify", { method: "POST", body: JSON.stringify({ token }) }),
+
+  resendVerification: () => call<{ sent: boolean }>("/auth/verify/resend", { method: "POST" }),
+
+  forgotPassword: (email: string) =>
+    call<{ sent: boolean }>("/auth/forgot", { method: "POST", body: JSON.stringify({ email }) }),
+
+  resetPassword: (token: string, newPassword: string) =>
+    call<void>("/auth/reset", {
+      method: "POST",
+      body: JSON.stringify({ token, new_password: newPassword }),
+    }),
+
+  exportMyData: async () => {
+    const response = await fetchWithTimeout("/auth/export");
+    if (!response.ok) throw new Error(`Lỗi ${response.status}`);
+    return response.blob();
+  },
+
+  deleteAccount: (password: string) =>
+    call<void>("/auth/delete", { method: "POST", body: JSON.stringify({ password }) }),
 
   startSession: (subject: string) =>
     call<Session>("/session/start", { method: "POST", body: JSON.stringify({ subject }) }),
