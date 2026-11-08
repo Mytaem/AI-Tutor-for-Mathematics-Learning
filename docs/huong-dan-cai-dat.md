@@ -186,7 +186,7 @@ Hệ thống thiết kế **ba lớp**, và nó chạy được cả khi không 
 
 ```bash
 ollama pull qwen2.5:7b-instruct     # ~4,7 GB — khuyến nghị
-ollama pull qwen2.5:3b-instruct     # ~1,9 GB — nhanh gấp đôi, tiếng Việt kém hơn
+ollama pull qwen2.5:3b-instruct     # ~1,9 GB — chỉ cho nghiên cứu: giấy phép cấm thương mại
 ```
 
 **Không có model nào thì hệ thống vẫn chạy**: gợi ý rơi về câu template, phần Hỏi lý
@@ -232,7 +232,7 @@ Kiểm nhanh: mở http://localhost:8000/health — phải thấy đủ 4 môn v
 |---|---|---|
 | `LLM_HINTS` | tắt | `1` để gợi ý do model diễn đạt (có guardrail) |
 | `LLM_ASK` | bật | hỏi lý thuyết dùng model; `0` để chỉ trả đoạn giáo trình |
-| `OLLAMA_MODEL` | `qwen2.5:3b-instruct` | đổi sang `7b` khi cần chất lượng |
+| `OLLAMA_MODEL` | `qwen2.5:7b-instruct` | Apache-2.0. **Không dùng `3b` cho bản bán**: giấy phép Qwen Research cấm thương mại |
 | `VLLM_URL` | trống | endpoint vLLM; có thì ưu tiên hơn Ollama |
 | `DEMO_MODE` | tắt | `1` chỉ đọc cache, không gọi model |
 | `KT_MODEL` | `bkt` | `dkt` để dùng mạng hồi tiếp (cần `models/dkt/<môn>.pt`) |

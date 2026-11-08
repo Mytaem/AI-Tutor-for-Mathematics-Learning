@@ -213,7 +213,16 @@ td.value, th.value { text-align: right; font-variant-numeric: tabular-nums; }
 @keyframes spin { to { transform: rotate(360deg); } }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
+.scope-toggle { display: none; }
+
 @media (max-width: 980px) {
+  .scope-toggle {
+    display: flex; width: 100%; justify-content: space-between; align-items: center;
+    background: none; border: 0; padding: 0; min-height: 0; box-shadow: none;
+    color: var(--ink); font-weight: 600; font-size: .92rem; cursor: pointer;
+  }
+  .scope-toggle[aria-expanded="true"] { margin-bottom: 12px; }
+  .scope-label { display: none; }
   .shell { grid-template-columns: 1fr; padding-top: 18px; gap: 22px; }
   .side { position: static; }
   .side-inner { min-height: 0; gap: 12px; }
@@ -241,6 +250,8 @@ td.value, th.value { text-align: right; font-variant-numeric: tabular-nums; }
   .panel, .start-panel { padding: 16px; }
   .statement { font-size: 1.04rem; }
   .row > input[type="text"] + button { width: 100%; }
+  /* Màu của thanh đã nói xếp loại; trên màn hẹp bỏ cột chữ để bảng không tràn. */
+  .band-col { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

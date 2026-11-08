@@ -63,6 +63,10 @@ AnswerText = Annotated[str, Field(max_length=8_000)]
 SolutionStep = Annotated[str, Field(max_length=4_000)]
 QuestionText = Annotated[str, Field(min_length=1, max_length=4_000)]
 
+#: Ngân sách cho model ở /ask, phải nhỏ hơn MODEL_TIMEOUT_MS (120 s) của web.
+ASK_LLM_TIMEOUT_S = 100.0
+
+
 class PublicItem(BaseModel):
     """Bài tập ở dạng gửi cho client — ĐÃ LƯỢC BỎ mọi thông tin về đáp án."""
 
@@ -75,13 +79,24 @@ class PublicItem(BaseModel):
     variable: str
     bounds: tuple[str, str] | None = None
     difficulty: float
+    #: Tên hiển thị cho người học — mã nội bộ (MAE.LIM.INDET) không nói gì với họ.
+    skill_names: list[str] = []
+    chapter_vi: str = ""
+    topic_vi: str = ""
 
     @classmethod
-    def of(cls, item: Item) -> PublicItem:
+    def of(cls, item: Item, bank: ItemBank | None = None) -> PublicItem:
+        from src.core.syllabus import TASK_NAMES_VI, display_name
+
+        skills = [bank.skills[s] for s in item.skills if bank and s in bank.skills]
+        topic = item.meta.get("method") or TASK_NAMES_VI.get(item.meta.get("task") or "", "")
         return cls(
             item_id=item.item_id,
             subject=item.subject.value,
             skills=list(item.skills),
+            skill_names=[s.name_vi for s in skills],
+            chapter_vi=display_name(item.subject.value, skills[0].chapter) if skills else "",
+            topic_vi=topic,
             statement_vi=pretty_math(item.statement_vi),
             statement_latex=item.statement_latex,
             answer_type=item.answer_type.value,
@@ -361,7 +376,7 @@ class TutorService:
             session_id=session_id,
             user_id=user_id,
             subject=subject,
-            first_item=PublicItem.of(item) if item else None,
+            first_item=PublicItem.of(item, self.bank_for(subject)) if item else None,
             placement_mode=self.in_placement(user_id, subject),
             placement_remaining=self.placement_remaining(user_id, subject),
         )
@@ -541,7 +556,15 @@ class TutorService:
         if self.config.llm_ask:
             from src.llm.client import LLMClient
 
-            client = LLMClient.from_config(self.config.llm)
+            from dataclasses import replace
+
+            # Một lần gọi, không thử lại, và gói gọn dưới mức chờ 120 s của web
+            # (MODEL_TIMEOUT_MS). Trước đây 90 s × 3 lần thử = 4–6 phút: web đã báo
+            # lỗi từ lâu mà server vẫn cày, còn chặn hàng đợi của Ollama cho người sau.
+            # Hết giờ thì answer_question tự trả nguyên đoạn giáo trình.
+            client = LLMClient.from_config(replace(
+                self.config.llm, max_retries=0,
+                timeout_seconds=min(self.config.llm.timeout_seconds, ASK_LLM_TIMEOUT_S)))
 
         # Chọn chương thì thu hẹp truy xuất về đúng các kỹ năng của chương đó.
         # Đây là chỗ bộ lọc metadata đáng giá nhất: hỏi "kiểm định" mà không lọc
@@ -856,7 +879,7 @@ def create_app(service: TutorService | None = None) -> FastAPI:
             raise HTTPException(404, str(exc)) from exc
         if item is None:
             raise HTTPException(404, "Ngân hàng đề trống")
-        return PublicItem.of(item)
+        return PublicItem.of(item, service.bank_for(item.subject.value))
 
     @app.get("/syllabus", response_model=SyllabusResponse)
     def syllabus(

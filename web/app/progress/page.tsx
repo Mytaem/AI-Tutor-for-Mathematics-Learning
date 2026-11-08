@@ -153,7 +153,7 @@ export default function ProgressPage() {
                   <tr>
                     <th scope="col">Kỹ năng</th>
                     <th scope="col">Mức thành thạo</th>
-                    <th scope="col" style={{ textAlign: "right" }}>
+                    <th scope="col" className="band-col" style={{ textAlign: "right" }}>
                       Xếp loại
                     </th>
                   </tr>
@@ -179,19 +179,18 @@ function Row({ skill }: { skill: SkillProgress }) {
     <tr>
       <th scope="row" className="name" style={{ fontWeight: 400, padding: "10px 8px", textTransform: "none", letterSpacing: 0, fontSize: "0.92rem", color: "var(--ink)" }}>
         {skill.name_vi}
-        <div className="meta mono">{skill.skill_id}</div>
       </th>
       {/* Thanh và con số nằm CÙNG một cột: chúng là một đại lượng, tách ra hai
           cột thì cột nào cũng phải có tên riêng mà thật ra không có tên riêng. */}
       <td>
         <div className="row" style={{ gap: 10, flexWrap: "nowrap" }}>
-          <div className="bar" style={{ flex: 1, minWidth: 80 }}>
+          <div className="bar" style={{ flex: 1, minWidth: 60 }}>
             <span className={b.cls} style={{ width: `${Math.max(2, percent)}%` }} />
           </div>
           <span className="value" style={{ width: 42 }}>{percent}%</span>
         </div>
       </td>
-      <td style={{ textAlign: "right" }}>
+      <td className="band-col" style={{ textAlign: "right" }}>
         <span className={`chip ${b.chip}`}>{b.label}</span>
       </td>
     </tr>

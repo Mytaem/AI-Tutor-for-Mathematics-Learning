@@ -50,6 +50,15 @@ const ANSWER_HELP: Record<string, string> = {
   text: "Trả lời bằng lời",
 };
 
+const HINT_SOURCE: Record<string, string> = {
+  solution: "· theo lời giải đã kiểm chứng",
+  taxonomy: "· theo đúng lỗi em vừa mắc",
+  reference: "· theo lời giải mẫu",
+  llm: "· do mô hình diễn đạt",
+  template: "· gợi ý chung",
+  fallback: "· gợi ý an toàn",
+};
+
 const DIFFICULTY = (value: number) =>
   value < 0.35 ? "dễ" : value < 0.65 ? "vừa" : "khó";
 
@@ -78,6 +87,9 @@ export default function PracticePage() {
   const [down, setDown] = useState(false);
   const [busy, setBusy] = useState(false);
   const [solved, setSolved] = useState(0);
+  // Lời giải đầy đủ phải xin HAI lần (chính sách gợi ý). Lần đầu không ra gì thì
+  // người học tưởng nút hỏng — nên phải nói rõ là cần xác nhận.
+  const [solutionAsked, setSolutionAsked] = useState(false);
   const answerBox = useRef<HTMLInputElement>(null);
 
   // `within` truyền tường minh chứ không lấy từ closure: để deps rỗng mà vẫn
@@ -94,6 +106,7 @@ export default function PracticePage() {
       setShowSteps(false);
       setResult(null);
       setHint(null);
+      setSolutionAsked(false);
       setDown(false);
       // Con trỏ nhảy thẳng vào ô đáp án: luyện tập là gõ liên tục, bắt người
       // học với chuột sau mỗi bài là chỗ rò thời gian lớn nhất của màn hình này.
@@ -146,7 +159,9 @@ export default function PracticePage() {
     setBusy(true);
     setError(null);
     try {
-      setHint(await api.hint(session.sessionId, item.item_id, solution));
+      const next = await api.hint(session.sessionId, item.item_id, solution);
+      setHint(next);
+      setSolutionAsked(solution && next.level < 5);
     } catch (exc) {
       setError((exc as Error).message);
     } finally {
@@ -198,16 +213,19 @@ export default function PracticePage() {
                 đứng trơ ra thì người học không biết đang đọc mã đề hay mã kỹ
                 năng, cũng không biết "vừa" là vừa cái gì. */}
             <div className="panel-head">
-              <span className="chip">
-                <span className="mono">{item.item_id}</span>
-              </span>
-              <span className="chip">Độ khó: {DIFFICULTY(item.difficulty)}</span>
-              {item.skills.length > 0 && (
-                <span className="chip accent">{item.skills.join(", ")}</span>
+              {item.chapter_vi && <span className="chip">Chương: {item.chapter_vi}</span>}
+              {item.skill_names.length > 0 && item.skill_names.join(" · ") !== item.chapter_vi && (
+                <span className="chip accent">{item.skill_names.join(" · ")}</span>
               )}
+              <span className="chip">Độ khó: {DIFFICULTY(item.difficulty)}</span>
             </div>
             <div className="panel-body">
               <Statement item={item} />
+              {/* Mã đề để khi người học báo lỗi, người hỗ trợ tra được đúng đề. */}
+              <p className="meta" style={{ marginTop: 12, marginBottom: 0 }}>
+                {item.topic_vi && <>Dạng bài: {item.topic_vi} · </>}
+                Mã đề <span className="mono">{item.item_id}</span>
+              </p>
             </div>
           </div>
 
@@ -300,7 +318,7 @@ export default function PracticePage() {
             <Ladder level={hint.level} />
             Mức {hint.level} · {hint.level_label}
             <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>
-              {hint.source === "llm" ? "· do mô hình diễn đạt" : "· mẫu có sẵn"}
+              {HINT_SOURCE[hint.source] ?? ""}
             </span>
           </div>
           <div className="text">
@@ -318,14 +336,22 @@ export default function PracticePage() {
               </button>
             )}
             {hint.level >= 4 && hint.level < 5 && (
-              <button
-                type="button"
-                className="secondary small"
-                onClick={() => void askHint(true)}
-                disabled={busy}
-              >
-                Xem lời giải
-              </button>
+              <>
+                {solutionAsked && (
+                  <p className="meta" style={{ margin: 0, flexBasis: "100%" }}>
+                    Em thử tự làm phép tính ở bước cuối trước nhé — chỉ còn một bước. Vẫn muốn xem
+                    lời giải thì bấm lần nữa.
+                  </p>
+                )}
+                <button
+                  type="button"
+                  className="secondary small"
+                  onClick={() => void askHint(true)}
+                  disabled={busy}
+                >
+                  {solutionAsked ? "Vẫn xem lời giải" : "Xem lời giải"}
+                </button>
+              </>
             )}
           </div>
         </div>

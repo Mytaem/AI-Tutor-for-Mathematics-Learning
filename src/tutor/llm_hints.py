@@ -99,7 +99,11 @@ class LLMHintGenerator(HintGenerator):
         # vừa mất bước vừa có thể chép sai công thức — đúng điều người học cần tránh.
         from src.solve import solve
 
-        if level >= HintLevel.PITFALL and solve(item) is not None:
+        # Đề có lời giải đã kiểm thì gợi ý MỌI mức dựng từ lời giải đó: đúng theo
+        # cấu tạo, có chương/công thức/bước cụ thể, và trả về tức thì. Đo trên máy
+        # CPU: để model 7b viết gợi ý thì một lần nộp sai mất ~70 giây, và câu viết
+        # ra không tốt hơn. Model chỉ còn là đường dự phòng cho đề chưa có lời giải.
+        if solve(item) is not None:
             return template
         messages = self.build_messages(item, result, level)
         started = time.perf_counter()

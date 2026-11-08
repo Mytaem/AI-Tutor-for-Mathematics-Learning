@@ -20,6 +20,9 @@ export type PublicItem = {
   variable: string;
   bounds: [string, string] | null;
   difficulty: number;
+  skill_names: string[];
+  chapter_vi: string;
+  topic_vi: string;
 };
 
 export type Hint = {

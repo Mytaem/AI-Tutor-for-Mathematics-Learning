@@ -17,7 +17,7 @@ Biến môi trường đáng chú ý:
 |---|---|---|
 | `LLM_HINTS` | tắt | `1` để gợi ý do Qwen diễn đạt (có guardrail); tắt thì dùng câu template |
 | `KT_MODEL` | `bkt` | `dkt` để ước lượng năng lực bằng mạng hồi tiếp (cần `models/dkt/<môn>.pt`; thiếu thì tự quay về BKT) |
-| `OLLAMA_MODEL` | `qwen2.5:3b-instruct` | đổi sang `qwen2.5:7b-instruct` khi cần chất lượng |
+| `OLLAMA_MODEL` | `qwen2.5:7b-instruct` | Apache-2.0; `3b` cấm dùng thương mại |
 | `VLLM_URL` | trống | endpoint vLLM trên Kaggle; có thì ưu tiên hơn Ollama |
 | `DEMO_MODE` | tắt | `1` để chỉ đọc cache, không gọi model — dùng khi bảo vệ |
 | `DATABASE_URL` | `data/tutor.sqlite` | đổi file dữ liệu |
@@ -90,7 +90,7 @@ quyết mức gợi ý. Nhờ vậy web và bot Telegram luôn cho cùng kết q
 
 ```bash
 ollama serve                      # nếu chưa chạy sẵn
-ollama run qwen2.5:3b-instruct    # tải model lần đầu
+ollama pull qwen2.5:7b-instruct   # tải model lần đầu
 ```
 
 Không có model thì hệ thống vẫn chạy: gợi ý rơi về câu template. Đây là điều cố ý —

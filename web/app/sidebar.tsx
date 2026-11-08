@@ -28,6 +28,11 @@ export function Sidebar() {
   const { role, setRole, theme, setTheme, ready } = useApp();
   const [subject, setSubject] = useState<string | null>(null);
   const [adminEnabled, setAdminEnabled] = useState<boolean | null>(null);
+  // Màn hẹp: khung phạm vi thu gọn, để đề bài nằm ngay màn hình đầu tiên.
+  const [scopeOpen, setScopeOpen] = useState(true);
+  useEffect(() => {
+    if (window.matchMedia("(max-width: 980px)").matches) setScopeOpen(false);
+  }, []);
 
   useEffect(() => setSubject(loadSession()?.subject ?? null), [path]);
   useEffect(() => {
@@ -61,8 +66,16 @@ export function Sidebar() {
 
       {role === "student" && SCOPED.includes(path) && (
         <div className="side-section scope-card">
-          <div className="side-label">Phạm vi</div>
-          <div className="inner"><ScopePicker subject={subject} /></div>
+          <button
+            type="button"
+            className="scope-toggle"
+            aria-expanded={scopeOpen}
+            onClick={() => setScopeOpen((open) => !open)}
+          >
+            Phạm vi luyện tập <span aria-hidden="true">{scopeOpen ? "▴" : "▾"}</span>
+          </button>
+          <div className="side-label scope-label">Phạm vi</div>
+          {scopeOpen && <div className="inner"><ScopePicker subject={subject} /></div>}
         </div>
       )}
 

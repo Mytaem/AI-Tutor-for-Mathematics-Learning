@@ -70,13 +70,29 @@ def generator(backend, tmp_path, mae, **kwargs) -> LLMHintGenerator:
     return LLMHintGenerator(make_client(backend, tmp_path), load_course_error_codes("MAE101"), mae.skills, **kwargs)
 
 
-class TestRewriteLoop:
-    # Vòng viết lại chỉ còn chạy ở mức 0–1; từ mức 2, gợi ý là các bước đã kiểm.
-    def test_tu_muc_bay_tro_len_dung_cac_buoc_da_kiem_khong_goi_llm(self, tmp_path, mae, item, wrong) -> None:
+class TestCoLoiGiai:
+    """Đề có lời giải đã kiểm: gợi ý mọi mức dựng từ lời giải, KHÔNG gọi model."""
+
+    @pytest.mark.parametrize("level", [HintLevel.PROBE, HintLevel.CONCEPT, HintLevel.PITFALL,
+                                       HintLevel.LOCATE, HintLevel.CORRECT])
+    def test_khong_goi_llm(self, tmp_path, mae, item, wrong, level) -> None:
         backend = ScriptedBackend([CLEAN])
-        hint = generator(backend, tmp_path, mae).generate(item, wrong, HintLevel.PITFALL)
-        assert backend.calls == [] and hint.source != "llm"
+        hint = generator(backend, tmp_path, mae).generate(item, wrong, level)
+        assert backend.calls == [] and hint.source != "llm" and hint.text
+
+    def test_muc_bay_co_cac_buoc(self, tmp_path, mae, item, wrong) -> None:
+        hint = generator(ScriptedBackend([]), tmp_path, mae).generate(item, wrong, HintLevel.PITFALL)
         assert "Bước 1:" in hint.text and "Bước 2:" in hint.text
+
+
+class TestRewriteLoop:
+    """Vòng viết lại của model — chỉ còn chạy cho đề CHƯA có lời giải."""
+
+    @pytest.fixture(autouse=True)
+    def chua_co_loi_giai(self, monkeypatch):
+        import src.solve
+
+        monkeypatch.setattr(src.solve, "solve", lambda item: None)
 
     def test_cau_sach_duoc_dung_ngay(self, tmp_path, mae, item, wrong) -> None:
         gen = generator(ScriptedBackend([CLEAN]), tmp_path, mae)
@@ -175,7 +191,10 @@ class TestPrompt:
 
 
 class TestEngineIntegration:
-    def test_engine_dung_duoc_bo_sinh_llm(self, tmp_path, mae, item) -> None:
+    def test_engine_dung_duoc_bo_sinh_llm(self, tmp_path, mae, item, monkeypatch) -> None:
+        import src.solve
+
+        monkeypatch.setattr(src.solve, "solve", lambda it: None)   # đề chưa có lời giải
         gen = generator(ScriptedBackend([CLEAN, CLEAN, CLEAN]), tmp_path, mae)
         engine = TutorEngine(verifier_for("MAE101"), gen)
         response = engine.submit(item, Submission(item_id=item.item_id, final_answer="(x**2+1)**4 + C"))

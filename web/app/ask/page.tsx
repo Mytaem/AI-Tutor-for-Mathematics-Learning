@@ -103,7 +103,10 @@ export default function AskPage() {
       </form>
 
       {busy && (
-        <div className="panel">
+        <div className="panel" aria-live="polite">
+          <p className="meta" style={{ marginTop: 0 }}>
+            Đang tra giáo trình và soạn câu trả lời — thường mất 20–60 giây.
+          </p>
           <div className="skeleton" />
           <div className="skeleton" />
           <div className="skeleton w60" />
