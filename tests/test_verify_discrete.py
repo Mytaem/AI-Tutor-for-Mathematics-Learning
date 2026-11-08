@@ -163,3 +163,19 @@ class TestGuardrailOnLogic:
         item = bank.get("MAD101-LOGIC-001")
         assert not check_leak("Em thử dùng luật De Morgan xem", item, HintLevel.PITFALL).leaked
         assert not check_leak("Em xét ¬(p ∧ q) trước", item, HintLevel.PITFALL).leaked
+
+
+@pytest.mark.parametrize(("written", "meant"), [
+    ("p ⟶ - q", "p -> ~q"),       # nhập thật trên hệ thống: từng bị báo "không đọc được"
+    ("- q", "~q"),
+    ("p => q", "p -> q"),
+    ("p <=> q", "p <-> q"),
+    ("p v q", "p | q"),
+    ("~(p v q)", "~(p | q)"),
+    ("p ^ ~q", "p & ~q"),         # ^ là VÀ (giống ∧), không phải XOR
+    ("p ⊕ q", "p xor q"),
+])
+def test_doc_ky_hieu_logic_theo_cach_sinh_vien_go(written, meant):
+    from src.verify.discrete import parse_logic
+
+    assert parse_logic(written) == parse_logic(meant)
