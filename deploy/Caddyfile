@@ -1,0 +1,20 @@
+# Một cổng vào cho cả hệ thống. Đặt SITE_ADDRESS là tên miền thật (ví dụ
+# tutor.truong-abc.edu.vn) thì Caddy tự xin và gia hạn chứng chỉ HTTPS.
+# Để mặc định ":80" thì chạy HTTP trong mạng nội bộ.
+{$SITE_ADDRESS::80} {
+	encode zstd gzip
+
+	# /api/session/start -> api:8000/session/start
+	handle_path /api/* {
+		reverse_proxy api:8000
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

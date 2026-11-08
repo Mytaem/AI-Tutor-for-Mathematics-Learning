@@ -10,6 +10,8 @@ Mỗi file viết cho **một người đọc cụ thể**. Chọn đúng cái b
 | **Demo** hệ thống trên máy khác | [cho-nguoi-demo.md](cho-nguoi-demo.md) |
 | **Dựng lại** toàn bộ từ đầu | [huong-dan-cai-dat.md](huong-dan-cai-dat.md) |
 | **Đọc và sửa code** | [kien-truc.md](kien-truc.md) |
+| **Cài cho khách hàng** (Docker, HTTPS, sao lưu) | [trien-khai.md](trien-khai.md) |
+| **Chủ sản phẩm**: điều kiện để bán | [ban-thuong-mai.md](ban-thuong-mai.md) |
 
 ## Hướng dẫn
 

@@ -1,0 +1,28 @@
+.git
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.ruff_cache
+.kaggle_tmp
+.github
+experiments
+notebooks
+models
+docs
+tests
+
+# Dữ liệu KHÔNG được đóng vào ảnh: tài liệu có bản quyền, kho dựng từ chúng,
+# dữ liệu huấn luyện, và dữ liệu thật của người học.
+data/raw
+data/rag_index
+data/kt
+data/sft
+data/eval
+data/*.sqlite
+data/*.sqlite-*
+
+web/node_modules
+web/.next
+web/.env*
+.env
+.env.*

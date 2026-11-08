@@ -100,7 +100,8 @@ def load_index(directory: str | Path | None = None) -> RagIndex | None:
     from src.core.config import ROOT
 
     path = Path(directory) if directory else ROOT / "data" / "rag_index"
-    if not path.exists():
+    # Thư mục rỗng (volume Docker vừa tạo) cũng là "chưa dựng kho", không phải lỗi.
+    if not (path / "chunks.json").exists():
         return None
     return RagIndex.load(path)
 
