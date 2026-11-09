@@ -126,10 +126,19 @@ class TestChuongChuaCoTaiLieu:
         return RagIndex(chunks, embeddings=encoder.encode([c.text for c in chunks]),
                         encoder=encoder)
 
-    def test_noi_thang_la_chua_co_tai_lieu(self, thieu_chuong: RagIndex) -> None:
+    def test_noi_thang_la_chua_co_tai_lieu(self, thieu_chuong: RagIndex, monkeypatch) -> None:
+        import src.knowledge.cards as cards
+
+        monkeypatch.setattr(cards, "match_cards", lambda *a, **k: [])   # không thẻ nào khớp
         answer = answer_question("Khoảng tin cậy là gì?", thieu_chuong, subject="MAS291")
         assert "chưa có tài liệu" in answer.text.lower()
         assert answer.sources == []
+
+    def test_co_the_kien_thuc_thi_tra_loi_chi_tu_the(self, thieu_chuong: RagIndex) -> None:
+        """Kho thiếu chương nhưng có thẻ kiến thức: trả lời từ thẻ, KHÔNG kèm đoạn chương khác."""
+        answer = answer_question("Khoảng tin cậy là gì?", thieu_chuong, subject="MAS291")
+        assert answer.in_scope and answer.sources
+        assert all(source.startswith("Thẻ kiến thức") for source in answer.sources)
 
     def test_khong_phai_la_ngoai_pham_vi(self, thieu_chuong: RagIndex) -> None:
         """Phân biệt hẳn hai ca: lỗi ở dữ liệu của hệ thống, không phải người hỏi sai."""
@@ -200,7 +209,8 @@ class TestMoRongTruyVan:
         40% / 100% đo được ở EXP-4b.
         """
         answer = answer_question("Chu trình Euler là gì?", index, subject="MAD101")
-        assert answer.sources and "rosen.pdf" in answer.sources[0]
+        # Nguồn đầu là thẻ kiến thức; đoạn giáo trình tiếng Anh vẫn phải tìm ra.
+        assert any("rosen.pdf" in source for source in answer.sources)
 
 
 class TestSources:

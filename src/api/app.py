@@ -868,6 +868,12 @@ def create_app(service: TutorService | None = None, mailer: Mailer | None = None
     async def lifespan(app: FastAPI):
         if state["service"] is None:
             state["service"] = build_service()
+            # Dựng sẵn 70 thẻ kiến thức ở nền (~15 s): người hỏi đầu tiên không phải chờ.
+            import threading
+
+            from src.knowledge.cards import all_cards
+
+            threading.Thread(target=all_cards, name="warm-knowledge-cards", daemon=True).start()
         try:
             yield
         finally:
@@ -1258,6 +1264,36 @@ def create_app(service: TutorService | None = None, mailer: Mailer | None = None
         result = service.ask(request.question, request.subject, request.chapter)
         return AskResponse(answer=pretty_math(result.text), sources=result.sources,
                            in_scope=result.in_scope, used_llm=result.used_llm)
+
+    # ------------------------------------------------------------------
+    # Thẻ kiến thức — công khai: tra công thức không cần đăng nhập
+    # ------------------------------------------------------------------
+
+    @app.get("/knowledge")
+    def knowledge_index(subject: str | None = None) -> list[dict[str, Any]]:
+        from src.knowledge.cards import SUBJECTS, all_cards
+
+        if subject and subject not in SUBJECTS:
+            raise HTTPException(404, f"Môn {subject} chưa được hỗ trợ")
+        return [{"skill_id": c.skill_id, "subject": c.subject, "chapter_vi": c.chapter_vi,
+                 "name_vi": c.name_vi, "name_en": c.name_en, "formula": c.formulas[0] if c.formulas else "",
+                 "item_count": c.item_count} for c in all_cards(subject)]
+
+    @app.get("/knowledge/match")
+    def knowledge_match(q: Annotated[str, Field(min_length=1, max_length=500)],
+                        subject: str | None = None) -> list[dict[str, Any]]:
+        from src.knowledge.cards import match_cards
+
+        return [card.to_dict() for card in match_cards(q, subject)]
+
+    @app.get("/knowledge/{skill_id}")
+    def knowledge_card(skill_id: str) -> dict[str, Any]:
+        from src.knowledge.cards import card_by_id
+
+        card = card_by_id(skill_id)
+        if card is None:
+            raise HTTPException(404, "Không có thẻ kiến thức này")
+        return card.to_dict()
 
     # ------------------------------------------------------------------
     # Quản trị — dành cho giảng viên, không phải cho sinh viên

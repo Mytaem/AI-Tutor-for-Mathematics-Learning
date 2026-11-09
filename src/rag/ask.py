@@ -187,12 +187,31 @@ def retrieve(
     return index.search(query, top_k=top_k, subject=subject, types=types, fusion=fusion)
 
 
+def _labelled(hits) -> list[tuple[str, str]]:
+    """Đoạn trích dạng (nhãn nguồn, nội dung) — nhận cả kết quả truy xuất lẫn cặp có sẵn."""
+    return [(h.source_label, " ".join(h.chunk.text.split())[:700]) if hasattr(h, "source_label") else h
+            for h in hits]
+
+
+def card_passage(card) -> tuple[str, str]:
+    """Thẻ kiến thức thành một đoạn trích: model dẫn được, như một trang giáo trình."""
+    parts = [f"{card.name_vi} ({card.name_en})."]
+    parts += card.theory
+    if card.formulas:
+        parts.append("Công thức: " + "; ".join(card.formulas) + ".")
+    if card.methods:
+        parts.append("Các dạng bài: " + "; ".join(card.methods) + ".")
+    if card.example:
+        parts.append("Các bước giải mẫu: " + "; ".join(
+            f"bước {i}: {step['action']}" for i, step in enumerate(card.example.steps, start=1)) + ".")
+    return f"Thẻ kiến thức Numeris — {card.name_vi}", " ".join(parts)
+
+
 def build_messages(question: str, hits) -> list[dict]:
     from src.rag.glossary import pinned_terms
 
     passages = "\n\n".join(
-        f"[{position}] ({hit.source_label}) {' '.join(hit.chunk.text.split())[:700]}"
-        for position, hit in enumerate(hits, start=1)
+        f"[{position}] ({label}) {text}" for position, (label, text) in enumerate(_labelled(hits), start=1)
     )
 
     # Chốt cách gọi thuật ngữ. Không có phần này, model 3b dịch "null hypothesis"
@@ -230,7 +249,18 @@ def answer_question(
     client=None,
     top_k: int = ASK_TOP_K,
 ) -> Answer:
-    if index is None:
+    # Thẻ kiến thức khớp câu hỏi: kiến thức và công thức ĐÃ KIỂM CHỨNG, đặt làm
+    # nguồn đầu tiên. Model có công thức đúng để dẫn, và khi kho giáo trình không có
+    # đoạn nào (hoặc chưa dựng kho) câu hỏi vẫn trả lời được từ thẻ.
+    from src.knowledge.cards import match_cards
+
+    try:
+        cards = match_cards(question, subject)
+    except Exception:
+        cards = []
+    card_passages = [card_passage(card) for card in cards]
+
+    if index is None and not cards:
         return Answer("Kho giáo trình chưa được dựng — chạy scripts/build_rag_index.py.",
                       in_scope=False)
 
@@ -243,11 +273,16 @@ def answer_question(
         from src.rag.glossary import english_terms
 
         target = chapter_for_terms(subject, english_terms(question))
-        if target and not has_material_for(index, subject, target):
-            return Answer(no_material(display_name(subject, target)), in_scope=True)
+        if target and index is not None and not has_material_for(index, subject, target):
+            if cards:
+                # Kho không có chương này: CHỈ trả lời từ thẻ. Đoạn truy xuất lúc này
+                # toàn là của chương khác — đưa vào là trả lời lạc chủ đề.
+                index = None
+            else:
+                return Answer(no_material(display_name(subject, target)), in_scope=True)
 
     try:
-        hits = retrieve(index, question, subject, top_k, skill_ids)
+        hits = retrieve(index, question, subject, top_k, skill_ids) if index is not None else []
     except EncoderUnavailable as exc:
         # Lỗi CẤU HÌNH của máy đang chạy, không phải câu hỏi sai. Nói rõ việc
         # cần làm chứ đừng trả 500, và tuyệt đối không âm thầm chạy bằng BM25 —
@@ -258,11 +293,12 @@ def answer_question(
             in_scope=False,
         )
 
-    if not hits:
+    if not hits and not cards:
         return Answer(OUT_OF_SCOPE, in_scope=False)
 
-    sources = [hit.source_label for hit in hits]
-    passages = [" ".join(hit.chunk.text.split())[:700] for hit in hits]
+    labelled = card_passages + _labelled(hits)
+    sources = [label for label, _ in labelled]
+    passages = [text for _, text in labelled]
 
     if client is None:
         # Không có model: trả nguyên đoạn trích. Kém mượt nhưng không bao giờ bịa.
@@ -274,7 +310,7 @@ def answer_question(
 
     from src.rag.mathtext import clean_answer, cjk_ratio
 
-    messages = build_messages(question, hits)
+    messages = build_messages(question, labelled)
     text = ""
     for attempt in range(2):
         try:
@@ -286,7 +322,7 @@ def answer_question(
             return Answer(f"Model đang không trả lời được. Đoạn giáo trình liên quan:\n\n{body}",
                           sources=sources, passages=passages)
 
-        text = grounded_lines(clean_answer(reply.text.strip()), len(hits))
+        text = grounded_lines(clean_answer(reply.text.strip()), len(labelled))
 
         # Qwen là model Trung Quốc và có lúc rơi về tiếng Trung giữa câu tiếng
         # Việt. Sinh viên không đọc được, nên thử lại MỘT lần với nhiệt độ 0 và
