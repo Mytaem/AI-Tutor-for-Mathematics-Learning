@@ -503,6 +503,25 @@ class Store:
         ]
 
     @_locked
+    def user_attempts(self, user_id: str, subject: str | None = None,
+                      limit: int | None = None) -> list[sqlite3.Row]:
+        """Bài làm của MỘT người, mới nhất trước — cho lịch sử, thống kê, ôn lỗi sai."""
+        clause, params = self._subject_filter(subject)
+        limit_sql = " LIMIT ?" if limit is not None else ""
+        return self._connection.execute(
+            "SELECT attempt_id, subject, item_id, raw_input, is_correct, final_answer_correct, "
+            "first_wrong_step, error_codes, created_at FROM attempts WHERE user_id = ?" + clause
+            + " ORDER BY attempt_id DESC" + limit_sql,
+            (user_id, *params, *((limit,) if limit is not None else ())),
+        ).fetchall()
+
+    @_locked
+    def solved_item(self, user_id: str, item_id: str) -> bool:
+        return self._connection.execute(
+            "SELECT 1 FROM attempts WHERE user_id = ? AND item_id = ? AND is_correct = 1 LIMIT 1",
+            (user_id, item_id)).fetchone() is not None
+
+    @_locked
     def recent_attempts(
         self, limit: int | None = 50, subject: str | None = None
     ) -> list[dict]:

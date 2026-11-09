@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import csv
 import io
+import json
 import os
 import secrets
 import sqlite3
@@ -137,6 +138,9 @@ class Identity:
 #: không có cookie. Để trống thì không dịch vụ nào được gọi thay ai.
 SERVICE_TOKEN = os.environ.get("SERVICE_TOKEN", "").strip()
 
+
+#: Số bài mỗi ngày để giữ chuỗi ngày học — đủ nhỏ để làm được mỗi ngày.
+DAILY_GOAL = 10
 
 #: Ngân sách cho model ở /ask, phải nhỏ hơn MODEL_TIMEOUT_MS (120 s) của web.
 ASK_LLM_TIMEOUT_S = 100.0
@@ -697,6 +701,18 @@ class TutorService:
         if bank is None or item_id not in bank.items:
             raise LookupError(f"Không có bài tập {item_id!r}")
         return bank.items[item_id]
+
+    def find_item(self, item_id: str) -> Item | None:
+        try:
+            return self._require_item(item_id)
+        except LookupError:
+            return None
+
+    def error_codes_for(self, subject: str) -> dict:
+        cache = self.__dict__.setdefault("_error_code_cache", {})
+        if subject not in cache:
+            cache[subject] = load_course_error_codes(subject)
+        return cache[subject]
 
     def _last_verification(self, session_id: str, item_id: str) -> VerificationResult | None:
         for row in reversed(self.store.attempts_for_session(session_id)):
@@ -1264,6 +1280,112 @@ def create_app(service: TutorService | None = None, mailer: Mailer | None = None
         result = service.ask(request.question, request.subject, request.chapter)
         return AskResponse(answer=pretty_math(result.text), sources=result.sources,
                            in_scope=result.in_scope, used_llm=result.used_llm)
+
+    # ------------------------------------------------------------------
+    # Học tập cá nhân: lịch sử, ôn lỗi sai, chuỗi ngày học, lời giải sau khi làm đúng
+    # ------------------------------------------------------------------
+
+    def verdict_of(row) -> str:
+        if row["final_answer_correct"] == 1 or row["is_correct"] == 1:
+            return "correct"
+        if row["final_answer_correct"] is None and row["first_wrong_step"] is None:
+            return "unreadable"
+        return "wrong"
+
+    @app.get("/me/history")
+    def my_history(subject: str | None = None, only_wrong: bool = False,
+                   limit: Annotated[int, Field(ge=1, le=500)] = 100, user_id: str | None = None,
+                   who: Identity = Depends(identity),
+                   service: TutorService = Depends(get_service)) -> list[dict[str, Any]]:
+        uid = resolve_user(who, user_id)
+        rows = []
+        for row in service.store.user_attempts(uid, subject, None if only_wrong else limit):
+            verdict = verdict_of(row)
+            if only_wrong and verdict != "wrong":
+                continue
+            item = service.find_item(row["item_id"])
+            if item is None:
+                continue
+            bank = service.bank_for(item.subject.value)
+            errors = service.error_codes_for(item.subject.value)
+            rows.append({
+                "item_id": row["item_id"], "subject": item.subject.value,
+                "statement": pretty_math(item.statement_vi),
+                "skill_names": [bank.skills[s].name_vi for s in item.skills if s in bank.skills],
+                "answer": row["raw_input"] or "", "verdict": verdict,
+                "errors": [errors[c].name_vi for c in json.loads(row["error_codes"] or "[]") if c in errors],
+                "created_at": row["created_at"],
+            })
+            if len(rows) >= limit:
+                break
+        return rows
+
+    @app.get("/me/stats")
+    def my_stats(user_id: str | None = None, who: Identity = Depends(identity),
+                 service: TutorService = Depends(get_service)) -> dict[str, Any]:
+        from datetime import date, datetime, timedelta, timezone
+
+        uid = resolve_user(who, user_id)
+        vn = timezone(timedelta(hours=7))          # ngày theo giờ Việt Nam, không theo UTC
+        days: dict[date, list[int]] = {}
+        rows = service.store.user_attempts(uid)
+        for row in rows:
+            day = datetime.fromtimestamp(row["created_at"], vn).date()
+            bucket = days.setdefault(day, [0, 0])
+            bucket[0] += 1
+            bucket[1] += verdict_of(row) == "correct"
+        today = datetime.now(vn).date()
+        # Chuỗi ngày học: đếm lùi từ hôm nay; hôm nay chưa học thì tính từ hôm qua,
+        # để chuỗi không "gãy" từ sáng sớm khi người học chưa kịp vào.
+        cursor = today if today in days else today - timedelta(days=1)
+        streak = 0
+        while cursor in days:
+            streak += 1
+            cursor -= timedelta(days=1)
+        last14 = [{"date": (today - timedelta(days=i)).isoformat(),
+                   "attempts": days.get(today - timedelta(days=i), [0, 0])[0],
+                   "correct": days.get(today - timedelta(days=i), [0, 0])[1]} for i in range(13, -1, -1)]
+        done_today = days.get(today, [0, 0])
+        return {"streak_days": streak, "today_attempts": done_today[0], "today_correct": done_today[1],
+                "daily_goal": DAILY_GOAL, "total_attempts": len(rows),
+                "total_correct": sum(verdict_of(r) == "correct" for r in rows), "last14": last14}
+
+    @app.get("/item/review", response_model=PublicItem)
+    def review_item(subject: str | None = None, user_id: str | None = None,
+                    who: Identity = Depends(identity),
+                    service: TutorService = Depends(get_service)) -> PublicItem:
+        """Một bài từng làm SAI mà lần làm gần nhất vẫn chưa đúng — cũ nhất trước."""
+        uid = resolve_user(who, user_id)
+        latest: dict[str, str] = {}
+        for row in service.store.user_attempts(uid, subject):        # mới nhất trước
+            latest.setdefault(row["item_id"], verdict_of(row))
+        pending = [item_id for item_id, verdict in latest.items() if verdict == "wrong"]
+        for item_id in reversed(pending):
+            item = service.find_item(item_id)
+            if item is not None:
+                return PublicItem.of(item, service.bank_for(item.subject.value))
+        raise HTTPException(404, "Không còn bài sai nào cần ôn — giỏi lắm!")
+
+    @app.get("/item/{item_id}/solution")
+    def item_solution(item_id: str, user_id: str | None = None, who: Identity = Depends(identity),
+                      service: TutorService = Depends(get_service)) -> dict[str, Any]:
+        """Lời giải mẫu — CHỈ mở khi chính người này đã làm đúng bài đó, để không lộ đáp án."""
+        from dataclasses import asdict
+
+        from src.solve import solve
+
+        uid = resolve_user(who, user_id)
+        item = service.find_item(item_id)
+        if item is None:
+            raise HTTPException(404, "Không có bài này")
+        if not service.store.solved_item(uid, item_id):
+            raise HTTPException(403, "Làm đúng bài này trước thì mới xem được lời giải mẫu")
+        solution = solve(item)
+        if solution is None:
+            raise HTTPException(404, "Bài này chưa có lời giải mẫu")
+        return {"theory": solution.theory, "formula": solution.formula,
+                "steps": [asdict(step) for step in solution.steps],
+                "answer": pretty_math(item.answer_text)}
 
     # ------------------------------------------------------------------
     # Thẻ kiến thức — công khai: tra công thức không cần đăng nhập
