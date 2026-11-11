@@ -13,6 +13,8 @@ const STUDENT = [
   { href: "/", label: "Trang chủ", icon: "home" },
   { href: "/practice", label: "Luyện tập", icon: "practice" },
   { href: "/ask", label: "Hỏi đáp", icon: "ask" },
+  { href: "/library", label: "Thư viện", icon: "library" },
+  { href: "/history", label: "Lịch sử", icon: "history" },
   { href: "/progress", label: "Tiến độ", icon: "progress" },
 ];
 
@@ -101,6 +103,8 @@ function NavIcon({ name }: { name: string }) {
     ask: <><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"/><path d="M9.5 9a2.5 2.5 0 1 1 3.3 2.37c-.8.3-1.3.88-1.3 1.63M11.5 16h.01"/></>,
     progress: <><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></>,
     list: <><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></>,
+    library: <><path d="M4 4.5A1.5 1.5 0 0 1 5.5 3H9v18H5.5A1.5 1.5 0 0 1 4 19.5Z"/><path d="M9 3h4v18H9M13 5l4-1 3.5 15.5-4 1Z"/></>,
+    history: <><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></>,
   };
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{paths[name]}</svg>;
 }

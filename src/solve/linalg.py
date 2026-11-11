@@ -54,7 +54,7 @@ def _inverse(item: Item) -> Solution:
     theory = "Ma trận vuông khả nghịch khi và chỉ khi định thức khác 0."
     if det == 0:
         steps.append(Step("Kết luận", "det A = 0 ⇒ A không khả nghịch", "", "A không khả nghịch"))
-        return Solution(theory=theory, formula="det A = 0 ⇒ không tồn tại A⁻¹", steps=steps,
+        return Solution(theory=theory, formula="A⁻¹ = (1/det A)·adj A, chỉ tồn tại khi det A ≠ 0", steps=steps,
                         answer="không khả nghịch")
     inverse = A.inv()
     if A.shape == (2, 2):
@@ -67,7 +67,7 @@ def _inverse(item: Item) -> Solution:
         steps.append(Step("Khử Gauss–Jordan trên [A | I] tới khi bên trái thành I", "[A | I] → [I | A⁻¹]",
                           "", f"A⁻¹ = {mat(inverse.tolist())}"))
     steps.append(Step("Kiểm tra lại", "A·A⁻¹ = I", "", "A·A⁻¹ = I ✓"))
-    return Solution(theory=theory, formula="A⁻¹ = (1/det A)·adj A", steps=steps,
+    return Solution(theory=theory, formula="A⁻¹ = (1/det A)·adj A, chỉ tồn tại khi det A ≠ 0", steps=steps,
                     answer=answer_list([answer_list(row) for row in inverse.tolist()]).replace("'", ""))
 
 
@@ -190,13 +190,13 @@ def _linear_system(item: Item) -> Solution:
               "nghiệm duy nhất; bằng nhau nhưng nhỏ hơn số ẩn thì vô số nghiệm.")
     if rank_a < rank_ab:
         steps.append(Step("Kết luận", "rank A < rank [A | b] ⇒ vô nghiệm", "", "Hệ vô nghiệm"))
-        return Solution(theory=theory, formula="rank A < rank [A|b] ⇒ vô nghiệm", steps=steps, answer="vô nghiệm")
+        return Solution(theory=theory, formula="Kronecker–Capelli: so rank A, rank [A|b] và số ẩn n", steps=steps, answer="vô nghiệm")
     if rank_a == A.cols:
         solution = list(A.LUsolve(b))
         steps.append(Step("Thế ngược để đọc nghiệm duy nhất", "",
                           ", ".join(f"{n} = {show(v)}" for n, v in zip(names, solution)),
                           f"nghiệm: {vec(solution)}"))
-        return Solution(theory=theory, formula="rank A = rank [A|b] = n ⇒ nghiệm duy nhất", steps=steps,
+        return Solution(theory=theory, formula="Kronecker–Capelli: so rank A, rank [A|b] và số ẩn n", steps=steps,
                         answer=answer_list(solution))
     params = sp.symbols("s t u")[: A.cols - rank_a]
     general = list(sp.linsolve((A, b), *names))[0]
@@ -207,5 +207,5 @@ def _linear_system(item: Item) -> Solution:
                       f"{A.cols - rank_a} ẩn tự do",
                       ", ".join(f"{n} = {show(p)}" for n, p in mapping.items()),
                       "nghiệm tổng quát: " + vec(general)))
-    return Solution(theory=theory, formula="rank A = rank [A|b] < n ⇒ vô số nghiệm", steps=steps,
+    return Solution(theory=theory, formula="Kronecker–Capelli: so rank A, rank [A|b] và số ẩn n", steps=steps,
                     answer=answer_list(general))

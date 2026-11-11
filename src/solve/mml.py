@@ -113,7 +113,7 @@ def _partial(item: Item) -> Solution:
     value = sp.diff(f, var)
     others = ", ".join(str(n) for n in names if n != var)
     return Solution(theory="Đạo hàm riêng theo một biến: coi mọi biến khác như hằng số.",
-                    formula=f"∂f/∂{var}",
+                    formula=f"∂f/∂{var}: đạo hàm theo {var}, các biến khác giữ là hằng số",
                     steps=[Step(f"Coi {others} là hằng số", "", ""),
                            Step(f"Đạo hàm từng số hạng theo {var}", "(xⁿ)' = nxⁿ⁻¹",
                                 " ; ".join(f"∂({show(t)})/∂{var} = {show(sp.diff(t, var))}" for t in sp.Add.make_args(f)),

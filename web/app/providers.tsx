@@ -42,7 +42,7 @@ type Ctx = {
 };
 
 /** Trang cần tài khoản: chưa đăng nhập thì chuyển sang /login rồi quay lại. */
-const PROTECTED = ["/practice", "/ask", "/progress", "/account"];
+const PROTECTED = ["/practice", "/ask", "/progress", "/account", "/history"];
 
 const AppContext = createContext<Ctx | null>(null);
 

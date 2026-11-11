@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { api, type Progress, type SkillProgress } from "../../lib/api";
 import { loadSession } from "../../lib/session";
 import { useApp } from "../providers";
+import { ActivityChart } from "../activity-chart";
 import { ApiDownBanner } from "../api-status";
 
 /**
@@ -119,6 +120,8 @@ export default function ProgressPage() {
               <div className="k">Kỹ năng cần luyện</div>
             </div>
           </div>
+
+          <ActivityChart />
 
           {weak.length > 0 && (
             <>

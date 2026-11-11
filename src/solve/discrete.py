@@ -97,7 +97,7 @@ def _to_binary(item: Item) -> Solution:
         n //= 2
     binary = bin(value)[2:]
     return Solution(theory="Đổi sang cơ số 2: chia liên tiếp cho 2, đọc các số dư từ DƯỚI lên.",
-                    formula="n = 2q + r",
+                    formula="Chia liên tiếp cho 2 (n = 2q + r), đọc số dư từ dưới lên",
                     steps=[Step("Chia liên tiếp cho 2, ghi số dư", "n = 2q + r", " ; ".join(rows)),
                            Step("Đọc số dư từ dưới lên trên", "", "", f"{value} = ({binary})₂")],
                     answer=binary)
@@ -159,7 +159,7 @@ def _count(item: Item) -> Solution | None:
                         answer=str(value))
     if kind in ("repetition", "product"):
         value = n ** k
-        return Solution(theory="Mỗi vị trí chọn độc lập n cách: quy tắc nhân.", formula="nᵏ",
+        return Solution(theory="Mỗi vị trí chọn độc lập n cách: quy tắc nhân.", formula="k vị trí, mỗi vị trí n cách ⇒ nᵏ (chỉnh hợp lặp)",
                         steps=[Step("Nhận dạng: có thứ tự, được lặp ⇒ quy tắc nhân", "nᵏ", f"{n}^{k}", str(value))],
                         answer=str(value))
     if kind in ("multiset", "combination_repetition"):
@@ -384,7 +384,7 @@ def _logic_tautology(item: Item) -> Solution:
         all_true &= value
         rows.append(", ".join(f"{s}={'Đ' if v else 'S'}" for s, v in zip(symbols, values)) + f" → {'Đ' if value else 'S'}")
     return Solution(theory="Hằng đúng là mệnh đề đúng với MỌI cách gán giá trị chân lý.",
-                    formula="lập bảng chân trị",
+                    formula="Hằng đúng ⇔ đúng ở MỌI dòng của bảng chân trị",
                     steps=[Step("Lập bảng chân trị cho mọi tổ hợp giá trị", f"{2 ** len(symbols)} dòng", " ; ".join(rows)),
                            Step("Kiểm tra cột kết quả", "", "", "mọi dòng đều đúng ⇒ hằng đúng" if all_true
                                 else "có dòng sai ⇒ không phải hằng đúng")],

@@ -1,7 +1,17 @@
 import type { Metadata } from "next";
 import "katex/dist/katex.min.css";
 import "./globals.css";
+import { Be_Vietnam_Pro } from "next/font/google";
 import { Providers } from "./providers";
+
+// Be Vietnam Pro: thiết kế cho tiếng Việt — dấu đặt đúng chỗ, không chồng lên nhau
+// như nhiều phông Latin. Next tự lưu phông về server lúc build, không gọi Google lúc chạy.
+const font = Be_Vietnam_Pro({
+  subsets: ["vietnamese", "latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-brand",
+});
 
 export const metadata: Metadata = {
   title: "Numeris — Học toán chủ động",
@@ -25,7 +35,7 @@ try {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi" suppressHydrationWarning>
+    <html lang="vi" suppressHydrationWarning className={font.variable}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
       </head>

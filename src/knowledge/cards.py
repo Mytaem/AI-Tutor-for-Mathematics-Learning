@@ -41,6 +41,7 @@ class Example:
 class Card:
     skill_id: str
     subject: str
+    chapter: str
     chapter_vi: str
     name_vi: str
     name_en: str
@@ -87,6 +88,7 @@ def cards_for(subject: str) -> tuple[Card, ...]:
     # trên thẻ nên là bài mở đầu, không phải bài khó nhất.
     by_skill: dict[str, dict[str, object]] = {}
     counts: dict[str, int] = {}
+    kind_counts: dict[tuple[str, str], int] = {}
     for item in sorted(bank.items.values(), key=lambda it: (it.difficulty, it.item_id)):
         if not item.skills:
             continue
@@ -94,10 +96,14 @@ def cards_for(subject: str) -> tuple[Card, ...]:
         counts[primary] = counts.get(primary, 0) + 1
         kind = item.meta.get("template") or item.meta.get("task") or item.item_id
         by_skill.setdefault(primary, {}).setdefault(kind, item)
+        kind_counts[(primary, kind)] = kind_counts.get((primary, kind), 0) + 1
 
     cards: list[Card] = []
     for skill in bank.skills.values():
-        representatives = list(by_skill.get(skill.skill_id, {}).values())
+        # Dạng bài nhiều đề nhất trước: công thức đầu thẻ phải là của dạng bài CHÍNH,
+        # không phải của một đề chép tay lẻ (thẻ "Hạng" từng nhận công thức giải hệ).
+        kinds = by_skill.get(skill.skill_id, {})
+        representatives = [kinds[k] for k in sorted(kinds, key=lambda k: -kind_counts[(skill.skill_id, k)])]
         solutions = [(item, solve(item)) for item in representatives]
         solutions = [(item, s) for item, s in solutions if s is not None]
         example = None
@@ -112,6 +118,7 @@ def cards_for(subject: str) -> tuple[Card, ...]:
         cards.append(Card(
             skill_id=skill.skill_id,
             subject=subject,
+            chapter=skill.chapter,
             chapter_vi=display_name(subject, skill.chapter),
             name_vi=skill.name_vi,
             name_en=skill.name_en,

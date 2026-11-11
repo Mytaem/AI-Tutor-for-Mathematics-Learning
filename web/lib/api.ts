@@ -21,6 +21,57 @@ export type User = {
 export class AuthRequired extends Error {}
 export const AUTH_EVENT = "numeris:auth-required";
 
+export type SolutionStep = { action: string; formula: string; work: string; result: string };
+
+export type Card = {
+  skill_id: string;
+  subject: string;
+  chapter: string;
+  chapter_vi: string;
+  name_vi: string;
+  name_en: string;
+  theory: string[];
+  formulas: string[];
+  methods: string[];
+  mistakes: { name: string; description: string; self_check: string }[];
+  prerequisites: string[];
+  example: { item_id: string; statement: string; steps: SolutionStep[]; answer: string } | null;
+  item_count: number;
+};
+
+export type CardSummary = {
+  skill_id: string;
+  subject: string;
+  chapter_vi: string;
+  name_vi: string;
+  name_en: string;
+  formula: string;
+  item_count: number;
+};
+
+export type HistoryRow = {
+  item_id: string;
+  subject: string;
+  statement: string;
+  skill_names: string[];
+  answer: string;
+  verdict: "correct" | "wrong" | "unreadable";
+  errors: string[];
+  created_at: number;
+};
+
+export type Stats = {
+  streak_days: number;
+  today_attempts: number;
+  today_correct: number;
+  daily_goal: number;
+  total_attempts: number;
+  total_correct: number;
+  last14: { date: string; attempts: number; correct: number }[];
+};
+
+export type ItemSolution = { theory: string; formula: string; steps: SolutionStep[]; answer: string };
+
 export type PublicItem = {
   item_id: string;
   subject: string;
@@ -237,6 +288,29 @@ export const api = {
 
   deleteAccount: (password: string) =>
     call<void>("/auth/delete", { method: "POST", body: JSON.stringify({ password }) }),
+
+  knowledge: (subject?: string) =>
+    call<CardSummary[]>(`/knowledge${subject ? `?subject=${encodeURIComponent(subject)}` : ""}`),
+
+  knowledgeCard: (skillId: string) => call<Card>(`/knowledge/${encodeURIComponent(skillId)}`),
+
+  knowledgeMatch: (question: string, subject?: string | null) => {
+    const query = new URLSearchParams({ q: question });
+    if (subject) query.set("subject", subject);
+    return call<Card[]>(`/knowledge/match?${query}`);
+  },
+
+  history: (onlyWrong = false, subject?: string) => {
+    const query = new URLSearchParams({ only_wrong: String(onlyWrong) });
+    if (subject) query.set("subject", subject);
+    return call<HistoryRow[]>(`/me/history?${query}`);
+  },
+
+  stats: () => call<Stats>("/me/stats"),
+
+  reviewItem: (subject: string) => call<PublicItem>(`/item/review?subject=${encodeURIComponent(subject)}`),
+
+  solution: (itemId: string) => call<ItemSolution>(`/item/${encodeURIComponent(itemId)}/solution`),
 
   startSession: (subject: string) =>
     call<Session>("/session/start", { method: "POST", body: JSON.stringify({ subject }) }),

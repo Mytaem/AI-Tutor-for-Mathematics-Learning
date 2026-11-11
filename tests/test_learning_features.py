@@ -36,9 +36,7 @@ def test_lich_su_va_on_loi_sai(learner):
 
     submit(client, session, item["item_id"], correct)                  # làm lại đúng
     assert client.get("/item/review", params={"subject": "MAS291"}).status_code == 404
-    assert client.get("/me/history", params={"only_wrong": True}).json() == [] or \
-        all(row["item_id"] != item["item_id"] or row["verdict"] == "wrong"
-            for row in client.get("/me/history", params={"only_wrong": True}).json())
+    assert [row["verdict"] for row in client.get("/me/history").json()] == ["correct", "wrong"]
 
 
 def test_loi_giai_mau_chi_mo_sau_khi_lam_dung(learner):

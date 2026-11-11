@@ -82,7 +82,7 @@ def _total_prob(item: Item) -> Solution:
     terms = " + ".join(f"{num(p)}·{num(x)}" for p, x in zip(prior, likelihood))
     return Solution(
         theory="Công thức xác suất toàn phần: chia theo các trường hợp loại trừ nhau và phủ hết (từng máy).",
-        formula="P(L) = Σ P(Máy i)·P(L | Máy i)",
+        formula="P(A) = Σ P(Bᵢ)·P(A | Bᵢ), với B₁, B₂, … là hệ đầy đủ",
         steps=[
             Step("Lập hệ đầy đủ: mỗi sản phẩm do đúng một máy làm",
                  "P(Máy 1) + P(Máy 2) = 1",
@@ -105,7 +105,7 @@ def _bayes(item: Item) -> Solution:
     machine = index + 1
     return Solution(
         theory="Định lý Bayes: đảo chiều điều kiện — biết sản phẩm lỗi, hỏi khả năng nó đến từ máy nào.",
-        formula="P(Máy i | L) = P(Máy i)·P(L | Máy i) / P(L)",
+        formula="P(Bᵢ | A) = P(Bᵢ)·P(A | Bᵢ) / Σⱼ P(Bⱼ)·P(A | Bⱼ)",
         steps=[
             Step("Tính mẫu số P(L) bằng xác suất toàn phần", "P(L) = Σ P(Máy i)·P(L | Máy i)",
                  "P(L) = " + " + ".join(f"{num(p)}·{num(x)}" for p, x in zip(prior, likelihood)),

@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import katex from "katex";
-import { api, type AttemptResponse, type Hint, type PublicItem } from "../../lib/api";
-import { loadSession, type StoredSession } from "../../lib/session";
+import { api, type AttemptResponse, type Hint, type ItemSolution, type PublicItem } from "../../lib/api";
+import { loadSession, saveSession, type StoredSession } from "../../lib/session";
 import type { Scope } from "../../lib/prefs";
 import { ApiDownBanner } from "../api-status";
 import { useApp } from "../providers";
 import { MathText } from "../mathtext";
 import { ScopeLine } from "../scope-picker";
+import { HintText, Steps } from "../steps";
 
 /** Công thức trong đề: có LaTeX thì render, không thì hiện nguyên văn tiếng Việt. */
 function Statement({ item }: { item: PublicItem }) {
@@ -29,10 +30,12 @@ function Statement({ item }: { item: PublicItem }) {
     }
   }, [item]);
 
+  const colon = item.statement_vi.indexOf(":");
+  const words = html && colon > 0 ? item.statement_vi.slice(0, colon + 1) : item.statement_vi;
   return (
     <>
-      <p className="statement">{item.statement_vi}</p>
-      {html && <div dangerouslySetInnerHTML={{ __html: html }} />}
+      <p className="statement"><MathText text={words} /></p>
+      {html && <div className="statement-math" dangerouslySetInnerHTML={{ __html: html }} />}
     </>
   );
 }
@@ -90,16 +93,19 @@ export default function PracticePage() {
   // Lời giải đầy đủ phải xin HAI lần (chính sách gợi ý). Lần đầu không ra gì thì
   // người học tưởng nút hỏng — nên phải nói rõ là cần xác nhận.
   const [solutionAsked, setSolutionAsked] = useState(false);
+  const [solution, setSolution] = useState<ItemSolution | null>(null);
+  // Ôn lỗi sai: /practice?mode=review&subject=MAS291 — lấy lại bài từng làm sai.
+  const [review, setReview] = useState(false);
   const answerBox = useRef<HTMLInputElement>(null);
 
   // `within` truyền tường minh chứ không lấy từ closure: để deps rỗng mà vẫn
   // đọc `scope` thì hàm này giữ mãi phạm vi của lần vẽ đầu, và đổi chương ở
   // cột phải sẽ không có tác dụng gì.
-  const nextItem = useCallback(async (current: StoredSession, within: Scope) => {
+  const nextItem = useCallback(async (current: StoredSession, within: Scope, reviewing = false) => {
     setBusy(true);
     setError(null);
     try {
-      const next = await api.nextItem(current.subject, within);
+      const next = reviewing ? await api.reviewItem(current.subject) : await api.nextItem(current.subject, within);
       setItem(next);
       setAnswer("");
       setSteps("");
@@ -107,13 +113,16 @@ export default function PracticePage() {
       setResult(null);
       setHint(null);
       setSolutionAsked(false);
+      setSolution(null);
       setDown(false);
       // Con trỏ nhảy thẳng vào ô đáp án: luyện tập là gõ liên tục, bắt người
       // học với chuột sau mỗi bài là chỗ rò thời gian lớn nhất của màn hình này.
       window.setTimeout(() => answerBox.current?.focus(), 30);
     } catch (exc) {
+      setItem(null);
       setError((exc as Error).message);
-      setDown(true);
+      // Hết bài sai để ôn là tin vui, không phải sự cố kết nối.
+      setDown(!reviewing);
     } finally {
       setBusy(false);
     }
@@ -127,15 +136,37 @@ export default function PracticePage() {
   // của chương đó, không phải bấm thêm "Bài khác".
   useEffect(() => {
     if (!ready || !user) return;
-    const saved = loadSession();
-    // Phiên của tài khoản khác còn sót trên máy này thì không dùng — về chọn môn lại.
-    if (!saved || saved.userId !== user.user_id) {
-      router.push("/");
-      return;
-    }
-    setSession(saved);
-    void nextItem(saved, scope);
+    const params = new URLSearchParams(window.location.search);
+    const reviewing = params.get("mode") === "review";
+    const wanted = params.get("subject");
+    setReview(reviewing);
+    let saved = loadSession();
+    if (saved && saved.userId !== user.user_id) saved = null;     // phiên của tài khoản khác
+    const start = async () => {
+      // Vào ôn lỗi sai của một môn khác môn đang học: mở phiên mới cho môn đó.
+      if (wanted && (!saved || saved.subject !== wanted)) {
+        const fresh = await api.startSession(wanted);
+        saved = { sessionId: fresh.session_id, userId: fresh.user_id, subject: fresh.subject };
+        saveSession(saved);
+      }
+      if (!saved) {
+        router.push("/");
+        return;
+      }
+      setSession(saved);
+      void nextItem(saved, scope, reviewing);
+    };
+    start().catch((exc: Error) => setError(exc.message));
   }, [ready, user, scope, router, nextItem]);
+
+  async function showSolution() {
+    if (!item) return;
+    try {
+      setSolution(await api.solution(item.item_id));
+    } catch (exc) {
+      setError((exc as Error).message);
+    }
+  }
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -196,6 +227,17 @@ export default function PracticePage() {
           Xem tiến độ →
         </button>
       </div>
+
+      {review && (
+        <div className="mode-banner">
+          <span><strong>Ôn lỗi sai</strong> — các bài bạn từng làm sai, bài cũ nhất trước.</span>
+          <button type="button" className="ghost small" onClick={() => {
+            window.history.replaceState(null, "", "/practice");
+            setReview(false);
+            if (session) void nextItem(session, scope, false);
+          }}>Thoát chế độ ôn</button>
+        </div>
+      )}
 
       {down && <ApiDownBanner />}
 
@@ -301,7 +343,7 @@ export default function PracticePage() {
            quay mãi thì người học tưởng hệ thống treo. */
         <div className="panel empty">
           <p>{error}</p>
-          <p className="meta">Đổi phạm vi hoặc bỏ bộ lọc để tiếp tục.</p>
+          <p className="meta">{review ? "Thoát chế độ ôn để luyện bài mới." : "Đổi phạm vi hoặc bỏ bộ lọc để tiếp tục."}</p>
         </div>
       ) : (
         <div className="panel">
@@ -311,7 +353,22 @@ export default function PracticePage() {
         </div>
       )}
 
-      {result && <Verdict result={result} onNext={() => session && void nextItem(session, scope)} />}
+      {result && (
+        <Verdict
+          result={result}
+          onNext={() => session && void nextItem(session, scope, review)}
+          onSolution={solution ? undefined : () => void showSolution()}
+        />
+      )}
+
+      {solution && (
+        <section className="panel solution-panel">
+          <h2 className="panel-title">Lời giải mẫu</h2>
+          <p className="meta">{solution.theory}</p>
+          <Steps steps={solution.steps} />
+          <p className="answer-line">Đáp án: <strong><MathText text={solution.answer} /></strong></p>
+        </section>
+      )}
 
       {hint && (
         <div className="hint">
@@ -323,7 +380,7 @@ export default function PracticePage() {
             </span>
           </div>
           <div className="text">
-            <MathText text={hint.text} />
+            <HintText text={hint.text} />
           </div>
           <div className="row tight" style={{ marginTop: 12 }}>
             {hint.level < 4 && (
@@ -368,7 +425,11 @@ export default function PracticePage() {
  * đó là lỗi định dạng, không phải lỗi toán. Gộp nó vào "sai" là mắng oan người
  * học, và trước đây hệ thống còn trừ cả mức thành thạo vì chuyện đó.
  */
-function Verdict({ result, onNext }: { result: AttemptResponse; onNext: () => void }) {
+function Verdict({ result, onNext, onSolution }: {
+  result: AttemptResponse;
+  onNext: () => void;
+  onSolution?: () => void;
+}) {
   const unreadable = result.final_answer_correct === null && result.first_wrong_step === null;
   const kind = result.is_correct ? "ok" : unreadable ? "unknown" : "wrong";
   const title = result.is_correct
@@ -400,6 +461,11 @@ function Verdict({ result, onNext }: { result: AttemptResponse; onNext: () => vo
             <button type="button" onClick={onNext}>
               Bài tiếp theo →
             </button>
+            {onSolution && (
+              <button type="button" className="secondary" onClick={onSolution}>
+                Xem lời giải mẫu
+              </button>
+            )}
           </div>
         )}
       </div>

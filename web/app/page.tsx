@@ -8,6 +8,7 @@ import { loadSession, saveSession } from "../lib/session";
 import { ApiDownBanner } from "./api-status";
 import { EMPTY_SCOPE } from "../lib/prefs";
 import { useApp } from "./providers";
+import { Dashboard } from "./dashboard";
 
 const SUBJECTS: Record<string, { name: string; topics: string }> = {
   MAE101: {
@@ -54,8 +55,8 @@ export default function HomePage() {
     if (saved) setSubject(saved.subject);
   }, []);
 
-  async function start(event: React.FormEvent) {
-    event.preventDefault();
+  async function start(event?: React.FormEvent) {
+    event?.preventDefault();
     setError(null);
     setBusy(true);
     try {
@@ -78,18 +79,30 @@ export default function HomePage() {
 
   return (
     <main>
-      <section className="welcome">
-        <div>
-          <span className="eyebrow">Không gian học tập</span>
-          <h1>Học đúng phần bạn cần.</h1>
-          <p className="lead">Luyện bài, nhận gợi ý và theo dõi tiến bộ trong một nơi.</p>
-        </div>
-        <div className="welcome-mark" aria-hidden="true">∑</div>
-      </section>
+      {user ? (
+        <Dashboard name={user.display_name} subject={subject} busy={busy} onContinue={() => void start()} />
+      ) : (
+        <section className="welcome">
+          <div>
+            <span className="eyebrow">Gia sư toán cho sinh viên</span>
+            <h1>Làm sai ở bước nào, biết ngay bước đó.</h1>
+            <p className="lead">
+              4.955 bài luyện có lời giải từng bước được máy kiểm chứng. Gợi ý đi từ công thức tới
+              từng bước — không đưa đáp án ngay, để bạn tự làm được.
+            </p>
+            <ul className="welcome-points">
+              <li>Hiểu cách bạn viết: x², sinx, căn x, 0,75</li>
+              <li>Gợi ý 6 mức, đúng chỗ bạn sai</li>
+              <li>Thư viện 70 thẻ công thức và ví dụ</li>
+            </ul>
+          </div>
+          <div className="welcome-mark" aria-hidden="true">∑</div>
+        </section>
+      )}
 
       {down && <ApiDownBanner />}
 
-      <form onSubmit={start} className="start-layout">
+      <form onSubmit={start} className={`start-layout${user ? " solo" : ""}`}>
         <section>
           <div className="section-heading">
             <div><span className="step">01</span><h2>Chọn học phần</h2></div>
@@ -116,7 +129,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="start-panel">
+        {/* Đã đăng nhập thì nút "Tiếp tục luyện" ở bảng trên làm việc này rồi. */}
+        <section className="start-panel" hidden={Boolean(user)}>
           <span className="step">02</span>
           <h2>Bắt đầu học</h2>
           {user === undefined ? (

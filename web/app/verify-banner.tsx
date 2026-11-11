@@ -30,7 +30,7 @@ export function VerifyBanner() {
         <span>
           {state === "sent"
             ? `Đã gửi thư xác thực tới ${user.email}. Mở thư và bấm vào link nhé.`
-            : `Xác thực email ${user.email} để có thể lấy lại mật khẩu khi quên.`}
+            : "Xác thực email để có thể lấy lại mật khẩu khi quên."}
           {error && <span className="error-inline"> {error}</span>}
         </span>
         {state !== "sent" && (

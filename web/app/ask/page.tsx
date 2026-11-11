@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api, type AskResponse } from "../../lib/api";
+import { api, type AskResponse, type Card } from "../../lib/api";
 import { loadSession } from "../../lib/session";
 import { ApiDownBanner } from "../api-status";
 import { useApp } from "../providers";
+import { HintText } from "../steps";
+import Link from "next/link";
 import { MathText } from "../mathtext";
 import { ScopeLine } from "../scope-picker";
 
@@ -24,6 +26,7 @@ export default function AskPage() {
   const [error, setError] = useState<string | null>(null);
   const [down, setDown] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [cards, setCards] = useState<Card[]>([]);
 
   useEffect(() => {
     setSubject(loadSession()?.subject ?? null);
@@ -36,6 +39,9 @@ export default function AskPage() {
     setBusy(true);
     setError(null);
     setAnswer(null);
+    setCards([]);
+    // Thẻ kiến thức về ngay (không cần model) — người hỏi có cái để đọc trong lúc chờ.
+    api.knowledgeMatch(text.trim(), subject).then(setCards).catch(() => setCards([]));
     try {
       // Chọn chương thì thu hẹp truy xuất về đúng chương đó. Không chọn môn
       // thì để server tìm trên cả kho — hỏi lý thuyết phải dùng được ngay,
@@ -52,9 +58,12 @@ export default function AskPage() {
 
   return (
     <main>
-      <span className="eyebrow">Thư viện học liệu</span>
-      <h1>Hỏi đáp</h1>
-      <p className="lead">Đặt câu hỏi và xem câu trả lời kèm nguồn từ giáo trình.</p>
+      <span className="eyebrow">Hỏi đáp lý thuyết</span>
+      <h1>Hỏi gì cũng được, miễn trong môn học</h1>
+      <p className="lead">
+        Câu trả lời dựa trên giáo trình và thẻ kiến thức đã kiểm chứng, mỗi ý đều ghi nguồn. Không có trong
+        tài liệu thì hệ thống nói thẳng, không đoán.
+      </p>
 
       {down && <ApiDownBanner />}
 
@@ -102,6 +111,24 @@ export default function AskPage() {
         {error && <p className="error">{error}</p>}
       </form>
 
+      {cards.length > 0 && (
+        <section className="quick-cards" aria-label="Thẻ kiến thức liên quan">
+          {cards.map((card) => (
+            <article key={card.skill_id} className="quick-card">
+              <div className="quick-card-head">
+                <span className="eyebrow">Thẻ kiến thức · {card.chapter_vi}</span>
+                <Link href={`/library/${encodeURIComponent(card.skill_id)}`} className="meta">Xem đầy đủ →</Link>
+              </div>
+              <h3>{card.name_vi}</h3>
+              <p><MathText text={card.theory[0] ?? ""} /></p>
+              <div className="chips">
+                {card.formulas.slice(0, 2).map((f) => <span key={f} className="formula-chip"><MathText text={f} /></span>)}
+              </div>
+            </article>
+          ))}
+        </section>
+      )}
+
       {busy && (
         <div className="panel" aria-live="polite">
           <p className="meta" style={{ marginTop: 0 }}>
@@ -122,8 +149,8 @@ export default function AskPage() {
               </span>
               <span className="meta">“{asked}”</span>
             </div>
-            <div style={{ lineHeight: 1.6 }}>
-              <MathText text={answer.answer} />
+            <div className="answer-body">
+              <HintText text={answer.answer} />
             </div>
             <p className="meta" style={{ marginTop: 14 }}>Nội dung được tổng hợp từ các nguồn bên dưới.</p>
           </div>
