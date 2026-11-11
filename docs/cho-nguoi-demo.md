@@ -1,223 +1,159 @@
-# Dựng máy để demo — hướng dẫn cho người demo
+# Tải về và chạy demo Numeris
 
-Tài liệu này viết cho **người sẽ demo hệ thống**, không phải cho người viết code.
+Viết cho **người tải dự án về máy mình để chạy thử hoặc demo**. Không cần biết code.
+Làm lần lượt từng bước, khoảng **30 phút** (phần lớn là chờ tải).
 
-Ba tài liệu khác, chọn đúng cái bạn cần:
-[huong-dan-su-dung.md](huong-dan-su-dung.md) để biết cách dùng app,
-[huong-dan-cai-dat.md](huong-dan-cai-dat.md) nếu muốn dựng lại mọi thứ từ đầu,
-[demo-script.md](demo-script.md) là kịch bản nói cho từng cảnh.
-
-Nói trước một điều để đỡ mất thời gian: **`git pull` một mình KHÔNG đủ.** Kho git
-cố ý không chứa bốn thứ nặng, và thiếu chúng thì app mở ra nhưng hỏng theo kiểu
-khó đoán:
-
-| Thứ | Dung lượng | Vì sao không có trong git |
-|---|---|---|
-| `data/raw/` — giáo trình, slide | 223 MB | có tài liệu bản quyền, không được phát tán lại |
-| `data/rag_index/` — kho đã dựng | 61 MB | file sinh ra, và quá nặng cho git |
-| `web/node_modules/` | 363 MB | cài lại bằng `npm install` |
-| Model Ollama | ~8 GB | tải bằng `ollama pull` |
+Tài liệu khác: [huong-dan-su-dung.md](huong-dan-su-dung.md) (cách dùng app),
+[demo-script.md](demo-script.md) (kịch bản nói khi demo),
+[trien-khai.md](trien-khai.md) (cài lên máy chủ bằng Docker).
 
 ---
 
-## Đường nhanh nhất (khoảng 20 phút)
+## 0. Cần cài sẵn
 
-### Bước 1 — Lấy code và thư viện
+| Phần mềm | Phiên bản | Tải ở |
+|---|---|---|
+| Git | bất kỳ | https://git-scm.com |
+| Python | **3.11** (3.10–3.12 đều được) | https://www.python.org — khi cài nhớ tích **Add Python to PATH** |
+| Node.js | **22** (tối thiểu 20) | https://nodejs.org |
+| Ollama | bản mới | https://ollama.com |
 
-```bash
+Máy nên có **16 GB RAM**. Có card NVIDIA thì phần Hỏi đáp nhanh hơn nhiều; không có
+vẫn chạy được.
+
+---
+
+## 1. Tải code
+
+Mở **Command Prompt** (hoặc PowerShell):
+
+```bat
 git clone https://github.com/Mytaem/AI-Tutor-for-Mathematics-Learning.git
 cd AI-Tutor-for-Mathematics-Learning
+```
 
+## 2. Cài thư viện Python (khoảng 5–10 phút)
+
+```bat
 python -m venv .venv
-.venv\Scripts\activate          # Windows
-# source .venv/bin/activate     # macOS / Linux
-
+.venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Cần **Python 3.11** (3.10 trở lên cũng được) và **Node.js 20+**.
+Sau lệnh `activate`, đầu dòng lệnh có chữ `(.venv)`. **Mỗi lần mở cửa sổ mới để chạy
+API đều phải gõ lại** `.venv\Scripts\activate`.
 
-### Bước 2 — Xin thư mục `data/rag_index/` từ người viết code ⭐
+## 3. Tải mô hình AI (khoảng 6 GB)
 
-**Đây là bước tiết kiệm nhất.** Thư mục đó 61 MB và **tự đủ**: nó chứa cả nội dung
-đoạn giáo trình lẫn vector đã mã hoá, nên bạn:
-
-- **không cần** `data/raw/` (223 MB giáo trình),
-- **không cần** chạy lại bước mã hoá (~40 phút trên CPU).
-
-Nhưng **vẫn cần `ollama pull bge-m3`** (bước 3). Kho chứa vector của các đoạn giáo
-trình, còn *câu hỏi* của sinh viên thì phải mã hoá tại chỗ mỗi lần tra — thiếu model
-đó thì phần Hỏi lý thuyết không trả lời được câu nào.
-
-Nhận qua Google Drive / USB rồi đặt vào đúng chỗ:
-
-```
-AI-Tutor-for-Mathematics-Learning/
-└── data/
-    └── rag_index/
-        ├── chunks.json        (~10 MB)
-        ├── embeddings.npy     (~51 MB)
-        └── encoder.txt
+```bat
+ollama pull qwen2.5:7b-instruct
+ollama pull bge-m3
 ```
 
-### Bước 3 — Cài Ollama và tải model
+Ollama thường tự chạy nền sau khi cài (có icon ở khay đồng hồ). Nếu lệnh trên báo
+không kết nối được thì mở một cửa sổ riêng và chạy `ollama serve`.
 
-```bash
-# cài từ https://ollama.com
-ollama serve                        # để chạy ở một cửa sổ riêng
-ollama pull bge-m3                  # ~1,2 GB — BẮT BUỘC để tra cứu giáo trình
-ollama pull qwen2.5:7b-instruct     # ~4,7 GB — để diễn đạt câu trả lời
-```
+> Chỉ dùng bản **7b**. Bản 3b có giấy phép cấm dùng thương mại và tiếng Việt kém hơn.
 
-**`bge-m3` là bắt buộc, không phải tuỳ chọn.** Mỗi câu hỏi phải được mã hoá thành vector
-để so với kho; thiếu nó thì phần Hỏi lý thuyết báo lỗi cấu hình và không trả lời được.
+## 4. Cài giao diện web (khoảng 3 phút)
 
-Dùng bản **7b** cho demo. Bản 3b nhanh gấp đôi nhưng tiếng Việt kém hơn rõ rệt và
-từng diễn đạt sai khái niệm thống kê.
-
-### Bước 4 — Cài web
-
-```bash
+```bat
 cd web
 npm install
 cd ..
 ```
 
-### Bước 5 — Kiểm trước khi tin
+## 5. (Tuỳ chọn) Kho giáo trình cho phần Hỏi đáp
 
-```bash
-python scripts/check_demo_ready.py
+Xin người viết code thư mục **`data/rag_index/`** (61 MB, gửi qua Google Drive/USB) rồi
+đặt vào đúng chỗ:
+
+```
+AI-Tutor-for-Mathematics-Learning\data\rag_index\chunks.json
+AI-Tutor-for-Mathematics-Learning\data\rag_index\embeddings.npy
+AI-Tutor-for-Mathematics-Learning\data\rag_index\encoder.txt
 ```
 
-Script này in ra từng mục còn thiếu kèm **lệnh cần chạy để xử lý**. Chỉ khi nó in
-`SẴN SÀNG DEMO.` thì mới coi là xong.
+**Không có kho này vẫn demo được:** Luyện tập, Gợi ý, Thư viện kiến thức, Lịch sử,
+Tiến độ chạy đầy đủ, và Hỏi đáp vẫn trả lời được các câu khớp với **thẻ kiến thức**
+(70 kỹ năng). Có kho thì câu trả lời có thêm trích dẫn giáo trình kèm số trang.
 
-Chạy thêm cho chắc:
+## 6. Kiểm tra máy đã sẵn sàng
 
-```bash
-python -m pytest -q              # phải thấy 784 passed, khoảng 60 giây
-python scripts/rag_coverage.py   # phải thấy "Mọi chương đều có tài liệu"
-python scripts/demo_full.py      # 6 cảnh, không cần mạng, không cần model
+```bat
+python scripts\check_demo_ready.py
 ```
+
+Script in ra mục nào còn thiếu kèm lệnh để sửa. Thấy `SẴN SÀNG DEMO.` là xong.
 
 ---
 
-## Bật hệ thống
+## Chạy demo
 
-Ba cửa sổ dòng lệnh:
+Mở **hai cửa sổ** Command Prompt, cả hai đứng ở thư mục `AI-Tutor-for-Mathematics-Learning`.
 
-```bash
-# cửa sổ 1 — Ollama
-ollama serve
+**Cửa sổ 1 — API:**
 
-# cửa sổ 2 — API
-set LLM_HINTS=1
-set OLLAMA_MODEL=qwen2.5:7b-instruct
+```bat
+.venv\Scripts\activate
+set ADMIN_TOKEN=demo-admin-123
 python -m uvicorn src.api.app:create_app --factory --port 8000
-
-# cửa sổ 3 — web
-cd web && npm run dev
 ```
 
-Mở **http://localhost:3000**
+Chờ tới khi thấy `Application startup complete.`
 
-Trên thanh bên phải có **đèn báo kết nối backend**. Xanh là gọi được API. Đỏ thì
-đọc chỉ dẫn ngay trên đó — thường là chưa bật cửa sổ 2.
+**Cửa sổ 2 — web:**
 
-Muốn mở thêm phần quản trị cho giảng viên:
-
-```bash
-set ADMIN_TOKEN=khoá-bạn-tự-đặt
+```bat
+cd web
+npm run dev
 ```
 
-Rồi trên web chuyển vai sang **Quản trị** và nhập đúng khoá đó. Không đặt biến này
-thì phần quản trị tắt hoàn toàn.
+Mở trình duyệt vào **http://localhost:3000**.
+
+> Cổng 8000 đã có chương trình khác dùng? Chạy API ở cổng khác (ví dụ `--port 8010`), rồi
+> trước khi `npm run dev` gõ `set NEXT_PUBLIC_API_URL=http://localhost:8010`.
 
 ---
 
-## Nếu không xin được `data/rag_index/`
+## Thử những gì (kịch bản 10 phút)
 
-Tự dựng được, mất thêm khoảng một tiếng:
+1. **Tạo tài khoản** — email bất kỳ, mật khẩu ≥ 8 ký tự có cả chữ và số.
+   *Link xác thực email:* máy demo chưa cấu hình gửi mail, nên nội dung thư được in ra
+   **cửa sổ 1 (API)** — tìm dòng có `/verify?token=` và dán link vào trình duyệt.
+2. **Trang chủ** — vòng mục tiêu 10 bài/ngày, chuỗi ngày học. Chọn môn **MAS291** →
+   **Tiếp tục luyện**.
+3. **Nộp đáp án sai**, rồi bấm **Gợi ý rõ hơn** nhiều lần: gợi ý đi từ chương → công
+   thức → các bước Bước 1, 2, 3 → làm mẫu bước đầu → lời giải. Không lộ đáp án sớm.
+4. **Gõ đáp án kiểu tự nhiên** — `x²/2 + C`, `sinx`, `căn x`, `0,75` — hệ thống vẫn
+   hiểu. Làm đúng thì bấm **Xem lời giải mẫu**.
+5. **Thư viện** — 70 thẻ: công thức, lỗi hay gặp, ví dụ giải từng bước; bấm "Luyện …
+   bài của phần này".
+6. **Hỏi đáp** — hỏi *"Định lý Bayes dùng thế nào?"*: thẻ kiến thức hiện ngay, câu trả
+   lời theo bước có ghi nguồn sau 20–60 giây. Hỏi *"Cách nấu phở bò"*: hệ thống **từ
+   chối**, nói rõ là ngoài phạm vi.
+7. **Lịch sử** → **Ôn lỗi sai**; **Tiến độ** — biểu đồ 14 ngày, mức thành thạo từng kỹ năng.
+8. **Quản trị** (cột trái, chọn "Quản trị") — nhập `demo-admin-123`.
 
-```bash
-# 1. Tải giáo trình mở — đường dẫn trong docs/nguon-tai-lieu.md
-#    MAS291 bắt buộc có: OpenStax Introductory Statistics 2e (847 trang)
-#    đặt vào data/raw/MAS291/textbook/
+### Biết trước để không bất ngờ
 
-# 2. Mã hoá
-ollama pull bge-m3
-python scripts/build_rag_index.py --dense     # ~40 phút trên CPU
-
-# 3. Kiểm
-python scripts/rag_coverage.py
-```
-
-**Đừng bỏ cờ `--dense`.** Không có embedding thì hệ thống mất thang tương đồng, và
-cơ chế **từ chối câu hỏi ngoài phạm vi tắt hoàn toàn** — đo được là cả 3/3 câu kiểu
-"cách nấu phở bò ngon" đều nhận về một đoạn giáo trình, và tỉ lệ trả lời sai chủ đề
-nhảy từ 0% lên 32%. Hội đồng hỏi lệch một câu là vỡ demo.
-
----
-
-## Chuẩn bị riêng cho buổi demo
-
-### Đọc trước kịch bản
-
-[docs/demo-script.md](demo-script.md) — 8 cảnh, có sẵn lời nói cho từng cảnh và câu
-trả lời cho 5 câu hỏi hội đồng chắc chắn sẽ hỏi.
-
-### Bật chế độ cache nếu sợ mạng hoặc máy chậm
-
-```bash
-set DEMO_MODE=1
-```
-
-Chế độ này chỉ đọc lại câu trả lời đã lưu trong cache, không gọi model. Phải chạy
-qua các ví dụ **một lần ở chế độ thường trước** để cache có nội dung. Báo cáo ghi rõ
-đây là cache, không giấu.
-
-### Ba câu đáng demo nhất ở phần Hỏi lý thuyết
-
-Chúng cho thấy hệ thống phân biệt được ba tình huống mà chatbot thường gộp làm một:
-
-| Câu hỏi | Môn | Hệ thống làm gì |
-|---|---|---|
-| "Chu trình Euler là gì?" | MAD101 | trả lời kèm nguồn: tên file, chương, số trang |
-| "Khoảng tin cậy là gì?" | MAS291 | trả lời từ giáo trình OpenStax mới nạp |
-| "Cách nấu phở bò ngon" | bất kỳ | **từ chối**, nói thẳng là ngoài phạm vi |
-
-### Hai chỗ nên biết trước để không bị bất ngờ
-
-1. **Gợi ý dừng ở mức 4.** Bấm "Gợi ý thêm" nhiều lần thì nó leo `1 → 2 → 3 → 4` rồi
-   **không chịu đưa lời giải đầy đủ**. Đó là cố ý: phải bấm nút xin lời giải hai lần
-   mới lên mức 5. Nếu hội đồng tưởng là lỗi thì giải thích đúng như vậy.
-
-2. **Câu trả lời đầu tiên chậm** vài giây đến vài chục giây vì model chạy trên CPU.
-   Các câu sau nhanh hơn nhờ cache. Khi quay video thì cắt phần chờ.
+- **Hỏi đáp chậm 20–60 giây** trên máy không có GPU. Thẻ kiến thức hiện ngay để có cái
+  đọc trong lúc chờ. Quá 100 giây thì hệ thống trả về đoạn giáo trình thay vì treo.
+- **Lời giải đầy đủ phải bấm hai lần** — cố ý, để người học thử tự làm bước cuối trước.
+- **Lần mở đầu tiên** thư viện có thể mất ~15 giây để dựng thẻ; sau đó tức thì.
 
 ---
 
-## Khi có chuyện lúc demo
+## Khi có chuyện
 
-| Hiện tượng | Nguyên nhân thường gặp | Xử lý |
-|---|---|---|
-| Web mở ra nhưng **không nút nào chạy** | chưa bật API, hoặc API chạy ở origin khác | xem đèn báo ở cột phải; đặt `CORS_ORIGINS` nếu web không ở `localhost:3000` |
-| Hỏi lý thuyết trả `"Kho giáo trình chưa được dựng"` | thiếu `data/rag_index/` | quay lại Bước 2 |
-| Hỏi lý thuyết báo `"thiếu bộ mã hoá của kho giáo trình"` | chưa có bge-m3 | `ollama pull bge-m3` |
-| Gợi ý ra câu cứng, giống nhau | chưa bật `LLM_HINTS=1` hoặc Ollama chưa chạy | bật lại cửa sổ 1 và 2 |
-| Mục **Quản trị** không hiện | chưa đặt `ADMIN_TOKEN` | đặt biến rồi khởi động lại API |
-| Mới dựng lại dữ liệu mà số không đổi | API nạp dữ liệu một lần lúc khởi động | khởi động lại API |
-| Một chương báo "chưa có tài liệu" | kho thiếu chương đó | `python scripts/rag_coverage.py` để xem chương nào |
+| Hiện tượng | Xử lý |
+|---|---|
+| Web hiện **"Không thể kết nối"** | Cửa sổ 1 chưa chạy hoặc đã tắt — chạy lại. API khác cổng 8000 thì xem ghi chú ở mục Chạy demo |
+| `pip install` lỗi | Kiểm tra `python --version` là 3.10–3.12; nâng pip: `python -m pip install -U pip` |
+| `npm install` lỗi | Kiểm tra `node --version` ≥ 20 |
+| Hỏi đáp báo **"thiếu bộ mã hoá"** | `ollama pull bge-m3`, đảm bảo Ollama đang chạy |
+| Hỏi đáp luôn trả đoạn tiếng Anh | Chưa tải `qwen2.5:7b-instruct` hoặc máy quá chậm — xem cửa sổ 1 |
+| Mục **Quản trị** không hiện | Quên `set ADMIN_TOKEN=...` trước khi chạy API ở cửa sổ 1 |
+| Quên mật khẩu tài khoản demo | Trang đăng nhập → **Quên mật khẩu?**; link đặt lại cũng in ra cửa sổ 1 |
 
----
-
-## Những gì KHÔNG cần cho demo
-
-Đỡ mất thời gian cài:
-
-- **`data/raw/`** — chỉ cần khi muốn dựng lại kho.
-- **`models/`** — thiếu thì mô hình năng lực tự quay về BKT, vẫn chạy đúng.
-- **`requirements-train.txt`** — chỉ dùng khi huấn luyện LoRA trên Kaggle.
-- **GPU** — toàn bộ phần demo chạy trên CPU.
-- **Mạng** — sau khi cài xong thì không cần mạng nữa. `demo_full.py` chạy được cả
-  khi rút dây.
+Muốn tắt: bấm `Ctrl + C` ở từng cửa sổ.

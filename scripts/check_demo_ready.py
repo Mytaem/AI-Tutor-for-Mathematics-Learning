@@ -96,16 +96,16 @@ def check_bank() -> None:
 
 # -------------------------------------------------------------- 3. Kho RAG
 def check_index() -> None:
-    print("\n3. Kho giáo trình — phần dễ thiếu nhất")
+    print("\n3. Kho giáo trình (tuỳ chọn — thiếu thì Hỏi đáp trả lời từ thẻ kiến thức)")
     index_dir = ROOT / "data" / "rag_index"
     chunks = index_dir / "chunks.json"
     vectors = index_dir / "embeddings.npy"
 
     if not chunks.exists():
-        bad("CHƯA có kho giáo trình (data/rag_index/chunks.json)",
-            "xin thư mục data/rag_index/ (61 MB) từ người viết code — nhanh nhất; "
-            "hoặc tải giáo trình theo docs/nguon-tai-lieu.md rồi "
-            "python scripts/build_rag_index.py --dense (~40 phút)")
+        warn("chưa có kho giáo trình — Hỏi đáp chỉ trả lời từ 70 thẻ kiến thức",
+             "muốn có trích dẫn giáo trình: xin thư mục data/rag_index/ (61 MB) từ người viết code; "
+             "hoặc tải giáo trình theo docs/nguon-tai-lieu.md rồi "
+             "python scripts/build_rag_index.py --dense (~40 phút)")
         return
 
     # chunks.json có hai dạng tuỳ phiên bản: list ở cấp cao nhất, hoặc dict bọc
@@ -229,8 +229,8 @@ def main() -> None:
             print(f"  {index}. {item}\n")
     else:
         print("SẴN SÀNG DEMO.\n")
-        print("  Cửa sổ 1:  LLM_HINTS=1 OLLAMA_MODEL=qwen2.5:7b-instruct \\")
-        print("               python -m uvicorn src.api.app:create_app --factory --port 8000")
+        print("  Cửa sổ 1:  .venv\\Scripts\\activate  &&  set ADMIN_TOKEN=demo-admin-123")
+        print("             python -m uvicorn src.api.app:create_app --factory --port 8000")
         print("  Cửa sổ 2:  cd web && npm run dev")
         print("  Mở:        http://localhost:3000\n")
 
